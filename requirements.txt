@@ -3,3 +3,4 @@ pika
 django_nose
 nosexcover
 rednose
+requests
