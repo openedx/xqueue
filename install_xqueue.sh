@@ -3,27 +3,23 @@
 # The following sets up and runs a single-node Xqueue server
 #----------------------------------------------------------------------
 
-# 1) Install requirements
+# Install requirements
 apt-get update
 apt-get install nginx gunicorn rabbitmq-server
 apt-get install python-pip python-mysqldb
 pip install django requests pip pika
 
-# 2) Need xqueue files
-# apt-get install git
-# cd ~
-# git clone https://github.com/MITx/xserver.git
+# Set up nginx proxy, then restart
+cp nginx.conf /etc/nginx/nginx.conf
+/etc/init.d/nginx restart
 
-# 3) Set up nginx conf (nginx.conf attached)
+# Start RabbitMQ
+rabbitmqctl start_app
 
-# 4) Start services
-# rabbitmqctl start_app
-# /etc/init.d/nginx restart
+# Start gunicorn from ~/xserver/xqueue
+gunicorn --workers=4 -b 127.0.0.1:3031 xqueue.wsgi &
 
-# 5) Start gunicorn from ~/xserver/xqueue
-# gunicorn --workers=4 -b 127.0.0.1:3031 xqueue.wsgi
-
-# 6) Optional: Start queue listeners
-# ~/xserver/xqueue/queue/queue_consumer.py
+# Optional: Start queue listeners
+# queue/queue_consumer.py
 
 
