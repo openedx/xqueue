@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo python manage.py runserver 0.0.0.0:80
+gunicorn --workers=4 -b 127.0.0.1:3031 xqueue.wsgi &
