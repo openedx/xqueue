@@ -17,7 +17,7 @@ cp nginx.conf /etc/nginx/nginx.conf
 rabbitmqctl start_app
 
 # Start gunicorn from ~/xserver/xqueue
-gunicorn --workers=4 -b 127.0.0.1:3031 xqueue.wsgi &
+./run.sh
 
 # Optional: Start queue listeners
 # queue/queue_consumer.py
