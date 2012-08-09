@@ -1,0 +1,50 @@
+RabbitMQ clustering notes (Source: http://www.rabbitmq.com/clustering.html)
+
+Before following these steps, install the single-node Xqueue first.
+
+0) Stop all rabbitmq servers (at each instance)
+    rabbitmqctl stop
+
+1) Instances must be able to refer to each other by short names, e.g.
+
+Instance1:
+/etc/hostname:
+    node1 
+/etc/hosts:
+    10.96.127.153 node1 
+    10.96.127.154 node2 
+
+Instance2:
+/etc/hostname:
+    node2 
+/etc/hosts:
+    10.96.127.153 node1 
+    10.96.127.154 node2 
+
+Source the new hostnames (if changed)
+    /etc/init.d/hostname restart
+Should also be able to ping each other
+
+2) Instances must share same string cookie (copy one to the other)
+    /var/lib/rabbitmq/.erlang.cookie
+
+3) Restart the rabbitmq servers (at each instance)
+    /etc/init.d/rabbitmq-server restart
+
+4) Start the rabbitmq app on the original cluster node (e.g. instance 1)
+   Note that it is started by default after rabbitmq-server restart
+    rabbitmqctl start_app
+
+   The nodes need access to port 4369 for empd (erlang port mapper daemon)
+
+5) Join the cluster at instance 1 from other instances
+    rabbitmqctl stop_app
+    rabbitmqctl cluster rabbit@node1
+    rabbitmqctl start_app
+
+   The rabbitmq-server on node1 uses a port that's distinct from empd's 4369. 
+   Not sure what the logic is for port assignment, but the empd on node1 will report what 
+    port is used by rabbitmq-server
+
+   To find the port, run fron node2:
+    rabbitmqctl -n rabbit@node1 status
