@@ -5,3 +5,4 @@ nosexcover
 rednose
 requests
 boto
+path
