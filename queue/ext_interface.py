@@ -9,9 +9,8 @@ from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
-import queue_common
 import queue_producer 
-import queue_consumer
+import queue.consumer
 
 # External pull interface
 #    1) get_queuelen
@@ -29,11 +28,11 @@ def get_queuelen(request):
     except KeyError:
         return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
 
-    if queue_name in queue_common.QUEUES:
+    if queue_name in settings.XQUEUES:
         job_count = queue_producer.push_to_queue(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
-        return HttpResponse(compose_reply(False, 'Valid queue names are: '+' '.join(queue_common.QUEUES)))
+        return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
 
 @login_required
 def get_submission(request):
@@ -45,11 +44,11 @@ def get_submission(request):
     except KeyError:
         return HttpResponse(compose_reply(False, "'get_submission' must provide parameter 'queue_name'"))
 
-    if queue_name not in queue_common.QUEUES:
+    if queue_name not in settings.XQUEUES:
         return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
     else:
         # Try to pull a single item from named queue
-        (got_qitem, qitem) = queue_consumer.get_single_qitem(queue_name)
+        (got_qitem, qitem) = queue.consumer.get_single_qitem(queue_name)
 
         if not got_qitem:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
@@ -108,7 +107,7 @@ def put_result(request):
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
-            submission.lms_ack = queue_consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            submission.lms_ack = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
 
             submission.save()
 

@@ -1,25 +1,17 @@
 #!/usr/bin/env python
 import json
-import os
 import pika
 import requests
-import sys
-import threading 
+import threading
+import logging
+
 
 from django.utils import timezone
-from os.path import abspath, dirname, join
+from django.conf import settings
 
-# DB-based consumer needs access to Django
-path = abspath(join(dirname(__file__),'../'))
-sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'xqueue.settings'
-
-import queue_common
 from queue.models import Submission
 
-# TODO: Convenient hook for setting WORKER_URLS
-NUM_WORKERS = 4
-WORKER_URLS = ['http://600xgrader.edx.org']*NUM_WORKERS
+log = logging.getLogger(__name__)
 
 
 def clean_up_submission(submission):
@@ -27,6 +19,7 @@ def clean_up_submission(submission):
     TODO: Delete files on S3
     '''
     return
+
 
 def get_single_qitem(queue_name):
     '''
@@ -38,22 +31,23 @@ def get_single_qitem(queue_name):
         qitem:   Retrieved item
     '''
     queue_name = str(queue_name)
-    
+
     # Pull a single submission (if one exists) from the named queue
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=queue_common.RABBIT_HOST))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBIT_HOST))
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
 
     # qitem is the item from the queue
     method, header, qitem = channel.basic_get(queue=queue_name)
 
-    if method.NAME == 'Basic.GetEmpty': # Got nothing
+    if method.NAME == 'Basic.GetEmpty':  # Got nothing
         connection.close()
         return (False, '')
     else:
         channel.basic_ack(method.delivery_tag)
         connection.close()
         return (True, qitem)
+
 
 def post_grade_to_lms(header, body):
     '''
@@ -68,7 +62,7 @@ def post_grade_to_lms(header, body):
     lms_callback_url = header_dict['lms_callback_url']
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
-    (success,_) = _http_post(lms_callback_url, payload) 
+    (success, _) = _http_post(lms_callback_url, payload)
 
     return success
 
@@ -88,7 +82,7 @@ def _http_post(url, data):
 
     if r.status_code not in [200]:
         return (False, 'unexpected HTTP status code [%d]' % r.status_code)
-    return (True, r.text) 
+    return (True, r.text)
 
 
 class SingleChannel(threading.Thread):
@@ -99,29 +93,33 @@ class SingleChannel(threading.Thread):
         threading.Thread.__init__(self)
         self.workerID = workerID
         self.workerURL = workerURL
-        self.queue_name = str(queue_name) # Important, queue_name must be str, not unicode!
+        self.queue_name = str(queue_name)  # Important, queue_name must be str, not unicode!
 
     def run(self):
-        print " [%d] Starting consumer for queue '%s' using %s" % (self.workerID, self.queue_name, self.workerURL)
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=queue_common.RABBIT_HOST))
+        log.info(" [{id}-{qname}] Starting consumer for queue '{qname}' using {push_url}".format(
+            id=self.workerID,
+            qname=self.queue_name,
+            push_url=self.workerURL
+        ))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBIT_HOST))
         channel = connection.channel()
         channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(self.consumer_callback,
                               queue=self.queue_name)
         channel.start_consuming()
-        
+
     def consumer_callback(self, ch, method, properties, qitem):
 
         submission_id = int(qitem)
         try:
             submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
-            ch.basic_ack(delivery_tag = method.delivery_tag)
-            return # Just move on
-        
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return  # Just move on
+
         # Deliver job to worker
-        payload = {'xqueue_body':  submission.xqueue_body,
+        payload = {'xqueue_body': submission.xqueue_body,
                    'xqueue_files': submission.s3_urls}
 
         submission.grader_id = self.workerURL
@@ -131,39 +129,12 @@ class SingleChannel(threading.Thread):
 
         if grading_success:
             submission.grader_reply = grader_reply
-            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply) 
+            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
         else:
             submission.num_failures += 1
-        
+
         submission.save()
 
-        # Take item off of queue. 
+        # Take item off of queue.
         # TODO: Logic for resubmission when failed
-        ch.basic_ack(delivery_tag = method.delivery_tag)
-
-
-def main():
-    if (len(sys.argv) > 1):
-        queue_name = sys.argv[1]
-        if queue_name not in queue_common.QUEUES:
-            print " [!] ERROR: Queue name '%s' not in list of queues" % queue_name
-            return
-    else:
-        queue_name = queue_common.QUEUES[0]
-
-    print ' [*] Starting queue consumers...'
-
-    num_workers = len(WORKER_URLS)
-    channels = [None]*num_workers
-    for wid in range(num_workers):
-        channels[wid] = SingleChannel(wid, WORKER_URLS[wid], queue_name)
-        channels[wid].start()
-        
-    if num_workers > 0:
-        channels[0].join() # Wait forever. TODO: Trap Ctrl+C
-    else:
-        print ' [*] No workers. Exit'
-
-
-if __name__ == '__main__':
-    main()
+        ch.basic_ack(delivery_tag=method.delivery_tag)

@@ -11,7 +11,6 @@ from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
-import queue_common
 import queue_producer 
 
 @csrf_exempt
@@ -29,7 +28,7 @@ def submit(request):
         if not request_is_valid: 
             return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
         else:
-            if queue_name not in queue_common.QUEUES:
+            if queue_name not in settings.XQUEUES:
                 return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
             else:
                 # Check for file uploads

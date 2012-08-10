@@ -20,6 +20,4 @@ rabbitmqctl start_app
 ./run.sh
 
 # Optional: Start queue listeners
-# queue/queue_consumer.py
-
-
+# python manage.py consumer 4

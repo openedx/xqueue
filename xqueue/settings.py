@@ -1,23 +1,12 @@
 import os
+import json
+from path import path
 
-ROOT_PATH = os.path.dirname(__file__)
+ROOT_PATH = path(__file__).dirname()
 
 # Django settings for xqueue project.
 
-# TODO: Collection of parameters to be hooked into rest of edX system
-#------------------------------------------------------------
-# For S3
-AWS_ACCESS_KEY = 'AKIAIYY272VA3C5R4DSQ'
-AWS_SECRET_KEY = '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'
-
-# For RDS
-RDS_URL    = 'xqueue.cl0iwjvwuiai.us-east-1.rds.amazonaws.com'
-RDS_DBNAME = 'xqueue'
-RDS_USER   = 'kimth'
-RDS_PASS   = 'password'
-#------------------------------------------------------------
-
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -26,16 +15,12 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+XQUEUES = {}
+XQUEUE_WORKERS_PER_QUEUE = 4
 DATABASES = {
     'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': 'xqueue.sqlite',
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': RDS_DBNAME,
-        'USER': RDS_USER,
-        'PASSWORD': RDS_PASS,
-        'HOST': RDS_URL,
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'xqueue.sqlite',
     }
 }
 
