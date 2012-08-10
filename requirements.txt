@@ -5,4 +5,4 @@ nosexcover
 rednose
 requests
 boto
-path
+path.py
