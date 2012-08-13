@@ -1,4 +1,5 @@
 from settings import *
+import json
 from logsettings import get_logger_config
 
 with open(ENV_ROOT / "env.json") as env_file:
