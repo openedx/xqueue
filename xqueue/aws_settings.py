@@ -1,6 +1,6 @@
 from settings import *
 
-ENV_ROOT = ROOT_PATH.dirname()
+ENV_ROOT = REPO_PATH.dirname()
 
 with open(ENV_ROOT / "env.json") as env_file:
     ENV_TOKENS = json.load(env_file)

@@ -3,6 +3,7 @@ import json
 from path import path
 
 ROOT_PATH = path(__file__).dirname()
+REPO_PATH = ROOT_PATH.dirname()
 
 # Django settings for xqueue project.
 
