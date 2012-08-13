@@ -134,11 +134,6 @@ INSTALLED_APPS = (
 
 LOGIN_URL = '/xqueue/login'
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
 LOGGING = get_logger_config(ENV_ROOT / "log",
                             logging_env="dev",
                             debug=True)

@@ -1,4 +1,16 @@
 from settings import *
+from logsettings import get_logger_config
+
+log_dir = REPO_PATH / "log"
+
+try:
+    os.makedirs(log_dir)
+except:
+    pass
+
+LOGGING = get_logger_config(log_dir,
+                            logging_env="test",
+                            debug=True)
 
 DATABASES = {
     'default': {
