@@ -28,7 +28,7 @@ DATABASES = {
 RABBIT_HOST = 'localhost'
 
 # Basic auth tuple to pass to reqests library to authenticate with other services
-REQUEST_BASIC_AUTH = None
+REQUESTS_BASIC_AUTH = None
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
