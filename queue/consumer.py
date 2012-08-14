@@ -76,7 +76,7 @@ def _http_post(url, data):
         msg: Accompanying message; Grader reply when successful (string)
     '''
     try:
-        r = requests.post(url, data=data)
+        r = requests.post(url, data=data, auth=settings.REQUEST_BASIC_AUTH)
     except requests.exceptions.ConnectionError:
         return (False, 'cannot connect to server')
 
