@@ -8,7 +8,7 @@ from queue.consumer import SingleChannel
 log = logging.getLogger(__name__)
 
 
-class RunConsumer(BaseCommand):
+class Command(BaseCommand):
     args = "<worker count>"
     help = "Listens to all queues specified as being push-queues in the django configuration with <worker count> threads"
 
