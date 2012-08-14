@@ -75,7 +75,7 @@ def _http_post(url, data):
         msg: Accompanying message; Grader reply when successful (string)
     '''
     if settings.REQUEST_BASIC_AUTH is not None:
-        auth = requests.auth.HttpBasicAuth(*settings.REQUEST_BASIC_AUTH)
+        auth = requests.auth.HTTPBasicAuth(*settings.REQUEST_BASIC_AUTH)
     else:
         auth = None
 
