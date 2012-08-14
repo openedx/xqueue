@@ -131,6 +131,7 @@ class SingleChannel(threading.Thread):
             submission.grader_reply = grader_reply
             submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
         else:
+            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
             submission.num_failures += 1
 
         submission.save()
