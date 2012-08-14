@@ -25,7 +25,7 @@ def submit(request):
         # queue_name, xqueue_header, xqueue_body are all serialized
         (request_is_valid, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
-        if not request_is_valid: 
+        if not request_is_valid:
             return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
         else:
             if queue_name not in settings.XQUEUES:
