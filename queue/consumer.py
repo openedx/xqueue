@@ -5,7 +5,6 @@ import requests
 import threading
 import logging
 
-
 from django.utils import timezone
 from django.conf import settings
 
@@ -75,8 +74,13 @@ def _http_post(url, data):
         success: Flag indicating successful exchange (Boolean)
         msg: Accompanying message; Grader reply when successful (string)
     '''
+    if settings.REQUEST_BASIC_AUTH is not None:
+        auth = requests.auth.HttpBasicAuth(*settings.REQUEST_BASIC_AUTH)
+    else:
+        auth = None
+
     try:
-        r = requests.post(url, data=data, auth=settings.REQUEST_BASIC_AUTH)
+        r = requests.post(url, data=data, auth=auth)
     except requests.exceptions.ConnectionError:
         return (False, 'cannot connect to server')
 
