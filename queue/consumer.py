@@ -74,8 +74,8 @@ def _http_post(url, data):
         success: Flag indicating successful exchange (Boolean)
         msg: Accompanying message; Grader reply when successful (string)
     '''
-    if settings.REQUEST_BASIC_AUTH is not None:
-        auth = requests.auth.HTTPBasicAuth(*settings.REQUEST_BASIC_AUTH)
+    if settings.REQUESTS_BASIC_AUTH is not None:
+        auth = requests.auth.HTTPBasicAuth(*settings.REQUESTS_BASIC_AUTH)
     else:
         auth = None
 
