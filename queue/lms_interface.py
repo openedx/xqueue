@@ -7,7 +7,6 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import json
 
-from xqueue.aws_settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from queue.models import Submission
 from queue.views import compose_reply
 from util import *
@@ -100,8 +99,8 @@ def _upload_to_s3(file_to_upload, s3_keyname):
     Returns:
         public_url: URL to access uploaded file 
     '''
-    conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-    bucketname = AWS_ACCESS_KEY_ID+'bucket' # TODO: Bucket name(s)
+    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    bucketname = settings.AWS_ACCESS_KEY_ID+'bucket' # TODO: Bucket name(s)
     bucket = conn.create_bucket(bucketname.lower())
 
     k = Key(bucket)
