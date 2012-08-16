@@ -99,8 +99,8 @@ def _upload_to_s3(file_to_upload, s3_keyname):
     Returns:
         public_url: URL to access uploaded file 
     '''
-    conn = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
-    bucketname = settings.AWS_ACCESS_KEY+'bucket' # TODO: Bucket name(s)
+    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    bucketname = settings.AWS_ACCESS_KEY_ID+'bucket' # TODO: Bucket name(s)
     bucket = conn.create_bucket(bucketname.lower())
 
     k = Key(bucket)

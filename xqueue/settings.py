@@ -27,6 +27,9 @@ DATABASES = {
 }
 RABBIT_HOST = 'localhost'
 
+AWS_ACCESS_KEY_ID = "access_key_id"
+AWS_SECRET_ACCESS_KEY = "secret_access_key"
+
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
 

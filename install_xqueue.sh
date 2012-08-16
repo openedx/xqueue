@@ -16,6 +16,9 @@ cp nginx.conf /etc/nginx/nginx.conf
 # Start RabbitMQ
 rabbitmqctl start_app
 
+# Create DB
+python manage.py syncdb
+
 # Start gunicorn from ~/xserver/xqueue
 ./run.sh
 
