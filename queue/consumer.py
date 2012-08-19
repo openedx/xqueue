@@ -123,6 +123,10 @@ class SingleChannel(threading.Thread):
             submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
             ch.basic_ack(delivery_tag=method.delivery_tag)
+            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                self.queue_name,
+                submission_id
+            ))
             return  # Just move on
 
         # Deliver job to worker
