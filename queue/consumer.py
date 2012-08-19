@@ -61,7 +61,10 @@ def post_grade_to_lms(header, body):
     lms_callback_url = header_dict['lms_callback_url']
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
-    (success, _) = _http_post(lms_callback_url, payload)
+    (success, lms_reply) = _http_post(lms_callback_url, payload)
+
+    if not success:
+        log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply)) 
 
     return success
 
