@@ -111,6 +111,12 @@ def put_result(request):
             try:
                 submission = Submission.objects.get(id=submission_id)
             except Submission.DoesNotExist:
+                log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {0}, submission_id: {1}, submission_key: {2}, grader_reply: {3}".format(
+                    get_request_ip(request), 
+                    submission_id,
+                    submission_key,
+                    grader_reply
+                ))
                 return HttpResponse(compose_reply(False,'Submission does not exist'))
 
             if not submission.pullkey or submission_key != submission.pullkey:
