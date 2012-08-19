@@ -35,8 +35,8 @@ def submit(request):
                 s3_keys = dict() # For internal Xqueue use
                 s3_urls = dict() # For external grader use
                 for filename in request.FILES.keys():
-                    s3_key = make_hashkey(xqueue_header+filename)
-                    s3_url = _upload_to_s3(request.FILES[filename],s3_key) # TODO: Sanity check on file (e.g. size)
+                    s3_key = make_hashkey(xqueue_header + filename)
+                    s3_url = _upload_to_s3(request.FILES[filename], s3_key, queue_name)
                     s3_keys.update({filename: s3_key})
                     s3_urls.update({filename: s3_url})
 
@@ -92,7 +92,7 @@ def _is_valid_request(xrequest):
     return (True, queue_name, header, body)
     
 
-def _upload_to_s3(file_to_upload, s3_keyname):
+def _upload_to_s3(file_to_upload, keyname, bucketname):
     '''
     Upload file to S3 using provided keyname.
 
@@ -100,13 +100,13 @@ def _upload_to_s3(file_to_upload, s3_keyname):
         public_url: URL to access uploaded file 
     '''
     conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucketname = settings.AWS_ACCESS_KEY_ID+'bucket' # TODO: Bucket name(s)
+    bucketname = settings.AWS_ACCESS_KEY_ID + '_' + bucketname
     bucket = conn.create_bucket(bucketname.lower())
 
     k = Key(bucket)
-    k.key = s3_keyname
+    k.key = keyname
     k.set_metadata('filename',file_to_upload.name)
     k.set_contents_from_file(file_to_upload)
-    public_url = k.generate_url(60*60*24) # Timeout in seconds. TODO: Make permanent (until explicit cleanup)
+    public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
     
     return public_url
