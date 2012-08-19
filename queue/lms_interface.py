@@ -29,7 +29,7 @@ def submit(request):
         (request_is_valid, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
         if not request_is_valid:
-            log.error("Invalid queue submission from LMS: Request.POST: {}, ".format(request.POST)) 
+            log.error("Invalid queue submission from LMS: request.POST: {}".format(request.POST)) 
             return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
         else:
             if queue_name not in settings.XQUEUES:

@@ -57,16 +57,22 @@ def get_submission(request):
         if not got_qitem:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
         else:
+            # Collect info on pull event
+            grader_id = get_request_ip(request)
+            pull_time = timezone.now()
+
             submission_id = int(qitem)
             try:
                 submission = Submission.objects.get(id=submission_id)
             except Submission.DoesNotExist:
+                log.error("Queued pointer refers to nonexistent entry in Submission DB: grader: {0}, queue_name: {1}, submission_id: {2}".format(
+                    grader_id,
+                    queue_name,
+                    submission_id
+                ))
                 return HttpResponse(compose_reply(False, "Error with queued submission. Please try again"))
 
-            # Collect info on pull event
-            grader_id = get_request_ip(request)
-            pull_time = timezone.now()
-            pullkey   = make_hashkey(str(pull_time)+qitem)
+            pullkey = make_hashkey(str(pull_time)+qitem)
             
             submission.grader_id = grader_id
             submission.pull_time = pull_time
@@ -96,6 +102,7 @@ def put_result(request):
         (reply_is_valid, submission_id, submission_key, grader_reply) = _is_valid_reply(request.POST)
 
         if not reply_is_valid:
+            log.error("Invalid reply from pull-grader: request.POST: {}".format(request.POST))
             return HttpResponse(compose_reply(False, 'Incorrect reply format'))
         else:
             try:
