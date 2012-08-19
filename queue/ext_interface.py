@@ -102,7 +102,10 @@ def put_result(request):
         (reply_is_valid, submission_id, submission_key, grader_reply) = _is_valid_reply(request.POST)
 
         if not reply_is_valid:
-            log.error("Invalid reply from pull-grader: request.POST: {}".format(request.POST))
+            log.error("Invalid reply from pull-grader: grader_id: {0} request.POST: {1}".format(
+                get_request_ip(request),
+                request.POST,
+            ))
             return HttpResponse(compose_reply(False, 'Incorrect reply format'))
         else:
             try:
