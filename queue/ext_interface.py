@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 import json
+import logging
 
 from queue.models import Submission 
 from queue.views import compose_reply
@@ -12,6 +13,8 @@ from util import *
 
 import queue_producer 
 import queue.consumer
+
+log = logging.getLogger(__name__)
 
 # External pull interface
 #    1) get_queuelen

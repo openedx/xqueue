@@ -6,12 +6,15 @@ from django.views.decorators.csrf import csrf_exempt
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 import json
+import logging
 
 from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
 import queue_producer 
+
+log = logging.getLogger(__name__)
 
 @csrf_exempt
 @login_required
@@ -26,6 +29,7 @@ def submit(request):
         (request_is_valid, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
         if not request_is_valid:
+            
             return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
         else:
             if queue_name not in settings.XQUEUES:
