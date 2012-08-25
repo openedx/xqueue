@@ -161,10 +161,8 @@ class SingleChannel(threading.Thread):
         else:
             log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
             submission.num_failures += 1
-            post_failure_to_lms(submission.xqueue_header) # Temporary
 
         submission.save()
 
         # Take item off of queue.
-        # TODO: Logic for resubmission when failed
         ch.basic_ack(delivery_tag=method.delivery_tag)
