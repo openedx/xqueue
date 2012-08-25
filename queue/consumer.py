@@ -48,6 +48,20 @@ def get_single_qitem(queue_name):
         return (True, qitem)
 
 
+def post_failure_to_lms(header):
+    '''
+    Send notification to the LMS (and the student) that the submission has failed,
+        and that the problem should be resubmitted
+    '''
+    
+    # This is the only part of the XQueue that assumes knowledge of the external 
+    #   grader message format. TODO: Make the notification message-format agnostic
+    failure_msg = { 'correct': None,
+                    'score': 0,
+                    'msg': 'Your submission could not be graded. Please recheck your submission and try again.' }
+    return post_grade_to_lms(header, json.dumps(failure_msg))
+
+
 def post_grade_to_lms(header, body):
     '''
     Send grading results back to LMS
