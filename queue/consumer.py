@@ -56,9 +56,12 @@ def post_failure_to_lms(header):
     
     # This is the only part of the XQueue that assumes knowledge of the external 
     #   grader message format. TODO: Make the notification message-format agnostic
+    msg  = 'Your submission could not be graded. '
+    msg += 'Please recheck your submission and try again. '
+    msg += 'If the problem persists, please notify the course staff.'
     failure_msg = { 'correct': None,
                     'score': 0,
-                    'msg': 'Your submission could not be graded. Please recheck your submission and try again.' }
+                    'msg': msg }
     return post_grade_to_lms(header, json.dumps(failure_msg))
 
 
