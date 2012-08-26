@@ -31,6 +31,7 @@ class Command(BaseCommand):
                 if open_submission.num_failures < settings.MAX_NUMBER_OF_FAILURES:
                     log.info(' [ ] Requeuing submission.id=%d which has been outstanding for %d seconds' % (open_submission.id, time_difference))
                     qitem = str(open_submission.id)
+                    open_submission.pull_time = None
                     push_to_queue(queue_name, qitem)
                 else:
                     log.info(' [ ] NOT requeueing submission.id=%d because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d' %\
