@@ -17,11 +17,12 @@ class Command(BaseCommand):
         
         queue_name = args[0]
 
-        incomplete_submissions = Submission.objects.filter(queue_name=queue_name, lms_ack=False)
-        incomplete_submissions = incomplete_submissions.exclude(num_failures=0)
+        failed_submissions = Submission.objects.filter(queue_name=queue_name, lms_ack=False)
+        failed_submissions = failed_submissions.exclude(num_failures=0)
         
-        for incomplete_submission in incomplete_submissions:
-            if incomplete_submission.num_failures >= settings.MAX_NUMBER_OF_FAILURES:
+        for failed_submission in failed_submissions:
+            if failed_submission.num_failures >= settings.MAX_NUMBER_OF_FAILURES:
                 log.info(' [ ] Submission id %d with num_failures=%d marked as failure' %\
-                            (incomplete_submission.id, incomplete_submission.num_failures))
-                post_failure_to_lms(incomplete_submission.xqueue_header) # TODO: Move the submission into a separate "done" database
+                            (failed_submission.id, failed_submission.num_failures))
+            failed_submission.lms_ack = post_failure_to_lms(failed_submission.xqueue_header)
+            failed_submission.save()

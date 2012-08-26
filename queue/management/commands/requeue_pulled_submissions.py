@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from queue.models import Submission
 from queue.consumer import post_failure_to_lms
+from queue.queue_producer import push_to_queue
 
 log = logging.getLogger(__name__)
 
@@ -26,4 +27,7 @@ class Command(BaseCommand):
             current_time = timezone.now()
             time_difference = current_time - open_submission.pull_time
             if time_difference.total_seconds() > settings.PULLED_SUBMISSION_TIMEOUT:
-                post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
+                push_to_queue(open_submission.id) # Requeue
+                open_submission.num_failures += 1
+                open_submission.save()
+                #post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
