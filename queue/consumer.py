@@ -7,6 +7,7 @@ import logging
 
 from django.utils import timezone
 from django.conf import settings
+from requests.exceptions import ConnectionError, Timeout
 
 from queue.models import Submission
 
@@ -100,8 +101,8 @@ def _http_post(url, data):
         auth = None
 
     try:
-        r = requests.post(url, data=data, auth=auth)
-    except requests.exceptions.ConnectionError:
+        r = requests.post(url, data=data, auth=auth, timeout=settings.REQUESTS_TIMEOUT)
+    except (ConnectionError, Timeout):
         return (False, 'cannot connect to server')
 
     if r.status_code not in [200]:
