@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from queue.models import Submission
 from queue.consumer import post_failure_to_lms
-from queue.queue_producer import push_to_queue
+from queue.producer import push_to_queue
 
 log = logging.getLogger(__name__)
 
