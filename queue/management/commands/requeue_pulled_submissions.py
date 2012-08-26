@@ -25,8 +25,9 @@ class Command(BaseCommand):
 
         for open_submission in open_submissions:
             current_time = timezone.now()
-            time_difference = current_time - open_submission.pull_time
-            if time_difference.total_seconds() > settings.PULLED_SUBMISSION_TIMEOUT:
+            time_difference = (current_time - open_submission.pull_time).total_seconds()
+            if time_difference > settings.PULLED_SUBMISSION_TIMEOUT:
+                log.info(' [ ] Requeuing submission.id=%d which has been outstanding for %d seconds' % (open_submission.id, time_difference))
                 push_to_queue(open_submission.id) # Requeue
                 open_submission.num_failures += 1
                 open_submission.save()
