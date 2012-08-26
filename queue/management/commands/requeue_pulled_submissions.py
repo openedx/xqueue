@@ -27,9 +27,13 @@ class Command(BaseCommand):
             current_time = timezone.now()
             time_difference = (current_time - open_submission.pull_time).total_seconds()
             if time_difference > settings.PULLED_SUBMISSION_TIMEOUT:
-                log.info(' [ ] Requeuing submission.id=%d which has been outstanding for %d seconds' % (open_submission.id, time_difference))
-                qitem = str(open_submission.id)
-                push_to_queue(queue_name, qitem)
                 open_submission.num_failures += 1
+                if open_submission.num_failures < settings.MAX_NUMBER_OF_FAILURES:
+                    log.info(' [ ] Requeuing submission.id=%d which has been outstanding for %d seconds' % (open_submission.id, time_difference))
+                    qitem = str(open_submission.id)
+                    push_to_queue(queue_name, qitem)
+                else:
+                    log.info(' [ ] NOT requeueing submission.id=%d because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d' %\
+                                (open_submission.id, open_submission.num_failures, settings.MAX_NUMBER_OF_FAILURES))
                 open_submission.save()
                 #post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
