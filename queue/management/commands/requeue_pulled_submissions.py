@@ -40,4 +40,3 @@ class Command(BaseCommand):
                     log.info(" [ ] NOT requeueing submission.id=%d to queue '%s' because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d" %\
                                 (open_submission.id, open_submission.queue_name, open_submission.num_failures, settings.MAX_NUMBER_OF_FAILURES))
                 open_submission.save()
-                #post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
