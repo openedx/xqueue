@@ -18,6 +18,8 @@ class Command(BaseCommand):
         queue_name = args[0]
 
         incomplete_submissions = Submission.objects.filter(queue_name=queue_name, lms_ack=False)
+        incomplete_submissions = incomplete_submissions.exclude(num_failures=0)
+        
         for incomplete_submission in incomplete_submissions:
             if incomplete_submission.num_failures >= settings.MAX_NUMBER_OF_FAILURES:
                 log.info(' [ ] Submission id %d with num_failures=%d marked as failure' %\

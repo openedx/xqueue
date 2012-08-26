@@ -19,9 +19,11 @@ MANAGERS = ADMINS
 
 REQUESTS_TIMEOUT = 1 # seconds
 
-XQUEUES = {}
+XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
+
 MAX_NUMBER_OF_FAILURES = 1
+PULLED_SUBMISSION_TIMEOUT = 60 # seconds
 
 DATABASES = {
     'default': {
@@ -31,8 +33,8 @@ DATABASES = {
 }
 RABBIT_HOST = 'localhost'
 
-AWS_ACCESS_KEY_ID = "access_key_id"
-AWS_SECRET_ACCESS_KEY = "secret_access_key"
+AWS_ACCESS_KEY_ID = "AKIAIYY272VA3C5R4DSQ"
+AWS_SECRET_ACCESS_KEY = "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"
 
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None

@@ -19,10 +19,11 @@ class Command(BaseCommand):
 
         queue_name = args[0]
 
-        incomplete_submissions = Submission.objects.filter(queue_name=queue_name, lms_ack=False) # TODO: A better select
-        for incomplete_submission in incomplete_submissions:
-            if incomplete_submission.pull_time is not None: # Has been pulled
-                current_time = timezone.now()
-                time_difference = current_time - incomplete_submission.pull_time
-                if time_difference.total_seconds() > settings.PULLED_SUBMISSION_TIMEOUT:
-                    post_failure_to_lms(incomplete_submission.xqueue_header) # TODO: Requeue, not retire 
+        open_submissions = Submission.objects.filter(queue_name=queue_name, lms_ack=False) 
+        open_submissions = open_submissions.exclude(pull_time=None)
+
+        for open_submission in open_submissions:
+            current_time = timezone.now()
+            time_difference = current_time - open_submission.pull_time
+            if time_difference.total_seconds() > settings.PULLED_SUBMISSION_TIMEOUT:
+                post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
