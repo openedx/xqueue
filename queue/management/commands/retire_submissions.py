@@ -36,9 +36,11 @@ class Command(BaseCommand):
             if failed_submission.num_failures >= settings.MAX_NUMBER_OF_FAILURES:
                 log.info(" [ ] Retiring submission id=%d from queue '%s' with num_failures=%d" %\
                             (failed_submission.id, failed_submission.queue_name, failed_submission.num_failures))
-                failed_submission.lms_ack = post_failure_to_lms(failed_submission.xqueue_header)
-                if not failed_submission.lms_ack:
-                    log.error(' [ ] Could not contact LMS to retire submission id=%d' % failed_submission.id)
-                    if options['force']:
-                        failed_submission.lms_ack = True # Forcibly mark as done
+                if options['force']:
+                    log.info(" [ ] Force retiring all failed submissions...")
+                    failed_submission.lms_ack = True # Mark as done without contacting LMS
+                else:
+                    failed_submission.lms_ack = post_failure_to_lms(failed_submission.xqueue_header)
+                    if not failed_submission.lms_ack:
+                        log.error(' [ ] Could not contact LMS to retire submission id=%d' % failed_submission.id)
                 failed_submission.save()
