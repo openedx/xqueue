@@ -22,7 +22,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        log.info(' [*] Scanning Submission database to retire failed submissions')
+        log.info(' [*] Scanning Submission database to retire failed submissions...')
         
         if len(args) > 1:
             queue_name = args[0]
