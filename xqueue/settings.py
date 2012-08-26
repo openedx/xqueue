@@ -19,6 +19,8 @@ MANAGERS = ADMINS
 
 XQUEUES = {}
 XQUEUE_WORKERS_PER_QUEUE = 4
+MAX_NUMBER_OF_FAILURES = 1
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
