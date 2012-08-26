@@ -28,7 +28,8 @@ class Command(BaseCommand):
             time_difference = (current_time - open_submission.pull_time).total_seconds()
             if time_difference > settings.PULLED_SUBMISSION_TIMEOUT:
                 log.info(' [ ] Requeuing submission.id=%d which has been outstanding for %d seconds' % (open_submission.id, time_difference))
-                push_to_queue(open_submission.id) # Requeue
+                qitem = str(open_submission.id)
+                push_to_queue(queue_name, qitem)
                 open_submission.num_failures += 1
                 open_submission.save()
                 #post_failure_to_lms(open_submission.xqueue_header) # TODO: Requeue, not retire 
