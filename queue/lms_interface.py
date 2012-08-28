@@ -12,7 +12,7 @@ from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
-import queue_producer 
+import queue.producer 
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ def submit(request):
                 submission.save()
 
                 qitem  = str(submission.id) # Submit the Submission pointer to queue
-                qcount = queue_producer.push_to_queue(queue_name, qitem)
+                qcount = queue.producer.push_to_queue(queue_name, qitem)
                 
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))

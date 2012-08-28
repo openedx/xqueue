@@ -7,6 +7,7 @@ import logging
 
 from django.utils import timezone
 from django.conf import settings
+from requests.exceptions import ConnectionError, Timeout
 
 from queue.models import Submission
 
@@ -48,6 +49,25 @@ def get_single_qitem(queue_name):
         return (True, qitem)
 
 
+def post_failure_to_lms(header):
+    '''
+    Send notification to the LMS (and the student) that the submission has failed,
+        and that the problem should be resubmitted
+    '''
+    
+    # This is the only part of the XQueue that assumes knowledge of the external 
+    #   grader message format. TODO: Make the notification message-format agnostic
+    msg  = '<span>'
+    msg += 'Your submission could not be graded. '
+    msg += 'Please recheck your submission and try again. '
+    msg += 'If the problem persists, please notify the course staff.'
+    msg += '</span>'
+    failure_msg = { 'correct': None,
+                    'score': 0,
+                    'msg': msg }
+    return post_grade_to_lms(header, json.dumps(failure_msg))
+
+
 def post_grade_to_lms(header, body):
     '''
     Send grading results back to LMS
@@ -83,11 +103,13 @@ def _http_post(url, data):
         auth = None
 
     try:
-        r = requests.post(url, data=data, auth=auth)
-    except requests.exceptions.ConnectionError:
+        r = requests.post(url, data=data, auth=auth, timeout=settings.REQUESTS_TIMEOUT)
+    except (ConnectionError, Timeout):
+        log.error('Could not connect to server at %s in timeout=%f' % (url, settings.REQUESTS_TIMEOUT))
         return (False, 'cannot connect to server')
 
     if r.status_code not in [200]:
+        log.error('Server %s returned status_code=%d' % (url, r.status_code))
         return (False, 'unexpected HTTP status code [%d]' % r.status_code)
     return (True, r.text)
 
@@ -148,5 +170,4 @@ class SingleChannel(threading.Thread):
         submission.save()
 
         # Take item off of queue.
-        # TODO: Logic for resubmission when failed
         ch.basic_ack(delivery_tag=method.delivery_tag)
