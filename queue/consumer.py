@@ -105,9 +105,11 @@ def _http_post(url, data):
     try:
         r = requests.post(url, data=data, auth=auth, timeout=settings.REQUESTS_TIMEOUT)
     except (ConnectionError, Timeout):
+        log.error('Could not connect to server at %s in timeout=%f' % (url, settings.REQUESTS_TIMEOUT))
         return (False, 'cannot connect to server')
 
     if r.status_code not in [200]:
+        log.error('Server %s returned status_code=%d' % (url, r.status_code))
         return (False, 'unexpected HTTP status code [%d]' % r.status_code)
     return (True, r.text)
 
