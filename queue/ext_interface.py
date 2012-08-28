@@ -11,7 +11,7 @@ from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
-import queue_producer 
+import queue.producer 
 import queue.consumer
 
 log = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
 
     if queue_name in settings.XQUEUES:
-        job_count = queue_producer.push_to_queue(queue_name)
+        job_count = queue.producer.push_to_queue(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
@@ -109,7 +109,7 @@ def put_result(request):
             return HttpResponse(compose_reply(False, 'Incorrect reply format'))
         else:
             try:
-                submission = Submission.objects.get(id=submission_id)
+                submission = Submission.objects.select_for_update().get(id=submission_id)
             except Submission.DoesNotExist:
                 log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {0}, submission_id: {1}, submission_key: {2}, grader_reply: {3}".format(
                     get_request_ip(request), 

@@ -17,8 +17,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-XQUEUES = {}
+REQUESTS_TIMEOUT = 1 # seconds
+
+XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
+
+MAX_NUMBER_OF_FAILURES = 3
+PULLED_SUBMISSION_TIMEOUT = 10 # seconds
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
