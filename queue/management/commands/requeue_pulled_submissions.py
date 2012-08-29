@@ -39,6 +39,7 @@ class Command(BaseCommand):
                         (open_submission.id, open_submission.queue_name, time_difference))
                     qitem = str(open_submission.id)
                     open_submission.pull_time = None
+                    open_submission.pullkey = ''
                     push_to_queue(open_submission.queue_name, qitem)
                 else:
                     log.info(" [ ] NOT requeueing submission.id=%d to queue '%s' because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d" %\
