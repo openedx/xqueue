@@ -11,10 +11,11 @@ class Submission(models.Model):
     '''
     
     # Submission 
-    requester_id  = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
-    queue_name    = models.CharField(max_length=CHARFIELD_LEN_SMALL)
-    xqueue_header = models.CharField(max_length=CHARFIELD_LEN_LARGE)
-    xqueue_body   = models.TextField()
+    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
+    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL)
+    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL)
+    xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
+    xqueue_body      = models.TextField()
 
     # Uploaded files
     s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # S3 keys for internal Xqueue use
