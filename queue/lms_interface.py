@@ -39,7 +39,7 @@ def submit(request):
                 return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
             else:
                 # Limit DOS attacks by invalidating prior submissions from the
-                #   same (user, module-id) pair
+                #   same (user, module-id) pair as encoded in the lms_callback_url
                 _invalidate_prior_submissions(lms_callback_url)
 
                 # Check for file uploads
@@ -60,7 +60,6 @@ def submit(request):
                                         s3_urls=json.dumps(s3_urls),
                                         s3_keys=json.dumps(s3_keys))
                 submission.save()
-                print submission
 
                 qitem  = str(submission.id) # Submit the Submission pointer to queue
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
@@ -76,7 +75,8 @@ def _invalidate_prior_submissions(lms_callback_url):
         takes the form: /path/to/callback/<user>/<id>/...
     '''
     prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
-    print len(prior_submissions)
+    prior_submissions.update(retired=True)
+
 
 def _is_valid_request(xrequest):
     '''
