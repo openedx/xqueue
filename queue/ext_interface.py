@@ -121,15 +121,17 @@ def put_result(request):
 
             if not submission.pullkey or submission_key != submission.pullkey:
                 return HttpResponse(compose_reply(False,'Incorrect key for submission'))
-            
+
             submission.return_time = timezone.now()
-            submission.pullkey = '' 
+            submission.pullkey = ''
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
             submission.lms_ack = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            submission.retired = submission.lms_ack
 
             submission.save()
+            print submission
 
             return HttpResponse(compose_reply(success=True, content=''))
 
@@ -166,5 +168,5 @@ def _is_valid_reply(external_reply):
             return fail
 
     submission_id  = int(header_dict['submission_id'])
-    submission_key = header_dict['submission_key'] 
-    return (True, submission_id, submission_key, score_msg) 
+    submission_key = header_dict['submission_key']
+    return (True, submission_id, submission_key, score_msg)
