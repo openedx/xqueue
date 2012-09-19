@@ -82,7 +82,7 @@ def get_submission(request):
 
             # Prepare payload to external grader
             ext_header = {'submission_id':submission_id, 'submission_key':pullkey} 
-            
+
             payload = {'xqueue_header': json.dumps(ext_header),
                        'xqueue_body': submission.xqueue_body,
                        'xqueue_files': submission.s3_urls} 
@@ -131,7 +131,6 @@ def put_result(request):
             submission.retired = submission.lms_ack
 
             submission.save()
-            print submission
 
             return HttpResponse(compose_reply(success=True, content=''))
 
