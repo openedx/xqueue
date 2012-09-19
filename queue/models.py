@@ -9,7 +9,6 @@ class Submission(models.Model):
     '''
     Representation of submission request, including metadata information
     '''
-    
     # Submission 
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL)
@@ -35,6 +34,7 @@ class Submission(models.Model):
     # Status
     num_failures = models.IntegerField(default=0) # Number of failures in exchange with external grader
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
+    retired = models.BooleanField(default=False)  # True/False on whether Submission is "finished"
 
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
