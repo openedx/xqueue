@@ -47,6 +47,7 @@ class Submission(models.Model):
         submission_info += "    Pullkey:      %s\n" % self.pullkey
         submission_info += "    num_failures: %d\n" % self.num_failures
         submission_info += "    lms_ack:      %s\n" % self.lms_ack
+        submission_info += "    retired:      %s\n" % self.retired
         submission_info += "Original Xqueue header follows:\n"
         submission_info += json.dumps(json.loads(self.xqueue_header), indent=4)
         return submission_info
