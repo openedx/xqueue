@@ -160,14 +160,18 @@ class SingleChannel(threading.Thread):
         (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
         submission.return_time = timezone.now()
 
+        # TODO: For the time being, a submission in a push interface gets one chance at grading,
+        #       with no requeuing logic
         if grading_success:
             submission.grader_reply = grader_reply
             submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
         else:
             log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
             submission.num_failures += 1
+        submission.retired = True
 
         submission.save()
+        print submission
 
         # Take item off of queue.
         ch.basic_ack(delivery_tag=method.delivery_tag)
