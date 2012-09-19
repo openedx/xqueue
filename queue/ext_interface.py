@@ -72,6 +72,9 @@ def get_submission(request):
                 ))
                 return HttpResponse(compose_reply(False, "Error with queued submission. Please try again"))
 
+            if submission.retired:
+                print 'Submission was invalidated!'
+
             pullkey = make_hashkey(str(pull_time)+qitem)
             
             submission.grader_id = grader_id
