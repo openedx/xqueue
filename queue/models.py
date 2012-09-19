@@ -38,6 +38,7 @@ class Submission(models.Model):
 
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
+        submission_info += "    Callback URL: %s\n" % self.lms_callback_url
         submission_info += "    Arrival time: %s\n" % self.arrival_time
         submission_info += "    Pull time:    %s\n" % self.pull_time
         submission_info += "    Push time:    %s\n" % self.push_time
