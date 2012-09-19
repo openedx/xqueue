@@ -62,7 +62,7 @@ class lms_interface_test(unittest.TestCase):
                                                      'lms_key':'qwerty',
                                                      'queue_name':'python'}),
                         'xqueue_body': 'def square(x):\n    return n**2'}
-        (is_valid,_,_,_) = lms_interface._is_valid_request(good_request)
+        (is_valid,_,_,_,_) = lms_interface._is_valid_request(good_request)
         self.assertEqual(is_valid, True)
 
         # 1) Header is missing
@@ -88,7 +88,7 @@ class lms_interface_test(unittest.TestCase):
 
         bad_requests = [bad_request1, bad_request2, bad_request3, bad_request4, bad_request5, bad_request6]
         for bad_request in bad_requests:
-            (is_valid,_,_,_) = lms_interface._is_valid_request(bad_request)
+            (is_valid,_,_,_,_) = lms_interface._is_valid_request(bad_request)
             self.assertEqual(is_valid, False)
 
 
