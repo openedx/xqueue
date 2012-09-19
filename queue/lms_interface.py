@@ -48,17 +48,19 @@ def submit(request):
                     s3_urls.update({filename: s3_url})
 
                 # Track the submission in the Submission database
-                submission = Submission(requester_id=get_request_ip(request),    
+                submission = Submission(requester_id=get_request_ip(request),
+                                        lms_callback_url=lms_callback_url,
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
                                         s3_urls=json.dumps(s3_urls),
                                         s3_keys=json.dumps(s3_keys))
                 submission.save()
+                print submission
 
                 qitem  = str(submission.id) # Submit the Submission pointer to queue
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
-                
+
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))
         
