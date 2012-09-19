@@ -38,6 +38,10 @@ def submit(request):
             if queue_name not in settings.XQUEUES:
                 return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
             else:
+                # Limit DOS attacks by invalidating prior submissions from the
+                #   same (user, module-id) pair
+                _invalidate_prior_submissions(lms_callback_url)
+
                 # Check for file uploads
                 s3_keys = dict() # For internal Xqueue use
                 s3_urls = dict() # For external grader use
@@ -63,7 +67,16 @@ def submit(request):
 
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))
-        
+
+
+def _invalidate_prior_submissions(lms_callback_url):
+    '''
+    Check the Submission DB to invalidate prior submissions from the same
+        (user, module-id). This function relies on the fact that lms_callback_url
+        takes the form: /path/to/callback/<user>/<id>/...
+    '''
+    prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
+    print len(prior_submissions)
 
 def _is_valid_request(xrequest):
     '''
