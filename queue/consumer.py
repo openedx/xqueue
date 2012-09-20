@@ -21,6 +21,17 @@ def clean_up_submission(submission):
     return
 
 
+def get_single_unretired_qitem(queue_name):
+    '''
+    Retrieve a single unretired queued item, if one exists, from the named queue
+
+    Returns (success, qitem):
+        success: Flag whether retrieval is successful (Boolean)
+                 If no unretired item in the queue, return False
+        qitem:   Retrieved, unretired queue item
+    '''
+    pass
+
 def get_single_qitem(queue_name):
     '''
     Retrieve a single queued item, if one exists, from the named queue
