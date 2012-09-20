@@ -162,28 +162,30 @@ class SingleChannel(threading.Thread):
             ))
             return  # Just move on
 
-        # Deliver job to worker
-        payload = {'xqueue_body': submission.xqueue_body,
-                   'xqueue_files': submission.s3_urls}
+        # If item has been retired, skip grading
+        if not submission.retired:
+            # Deliver job to worker
+            payload = {'xqueue_body': submission.xqueue_body,
+                       'xqueue_files': submission.s3_urls}
 
-        submission.grader_id = self.workerURL
-        submission.push_time = timezone.now()
-        (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
-        submission.return_time = timezone.now()
+            submission.grader_id = self.workerURL
+            submission.push_time = timezone.now()
+            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
+            submission.return_time = timezone.now()
 
-        # TODO: For the time being, a submission in a push interface gets one chance at grading,
-        #       with no requeuing logic
-        if grading_success:
-            submission.grader_reply = grader_reply
-            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
-        else:
-            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
-            submission.num_failures += 1
-            submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
+            # TODO: For the time being, a submission in a push interface gets one chance at grading,
+            #       with no requeuing logic
+            if grading_success:
+                submission.grader_reply = grader_reply
+                submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
+            else:
+                log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
+                submission.num_failures += 1
+                submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
 
-        submission.retired = True # NOTE: Retiring pushed submissions after one shot regardless of grading_success
+            submission.retired = True # NOTE: Retiring pushed submissions after one shot regardless of grading_success
 
-        submission.save()
+            submission.save()
 
-        # Take item off of queue.
+        # Take item off of queue
         ch.basic_ack(delivery_tag=method.delivery_tag)
