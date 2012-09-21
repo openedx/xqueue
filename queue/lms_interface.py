@@ -26,7 +26,7 @@ def submit(request):
         return HttpResponse(compose_reply(False, 'Queue requests should use HTTP POST'))
     else:
         # queue_name, xqueue_header, xqueue_body are all serialized
-        (request_is_valid, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
+        (request_is_valid, lms_callback_url, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
         if not request_is_valid:
             log.error("Invalid queue submission from LMS: lms ip: {0}, request.POST: {1}".format(
@@ -38,6 +38,10 @@ def submit(request):
             if queue_name not in settings.XQUEUES:
                 return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
             else:
+                # Limit DOS attacks by invalidating prior submissions from the
+                #   same (user, module-id) pair as encoded in the lms_callback_url
+                _invalidate_prior_submissions(lms_callback_url)
+
                 # Check for file uploads
                 s3_keys = dict() # For internal Xqueue use
                 s3_urls = dict() # For external grader use
@@ -48,7 +52,8 @@ def submit(request):
                     s3_urls.update({filename: s3_url})
 
                 # Track the submission in the Submission database
-                submission = Submission(requester_id=get_request_ip(request),    
+                submission = Submission(requester_id=get_request_ip(request),
+                                        lms_callback_url=lms_callback_url,
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
@@ -58,10 +63,20 @@ def submit(request):
 
                 qitem  = str(submission.id) # Submit the Submission pointer to queue
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
-                
+
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))
-        
+
+
+def _invalidate_prior_submissions(lms_callback_url):
+    '''
+    Check the Submission DB to invalidate prior submissions from the same
+        (user, module-id). This function relies on the fact that lms_callback_url
+        takes the form: /path/to/callback/<user>/<id>/...
+    '''
+    prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
+    prior_submissions.update(retired=True)
+
 
 def _is_valid_request(xrequest):
     '''
@@ -71,12 +86,13 @@ def _is_valid_request(xrequest):
             ['lms_callback_url', 'lms_key', 'queue_name']
 
     Returns:
-        is_valid:   Flag indicating success (Boolean)
-        queue_name: Name of intended queue (string)
-        header:     Header portion of xrequest (string)
-        body:       Body portion of xrequest (string)
+        is_valid:         Flag indicating success (Boolean)
+        lms_callback_url: Full URL to which queued results should be delivered (string)
+        queue_name:       Name of intended queue (string)
+        header:           Header portion of xrequest (string)
+        body:             Body portion of xrequest (string)
     '''
-    fail = (False, '', '', '')
+    fail = (False, '', '', '', '')
     try:
         header = xrequest['xqueue_header']
         body   = xrequest['xqueue_body']
@@ -95,8 +111,10 @@ def _is_valid_request(xrequest):
         if not header_dict.has_key(tag):
             return fail
 
-    queue_name = str(header_dict['queue_name']) # Important: Queue name must be str!
-    return (True, queue_name, header, body)
+    queue_name   = str(header_dict['queue_name']) # Important: Queue name must be str!
+    lms_callback_url = header_dict['lms_callback_url']
+
+    return (True, lms_callback_url, queue_name, header, body)
     
 
 def _upload_to_s3(file_to_upload, keyname, bucketname):
