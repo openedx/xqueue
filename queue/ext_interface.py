@@ -52,27 +52,16 @@ def get_submission(request):
         return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
     else:
         # Try to pull a single item from named queue
-        (got_qitem, qitem) = queue.consumer.get_single_qitem(queue_name)
+        (got_submission, submission) = queue.consumer.get_single_unretired_submission(queue_name)
 
-        if not got_qitem:
+        if not got_submission:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
         else:
             # Collect info on pull event
             grader_id = get_request_ip(request)
             pull_time = timezone.now()
 
-            submission_id = int(qitem)
-            try:
-                submission = Submission.objects.get(id=submission_id)
-            except Submission.DoesNotExist:
-                log.error("Queued pointer refers to nonexistent entry in Submission DB: grader: {0}, queue_name: {1}, submission_id: {2}".format(
-                    grader_id,
-                    queue_name,
-                    submission_id
-                ))
-                return HttpResponse(compose_reply(False, "Error with queued submission. Please try again"))
-
-            pullkey = make_hashkey(str(pull_time)+qitem)
+            pullkey = make_hashkey(str(pull_time)+str(submission.id))
             
             submission.grader_id = grader_id
             submission.pull_time = pull_time
@@ -81,7 +70,7 @@ def get_submission(request):
             submission.save()
 
             # Prepare payload to external grader
-            ext_header = {'submission_id':submission_id, 'submission_key':pullkey} 
+            ext_header = {'submission_id':submission.id, 'submission_key':pullkey} 
 
             payload = {'xqueue_header': json.dumps(ext_header),
                        'xqueue_body': submission.xqueue_body,

@@ -21,16 +21,35 @@ def clean_up_submission(submission):
     return
 
 
-def get_single_unretired_qitem(queue_name):
+def get_single_unretired_submission(queue_name):
     '''
     Retrieve a single unretired queued item, if one exists, from the named queue
 
-    Returns (success, qitem):
-        success: Flag whether retrieval is successful (Boolean)
-                 If no unretired item in the queue, return False
-        qitem:   Retrieved, unretired queue item
+    Returns (success, submission):
+        success:    Flag whether retrieval is successful (Boolean)
+                    If no unretired item in the queue, return False
+        submission: A single submission from the queue, guaranteed to be unretired
     '''
-    pass
+    items_in_queue = True
+    while items_in_queue:
+        # Try to pull out a single submission from the queue, which may or may not be retired
+        (items_in_queue, qitem) = get_single_qitem(queue_name)
+        if not items_in_queue: # No more submissions to consider
+            return (False, '')
+
+        submission_id = int(qitem)
+        try:
+            submission = Submission.objects.get(id=submission_id)
+        except Submission.DoesNotExist:
+            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                queue_name,
+                submission_id
+            ))
+            continue # Just move on
+
+        if not submission.retired:
+            return (True, submission)
+
 
 def get_single_qitem(queue_name):
     '''
