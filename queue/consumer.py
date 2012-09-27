@@ -8,6 +8,7 @@ import logging
 from django.utils import timezone
 from django.conf import settings
 from requests.exceptions import ConnectionError, Timeout
+from statsd import statsd
 
 from queue.models import Submission
 
@@ -46,6 +47,8 @@ def get_single_qitem(queue_name):
     else:
         channel.basic_ack(method.delivery_tag)
         connection.close()
+        statsd.increment('xqueue.consumer.get_single_qitem',
+                         tags=['queue:{0}'.format(queue_name)])
         return (True, qitem)
 
 
@@ -65,6 +68,7 @@ def post_failure_to_lms(header):
     failure_msg = { 'correct': None,
                     'score': 0,
                     'msg': msg }
+    statsd.increment('xqueue.consumer.post_failure_to_lms')
     return post_grade_to_lms(header, json.dumps(failure_msg))
 
 
