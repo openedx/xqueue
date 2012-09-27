@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from statsd import statsd
 
 import json
 import logging
@@ -21,6 +22,7 @@ log = logging.getLogger(__name__)
 #    2) get_submission
 #    3) put_result
 #--------------------------------------------------
+@statsd.timed('xqueue.ext_interface.get_queuelen')
 @login_required
 def get_queuelen(request):
     '''
@@ -38,6 +40,7 @@ def get_queuelen(request):
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
 
+@statsd.timed('xqueue.ext_interface.get_submission')
 @login_required
 def get_submission(request):
     '''
@@ -89,7 +92,7 @@ def get_submission(request):
 
             return HttpResponse(compose_reply(True,content=json.dumps(payload)))
 
-
+@statsd.timed('xqueue.ext_interface.put_result')
 @csrf_exempt
 @login_required
 def put_result(request):

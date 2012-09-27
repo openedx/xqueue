@@ -86,9 +86,12 @@ def post_grade_to_lms(header, body):
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
     (success, lms_reply) = _http_post(lms_callback_url, payload)
-
-    if not success:
+    
+    if success:
+        statsd.increment('xqueue.consumer.post_grade_to_lms.success') 
+    else:
         log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply)) 
+        statsd.increment('xqueue.consumer.post_grade_to_lms.failure') 
 
     return success
 
