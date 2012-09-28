@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #    2) get_submission
 #    3) put_result
 #--------------------------------------------------
-@statsd.timed('xqueue.ext_interface.get_queuelen')
+@statsd.timed('xqueue.ext_interface.get_queuelen.time')
 @login_required
 def get_queuelen(request):
     '''
@@ -40,7 +40,7 @@ def get_queuelen(request):
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
 
-@statsd.timed('xqueue.ext_interface.get_submission')
+@statsd.timed('xqueue.ext_interface.get_submission.time')
 @login_required
 def get_submission(request):
     '''
@@ -92,7 +92,7 @@ def get_submission(request):
 
             return HttpResponse(compose_reply(True,content=json.dumps(payload)))
 
-@statsd.timed('xqueue.ext_interface.put_result')
+@statsd.timed('xqueue.ext_interface.put_result.time')
 @csrf_exempt
 @login_required
 def put_result(request):
