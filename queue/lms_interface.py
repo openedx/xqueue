@@ -19,9 +19,9 @@ import queue.producer
 
 log = logging.getLogger(__name__)
 
-@statsd.timed('xqueue.lms_interface.submit.time')
 @csrf_exempt
 @login_required
+@statsd.timed('xqueue.lms_interface.submit.time')
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS

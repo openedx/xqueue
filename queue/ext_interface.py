@@ -22,8 +22,8 @@ log = logging.getLogger(__name__)
 #    2) get_submission
 #    3) put_result
 #--------------------------------------------------
-@statsd.timed('xqueue.ext_interface.get_queuelen.time')
 @login_required
+@statsd.timed('xqueue.ext_interface.get_queuelen.time')
 def get_queuelen(request):
     '''
     Retrieves the length of queue named by GET['queue_name'].
@@ -40,8 +40,8 @@ def get_queuelen(request):
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
 
-@statsd.timed('xqueue.ext_interface.get_submission.time')
 @login_required
+@statsd.timed('xqueue.ext_interface.get_submission.time')
 def get_submission(request):
     '''
     Retrieve a single submission from queue named by GET['queue_name'].
@@ -92,9 +92,9 @@ def get_submission(request):
 
             return HttpResponse(compose_reply(True,content=json.dumps(payload)))
 
-@statsd.timed('xqueue.ext_interface.put_result.time')
 @csrf_exempt
 @login_required
+@statsd.timed('xqueue.ext_interface.put_result.time')
 def put_result(request):
     '''
     Graders post their results here.
