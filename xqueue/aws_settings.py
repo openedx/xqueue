@@ -9,7 +9,7 @@ XQUEUES = ENV_TOKENS['XQUEUES']
 XQUEUE_WORKERS_PER_QUEUE = ENV_TOKENS['XQUEUE_WORKERS_PER_QUEUE']
 
 LOG_DIR = ENV_TOKENS['LOG_DIR']
-local_loglevel = ENV_TOKENS.get('LOCAL_LOGLEVEL','DEBUG')
+local_loglevel = ENV_TOKENS.get('LOCAL_LOGLEVEL','INFO')
 
 LOGGING = get_logger_config(LOG_DIR,
                             logging_env=ENV_TOKENS['LOGGING_ENV'],
