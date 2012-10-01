@@ -151,4 +151,5 @@ LOGIN_URL = '/xqueue/login'
 
 LOGGING = get_logger_config(ENV_ROOT / "log",
                             logging_env="dev",
+                            dev_env=True,
                             debug=True)
