@@ -1,17 +1,17 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse 
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 import json
 import logging
 
-from queue.models import Submission 
+from queue.models import Submission
 from queue.views import compose_reply
 from util import *
 
-import queue.producer 
+import queue.producer
 import queue.consumer
 
 log = logging.getLogger(__name__)
@@ -52,27 +52,16 @@ def get_submission(request):
         return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
     else:
         # Try to pull a single item from named queue
-        (got_qitem, qitem) = queue.consumer.get_single_qitem(queue_name)
+        (got_submission, submission) = queue.consumer.get_single_unretired_submission(queue_name)
 
-        if not got_qitem:
+        if not got_submission:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
         else:
             # Collect info on pull event
             grader_id = get_request_ip(request)
             pull_time = timezone.now()
 
-            submission_id = int(qitem)
-            try:
-                submission = Submission.objects.get(id=submission_id)
-            except Submission.DoesNotExist:
-                log.error("Queued pointer refers to nonexistent entry in Submission DB: grader: {0}, queue_name: {1}, submission_id: {2}".format(
-                    grader_id,
-                    queue_name,
-                    submission_id
-                ))
-                return HttpResponse(compose_reply(False, "Error with queued submission. Please try again"))
-
-            pullkey = make_hashkey(str(pull_time)+qitem)
+            pullkey = make_hashkey(str(pull_time)+str(submission.id))
             
             submission.grader_id = grader_id
             submission.pull_time = pull_time
@@ -81,8 +70,8 @@ def get_submission(request):
             submission.save()
 
             # Prepare payload to external grader
-            ext_header = {'submission_id':submission_id, 'submission_key':pullkey} 
-            
+            ext_header = {'submission_id':submission.id, 'submission_key':pullkey} 
+
             payload = {'xqueue_header': json.dumps(ext_header),
                        'xqueue_body': submission.xqueue_body,
                        'xqueue_files': submission.s3_urls} 
@@ -121,13 +110,14 @@ def put_result(request):
 
             if not submission.pullkey or submission_key != submission.pullkey:
                 return HttpResponse(compose_reply(False,'Incorrect key for submission'))
-            
+
             submission.return_time = timezone.now()
-            submission.pullkey = '' 
+            submission.pullkey = ''
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
             submission.lms_ack = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            submission.retired = submission.lms_ack
 
             submission.save()
 
@@ -166,5 +156,5 @@ def _is_valid_reply(external_reply):
             return fail
 
     submission_id  = int(header_dict['submission_id'])
-    submission_key = header_dict['submission_key'] 
-    return (True, submission_id, submission_key, score_msg) 
+    submission_key = header_dict['submission_key']
+    return (True, submission_id, submission_key, score_msg)
