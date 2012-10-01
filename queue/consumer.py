@@ -21,6 +21,36 @@ def clean_up_submission(submission):
     return
 
 
+def get_single_unretired_submission(queue_name):
+    '''
+    Retrieve a single unretired queued item, if one exists, from the named queue
+
+    Returns (success, submission):
+        success:    Flag whether retrieval is successful (Boolean)
+                    If no unretired item in the queue, return False
+        submission: A single submission from the queue, guaranteed to be unretired
+    '''
+    items_in_queue = True
+    while items_in_queue:
+        # Try to pull out a single submission from the queue, which may or may not be retired
+        (items_in_queue, qitem) = get_single_qitem(queue_name)
+        if not items_in_queue: # No more submissions to consider
+            return (False, '')
+
+        submission_id = int(qitem)
+        try:
+            submission = Submission.objects.get(id=submission_id)
+        except Submission.DoesNotExist:
+            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                queue_name,
+                submission_id
+            ))
+            continue # Just move on
+
+        if not submission.retired:
+            return (True, submission)
+
+
 def get_single_qitem(queue_name):
     '''
     Retrieve a single queued item, if one exists, from the named queue
@@ -57,11 +87,11 @@ def post_failure_to_lms(header):
     
     # This is the only part of the XQueue that assumes knowledge of the external 
     #   grader message format. TODO: Make the notification message-format agnostic
-    msg  = '<span>'
+    msg  = '<div class="capa_alert">'
     msg += 'Your submission could not be graded. '
     msg += 'Please recheck your submission and try again. '
     msg += 'If the problem persists, please notify the course staff.'
-    msg += '</span>'
+    msg += '</div>'
     failure_msg = { 'correct': None,
                     'score': 0,
                     'msg': msg }
@@ -151,23 +181,30 @@ class SingleChannel(threading.Thread):
             ))
             return  # Just move on
 
-        # Deliver job to worker
-        payload = {'xqueue_body': submission.xqueue_body,
-                   'xqueue_files': submission.s3_urls}
+        # If item has been retired, skip grading
+        if not submission.retired:
+            # Deliver job to worker
+            payload = {'xqueue_body': submission.xqueue_body,
+                       'xqueue_files': submission.s3_urls}
 
-        submission.grader_id = self.workerURL
-        submission.push_time = timezone.now()
-        (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
-        submission.return_time = timezone.now()
+            submission.grader_id = self.workerURL
+            submission.push_time = timezone.now()
+            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
+            submission.return_time = timezone.now()
 
-        if grading_success:
-            submission.grader_reply = grader_reply
-            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
-        else:
-            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
-            submission.num_failures += 1
+            # TODO: For the time being, a submission in a push interface gets one chance at grading,
+            #       with no requeuing logic
+            if grading_success:
+                submission.grader_reply = grader_reply
+                submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
+            else:
+                log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
+                submission.num_failures += 1
+                submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
 
-        submission.save()
+            submission.retired = True # NOTE: Retiring pushed submissions after one shot regardless of grading_success
 
-        # Take item off of queue.
+            submission.save()
+
+        # Take item off of queue
         ch.basic_ack(delivery_tag=method.delivery_tag)

@@ -19,7 +19,8 @@ MANAGERS = ADMINS
 
 REQUESTS_TIMEOUT = 1 # seconds
 
-XQUEUES = {'test-pull': None}
+XQUEUES = {'MITx-6.00x': 'http://ec2-23-22-89-106.compute-1.amazonaws.com',
+           'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
 
 MAX_NUMBER_OF_FAILURES = 3
@@ -143,6 +144,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'queue',
+    'south',
 )
 
 LOGIN_URL = '/xqueue/login'
