@@ -17,14 +17,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-REQUESTS_TIMEOUT = 1 # seconds
+REQUESTS_TIMEOUT = 5    # seconds
+GRADING_TIMEOUT = 30    # seconds
 
-XQUEUES = {'MITx-6.00x': 'http://ec2-23-22-89-106.compute-1.amazonaws.com',
-           'test-pull': None}
+XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
 
 MAX_NUMBER_OF_FAILURES = 3
-PULLED_SUBMISSION_TIMEOUT = 10 # seconds
+PULLED_SUBMISSION_TIMEOUT = 10    # seconds
 
 DATABASES = {
     'default': {
@@ -151,4 +151,5 @@ LOGIN_URL = '/xqueue/login'
 
 LOGGING = get_logger_config(ENV_ROOT / "log",
                             logging_env="dev",
+                            dev_env=True,
                             debug=True)
