@@ -111,7 +111,7 @@ def post_grade_to_lms(header, body):
     lms_callback_url = header_dict['lms_callback_url']
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
-    (success, lms_reply) = _http_post(lms_callback_url, payload)
+    (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
 
     if not success:
         log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply)) 
@@ -119,7 +119,7 @@ def post_grade_to_lms(header, body):
     return success
 
 
-def _http_post(url, data):
+def _http_post(url, data, timeout):
     '''
     Contact external grader server, but fail gently.
 
@@ -133,9 +133,9 @@ def _http_post(url, data):
         auth = None
 
     try:
-        r = requests.post(url, data=data, auth=auth, timeout=settings.REQUESTS_TIMEOUT)
+        r = requests.post(url, data=data, auth=auth, timeout=timeout)
     except (ConnectionError, Timeout):
-        log.error('Could not connect to server at %s in timeout=%f' % (url, settings.REQUESTS_TIMEOUT))
+        log.error('Could not connect to server at %s in timeout=%f' % (url, timeout))
         return (False, 'cannot connect to server')
 
     if r.status_code not in [200]:
@@ -189,7 +189,7 @@ class SingleChannel(threading.Thread):
 
             submission.grader_id = self.workerURL
             submission.push_time = timezone.now()
-            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload))
+            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
             submission.return_time = timezone.now()
 
             # TODO: For the time being, a submission in a push interface gets one chance at grading,

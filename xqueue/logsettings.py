@@ -6,7 +6,6 @@ from logging.handlers import SysLogHandler
 
 def get_logger_config(log_dir,
                       logging_env="no_env",
-                      tracking_filename="tracking.log",
                       edx_filename="edx.log",
                       dev_env=False,
                       syslog_addr=None,
@@ -22,10 +21,9 @@ def get_logger_config(log_dir,
     settings are extended.
 
     If dev_env is set to true logging will not be done via local rsyslogd,
-    instead, tracking and application logs will be dropped in log_dir.
+    instead, application logs will be dropped in log_dir.
 
-    "tracking_filename" and "edx_filename" are ignored unless dev_env
-    is set to true since otherwise logging is handled by rsyslogd.
+    "edx_filename" is ignored unless dev_env is set to true since otherwise logging is handled by rsyslogd.
 
     """
 
@@ -73,11 +71,6 @@ def get_logger_config(log_dir,
                 'propagate': True,
                 'level': 'INFO'
             },
-            'tracking': {
-                'handlers': ['tracking'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
             '': {
                 'handlers': handlers,
                 'level': 'DEBUG',
@@ -97,7 +90,6 @@ def get_logger_config(log_dir,
     }
 
     if dev_env:
-        tracking_file_loc = os.path.join(log_dir, tracking_filename)
         edx_file_loc = os.path.join(log_dir, edx_filename)
         logger_config['handlers'].update({
             'local': {
@@ -105,14 +97,6 @@ def get_logger_config(log_dir,
                 'level': local_loglevel,
                 'formatter': 'standard',
                 'filename': edx_file_loc,
-                'maxBytes': 1024 * 1024 * 2,
-                'backupCount': 5,
-            },
-            'tracking': {
-                'level': 'DEBUG',
-                'class': 'logging.handlers.RotatingFileHandler',
-                'filename': tracking_file_loc,
-                'formatter': 'raw',
                 'maxBytes': 1024 * 1024 * 2,
                 'backupCount': 5,
             },
@@ -125,13 +109,6 @@ def get_logger_config(log_dir,
                 'address': '/dev/log',
                 'formatter': 'syslog_format',
                 'facility': SysLogHandler.LOG_LOCAL0,
-            },
-            'tracking': {
-                'level': 'DEBUG',
-                'class': 'logging.handlers.SysLogHandler',
-                'address': '/dev/log',
-                'facility': SysLogHandler.LOG_LOCAL1,
-                'formatter': 'raw',
             },
         })
 
