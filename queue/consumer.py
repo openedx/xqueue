@@ -187,10 +187,10 @@ class SingleChannel(threading.Thread):
             payload = {'xqueue_body': submission.xqueue_body,
                        'xqueue_files': submission.s3_urls}
 
-        submission.grader_id = self.workerURL
-        submission.push_time = timezone.now()
-        (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
-        submission.return_time = timezone.now()
+            submission.grader_id = self.workerURL
+            submission.push_time = timezone.now()
+            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
+            submission.return_time = timezone.now()
 
             # TODO: For the time being, a submission in a push interface gets one chance at grading,
             #       with no requeuing logic
