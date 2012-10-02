@@ -133,7 +133,7 @@ def _http_post(url, data, timeout):
         auth = None
 
     try:
-        r = requests.post(url, data=data, auth=auth, timeout=timeout)
+        r = requests.post(url, data=data, auth=auth, timeout=timeout, verify=False)
     except (ConnectionError, Timeout):
         log.error('Could not connect to server at %s in timeout=%f' % (url, timeout))
         return (False, 'cannot connect to server')
