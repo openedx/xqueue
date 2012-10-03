@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from statsd import statsd
 
 import json
 import logging
@@ -22,6 +23,7 @@ log = logging.getLogger(__name__)
 #    3) put_result
 #--------------------------------------------------
 @login_required
+@statsd.timed('xqueue.ext_interface.get_queuelen.time')
 def get_queuelen(request):
     '''
     Retrieves the length of queue named by GET['queue_name'].
@@ -39,6 +41,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
 
 @login_required
+@statsd.timed('xqueue.ext_interface.get_submission.time')
 def get_submission(request):
     '''
     Retrieve a single submission from queue named by GET['queue_name'].
@@ -78,9 +81,9 @@ def get_submission(request):
 
             return HttpResponse(compose_reply(True,content=json.dumps(payload)))
 
-
 @csrf_exempt
 @login_required
+@statsd.timed('xqueue.ext_interface.put_result.time')
 def put_result(request):
     '''
     Graders post their results here.

@@ -1,3 +1,6 @@
+import json
+import logging
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse 
@@ -5,8 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
-import json
-import logging
+
+from statsd import statsd
 
 from queue.models import Submission
 from queue.views import compose_reply
@@ -18,6 +21,7 @@ log = logging.getLogger(__name__)
 
 @csrf_exempt
 @login_required
+@statsd.timed('xqueue.lms_interface.submit.time')
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
@@ -116,7 +120,7 @@ def _is_valid_request(xrequest):
 
     return (True, lms_callback_url, queue_name, header, body)
     
-
+@statsd.timed('xqueue.lms_interface.s3_upload.time')
 def _upload_to_s3(file_to_upload, keyname, bucketname):
     '''
     Upload file to S3 using provided keyname.

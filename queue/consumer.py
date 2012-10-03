@@ -8,6 +8,7 @@ import logging
 from django.utils import timezone
 from django.conf import settings
 from requests.exceptions import ConnectionError, Timeout
+from statsd import statsd
 
 from queue.models import Submission
 
@@ -76,6 +77,8 @@ def get_single_qitem(queue_name):
     else:
         channel.basic_ack(method.delivery_tag)
         connection.close()
+        statsd.increment('xqueue.consumer.get_single_qitem',
+                         tags=['queue:{0}'.format(queue_name)])
         return (True, qitem)
 
 
@@ -95,6 +98,7 @@ def post_failure_to_lms(header):
     failure_msg = { 'correct': None,
                     'score': 0,
                     'msg': msg }
+    statsd.increment('xqueue.consumer.post_failure_to_lms')
     return post_grade_to_lms(header, json.dumps(failure_msg))
 
 
@@ -112,9 +116,12 @@ def post_grade_to_lms(header, body):
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
     (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
-
-    if not success:
+    
+    if success:
+        statsd.increment('xqueue.consumer.post_grade_to_lms.success') 
+    else:
         log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply)) 
+        statsd.increment('xqueue.consumer.post_grade_to_lms.failure') 
 
     return success
 
