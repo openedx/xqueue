@@ -9,12 +9,12 @@ class Submission(models.Model):
     '''
     Representation of submission request, including metadata information
     '''
-    
     # Submission 
-    requester_id  = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
-    queue_name    = models.CharField(max_length=CHARFIELD_LEN_SMALL)
-    xqueue_header = models.CharField(max_length=CHARFIELD_LEN_LARGE)
-    xqueue_body   = models.TextField()
+    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
+    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL)
+    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL)
+    xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
+    xqueue_body      = models.TextField()
 
     # Uploaded files
     s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # S3 keys for internal Xqueue use
@@ -34,9 +34,11 @@ class Submission(models.Model):
     # Status
     num_failures = models.IntegerField(default=0) # Number of failures in exchange with external grader
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
+    retired = models.BooleanField(default=False)  # True/False on whether Submission is "finished"
 
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
+        submission_info += "    Callback URL: %s\n" % self.lms_callback_url
         submission_info += "    Arrival time: %s\n" % self.arrival_time
         submission_info += "    Pull time:    %s\n" % self.pull_time
         submission_info += "    Push time:    %s\n" % self.push_time
@@ -45,6 +47,7 @@ class Submission(models.Model):
         submission_info += "    Pullkey:      %s\n" % self.pullkey
         submission_info += "    num_failures: %d\n" % self.num_failures
         submission_info += "    lms_ack:      %s\n" % self.lms_ack
+        submission_info += "    retired:      %s\n" % self.retired
         submission_info += "Original Xqueue header follows:\n"
         submission_info += json.dumps(json.loads(self.xqueue_header), indent=4)
         return submission_info

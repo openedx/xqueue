@@ -17,13 +17,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-REQUESTS_TIMEOUT = 1 # seconds
+REQUESTS_TIMEOUT = 5    # seconds
+GRADING_TIMEOUT = 30    # seconds
 
 XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
 
 MAX_NUMBER_OF_FAILURES = 3
-PULLED_SUBMISSION_TIMEOUT = 10 # seconds
+PULLED_SUBMISSION_TIMEOUT = 10    # seconds
 
 DATABASES = {
     'default': {
@@ -143,10 +144,12 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'queue',
+    'south',
 )
 
 LOGIN_URL = '/xqueue/login'
 
 LOGGING = get_logger_config(ENV_ROOT / "log",
                             logging_env="dev",
+                            dev_env=True,
                             debug=True)
