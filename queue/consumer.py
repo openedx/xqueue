@@ -4,6 +4,7 @@ import pika
 import requests
 import threading
 import logging
+import time
 
 from django.utils import timezone
 from django.conf import settings
@@ -182,6 +183,9 @@ class SingleChannel(threading.Thread):
             submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
             ch.basic_ack(delivery_tag=method.delivery_tag)
+            statsd.increment('xqueue.consumer.SingleChannel.consumer_callback.submission_does_not_exist',
+                             tags=['queue:{0}'.format(self.queue_name)])
+
             log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
                 self.queue_name,
                 submission_id
@@ -196,7 +200,12 @@ class SingleChannel(threading.Thread):
 
             submission.grader_id = self.workerURL
             submission.push_time = timezone.now()
+            start = time.time()
             (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
+            print "hello"
+            statsd.histogram('xqueue.consumer.SingleChannel.consumer_callback.grading_time', time.time() - start,
+                          tags=['queue:{0}'.format(self.queue_name)])
+
             submission.return_time = timezone.now()
 
             # TODO: For the time being, a submission in a push interface gets one chance at grading,
