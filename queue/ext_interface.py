@@ -35,7 +35,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
 
     if queue_name in settings.XQUEUES:
-        job_count = queue.producer.push_to_queue(queue_name)
+        job_count = queue.producer.get_queue_length(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
