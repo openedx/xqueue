@@ -4,11 +4,14 @@ import pika
 import requests
 import threading
 import logging
+import time
 
 from django.utils import timezone
 from django.conf import settings
 from requests.exceptions import ConnectionError, Timeout
 from statsd import statsd
+
+import queue.producer
 
 from queue.models import Submission
 
@@ -87,8 +90,8 @@ def post_failure_to_lms(header):
     Send notification to the LMS (and the student) that the submission has failed,
         and that the problem should be resubmitted
     '''
-    
-    # This is the only part of the XQueue that assumes knowledge of the external 
+
+    # This is the only part of the XQueue that assumes knowledge of the external
     #   grader message format. TODO: Make the notification message-format agnostic
     msg  = '<div class="capa_alert">'
     msg += 'Your submission could not be graded. '
@@ -116,12 +119,12 @@ def post_grade_to_lms(header, body):
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
     (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
-    
+
     if success:
-        statsd.increment('xqueue.consumer.post_grade_to_lms.success') 
+        statsd.increment('xqueue.consumer.post_grade_to_lms.success')
     else:
-        log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply)) 
-        statsd.increment('xqueue.consumer.post_grade_to_lms.failure') 
+        log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply))
+        statsd.increment('xqueue.consumer.post_grade_to_lms.failure')
 
     return success
 
@@ -182,6 +185,9 @@ class SingleChannel(threading.Thread):
             submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
             ch.basic_ack(delivery_tag=method.delivery_tag)
+            statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
+                             tags=['queue:{0}'.format(self.queue_name)])
+
             log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
                 self.queue_name,
                 submission_id
@@ -196,7 +202,15 @@ class SingleChannel(threading.Thread):
 
             submission.grader_id = self.workerURL
             submission.push_time = timezone.now()
+            start = time.time()
             (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
+            statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
+                          tags=['queue:{0}'.format(self.queue_name)])
+
+            job_count = queue.producer.get_queue_length(self.queue_name)
+            statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
+                          tags=['queue:{0}'.format(self.queue_name)])
+
             submission.return_time = timezone.now()
 
             # TODO: For the time being, a submission in a push interface gets one chance at grading,
