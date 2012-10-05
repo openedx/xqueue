@@ -204,7 +204,6 @@ class SingleChannel(threading.Thread):
             submission.push_time = timezone.now()
             start = time.time()
             (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
-            print "hello"
             statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
                           tags=['queue:{0}'.format(self.queue_name)])
 
