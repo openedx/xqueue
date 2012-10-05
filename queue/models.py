@@ -1,3 +1,9 @@
+"""
+To generate a migration, make changes to this model file and then run:
+
+django-admin.py schemamigration queue [migration_name] --auto --settings=xqueue.settings --pythonpath=.
+
+"""
 from django.db import models
 
 import json
@@ -11,8 +17,8 @@ class Submission(models.Model):
     '''
     # Submission 
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
-    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL)
-    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL)
+    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
+    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
     xqueue_body      = models.TextField()
 
@@ -34,7 +40,7 @@ class Submission(models.Model):
     # Status
     num_failures = models.IntegerField(default=0) # Number of failures in exchange with external grader
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
-    retired = models.BooleanField(default=False)  # True/False on whether Submission is "finished"
+    retired = models.BooleanField(default=False, db_index=True) # True/False on whether Submission is "finished"
 
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
