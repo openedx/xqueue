@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.lms_interface.submit.time')
-@transaction.commit_manually # Needed to explicitly control write to DB and the queue
+@transaction.commit_manually # Needed to explicitly time the writes to DB and the queue
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
