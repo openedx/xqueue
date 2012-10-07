@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -22,6 +23,7 @@ log = logging.getLogger(__name__)
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.lms_interface.submit.time')
+@transaction.commit_manually # Needed to explicitly time the writes to DB and the queue
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
@@ -64,6 +66,7 @@ def submit(request):
                                         s3_urls=json.dumps(s3_urls),
                                         s3_keys=json.dumps(s3_keys))
                 submission.save()
+                transaction.commit() # Explicit commit to DB before inserting submission.id into queue
 
                 qitem  = str(submission.id) # Submit the Submission pointer to queue
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
