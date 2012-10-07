@@ -181,9 +181,18 @@ class SingleChannel(threading.Thread):
     def consumer_callback(self, ch, method, properties, qitem):
 
         submission_id = int(qitem)
-        try:
-            submission = Submission.objects.get(id=submission_id)
-        except Submission.DoesNotExist:
+
+        submission = None
+        for i in range(settings.DB_RETRIES):
+            try:
+                submission = Submission.objects.get(id=submission_id)
+            except Submission.DoesNotExist:
+                time.sleep(settings.DB_WAITTIME) # Wait in case the DB hasn't been updated yet
+                continue
+            else:
+                break
+
+        if submission == None:
             ch.basic_ack(delivery_tag=method.delivery_tag)
             statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
                              tags=['queue:{0}'.format(self.queue_name)])
