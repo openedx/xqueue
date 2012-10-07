@@ -187,6 +187,8 @@ class SingleChannel(threading.Thread):
             try:
                 submission = Submission.objects.get(id=submission_id)
             except Submission.DoesNotExist:
+                log.info("Queued pointer refers to nonexistent entry in Submission DB on {0}-th lookup: queue_name: {1}, submission_id: {2}".format(
+                            i, self.queue_name, submission_id))
                 time.sleep(settings.DB_WAITTIME) # Wait in case the DB hasn't been updated yet
                 continue
             else:
