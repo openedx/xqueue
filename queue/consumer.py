@@ -192,10 +192,6 @@ class SingleChannel(threading.Thread):
         try:
             submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
-            # We'll complain about it soon...
-            pass
-
-        if submission == None:
             ch.basic_ack(delivery_tag=method.delivery_tag)
             statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
                              tags=['queue:{0}'.format(self.queue_name)])
