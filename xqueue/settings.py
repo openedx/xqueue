@@ -21,8 +21,6 @@ REQUESTS_TIMEOUT = 5    # seconds
 GRADING_TIMEOUT = 30    # seconds
 ORPHANED_SUBMISSION_TIMEOUT = 30 # seconds
 
-DB_RETRIES = 3    # Max number of times to query the DB when queued ticket is not found
-DB_WAITTIME = 0.5 # seconds
 
 XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
