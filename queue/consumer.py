@@ -7,7 +7,6 @@ import logging
 import time
 
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
 from statsd import statsd
@@ -179,29 +178,20 @@ class SingleChannel(threading.Thread):
                               queue=self.queue_name)
         channel.start_consuming()
 
-    # By default, Django wraps each view code as a DB transaction. We don't want this behavior for the 
-    #   consumer, since it may be the case that a queued ticket arrives at the consumer before the 
-    #   corresponding DB row has been written and closed. In such cases, we want the subsequent accesses 
-    #   to the DB (in the same view) to be sensitive to concurrent updates to the DB.
-    @transaction.commit_manually
+    # By default, Django wraps each view code as a DB transaction.  Now that we
+    # have the producer make sure to commit to the db before putting the
+    # submission in the queue, this should be fine, but leaving here as a note.
+    # In particular, if we start seeing Submission.DoesNotExist errors and want
+    # to put back the "try again in 1 sec" logic, will need to manually manage
+    # transactions to make sure that retries see updated database state.
     def consumer_callback(self, ch, method, properties, qitem):
 
         submission_id = int(qitem)
 
         submission = None
-        for i in range(settings.DB_RETRIES):
-            try:
-                submission = Submission.objects.get(id=submission_id)
-            except Submission.DoesNotExist:
-                transaction.commit() # Need to terminate current transaction, allows next queryset to view fresh version of DB
-                log.info("Queued pointer refers to nonexistent entry in Submission DB on {0}-th lookup: queue_name: {1}, submission_id: {2}".format(
-                            i, self.queue_name, submission_id))
-                time.sleep(settings.DB_WAITTIME) # Wait in case the DB hasn't been updated yet
-                continue
-            else:
-                break
-
-        if submission == None:
+        try:
+            submission = Submission.objects.get(id=submission_id)
+        except Submission.DoesNotExist:
             ch.basic_ack(delivery_tag=method.delivery_tag)
             statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
                              tags=['queue:{0}'.format(self.queue_name)])
@@ -247,6 +237,3 @@ class SingleChannel(threading.Thread):
 
         # Take item off of queue
         ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        # Close transaction
-        transaction.commit()
