@@ -23,8 +23,8 @@ class Submission(models.Model):
     xqueue_body      = models.TextField()
 
     # Uploaded files
-    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # S3 keys for internal Xqueue use
-    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE) # S3 urls for external access
+    s3_keys = models.TextField() # S3 keys for internal Xqueue use
+    s3_urls = models.TextField() # S3 urls for external access
 
     # Timing
     arrival_time = models.DateTimeField(auto_now=True)         # Time of arrival from LMS
