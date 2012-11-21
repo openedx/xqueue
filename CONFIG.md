@@ -20,4 +20,4 @@ Running the service:
 
 `django-admin.py runserver 127.0.0.1:3032 --pythonpath=. --settings=xqueue.settings`
 
-The LMS config needs to point to the queue: put the right url (`'http://127.0.0.1:3031'`) and password (`'abcd'`) in the `XQUEUE_INTERFACE` dict.
+The LMS config needs to point to the queue: put the right url (`'http://127.0.0.1:3032'`) and password (`'abcd'`) in the `XQUEUE_INTERFACE` dict.
