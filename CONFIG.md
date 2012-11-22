@@ -20,4 +20,15 @@ Running the service:
 
 `django-admin.py runserver 127.0.0.1:3032 --pythonpath=. --settings=xqueue.settings`
 
-The LMS config needs to point to the queue: put the right url (`'http://127.0.0.1:3032'`) and password (`'abcd'`) in the `XQUEUE_INTERFACE` dict.
+The LMS config in mitx/lms/envs/dev.py needs to point to the queue: put the right url (`'http://127.0.0.1:3032'`) and password (`'abcd'`) in the `XQUEUE_INTERFACE` dict.
+
+It will look like this:
+
+XQUEUE_INTERFACE = {
+    "url": 'http://127.0.0.1:3031',
+    "django_auth": {
+        "username": "lms",
+        "password": "abcd"
+    },
+    "basic_auth": ('anant', 'agarwal'),
+}
