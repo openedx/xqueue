@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from statsd import statsd
+import requests
 
 import json
 import logging
@@ -73,11 +74,31 @@ def get_submission(request):
             submission.save()
 
             # Prepare payload to external grader
-            ext_header = {'submission_id':submission.id, 'submission_key':pullkey} 
+            ext_header = {'submission_id':submission.id, 'submission_key':pullkey}
+            s3_urls = json.loads(submission.s3_urls) if submission.s3_urls else {}
+
+            if "URL_FOR_EXTERNAL_DICTS" in submission.s3_urls:
+                url = s3_urls["URL_FOR_EXTERNAL_DICTS"]
+                timeout = 2
+                try:
+                    r = requests.get(url, timeout=timeout)
+                    success = True
+                except (ConnectionError, Timeout):
+                    success = False
+                    log.error('Could not fetch uploaded files at %s in timeout=%f' % (url, timeout))
+                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+
+                if (r.status_code not in [200]) or (not success):
+                    log.error('Could not fetch uploaded files at %s. Status code: %d' % (url, r.status_code))
+                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+
+                xqueue_files = json.dumps(json.loads(r.text)["files"])
+            else:
+                xqueue_files = submission.s3_urls
 
             payload = {'xqueue_header': json.dumps(ext_header),
                        'xqueue_body': submission.xqueue_body,
-                       'xqueue_files': submission.s3_urls} 
+                       'xqueue_files': xqueue_files}
 
             return HttpResponse(compose_reply(True,content=json.dumps(payload)))
 
