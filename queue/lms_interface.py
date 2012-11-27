@@ -12,7 +12,7 @@ from boto.s3.key import Key
 
 from statsd import statsd
 
-from queue.models import Submission
+from queue.models import Submission, CHARFIELD_LEN_LARGE
 from queue.views import compose_reply
 from util import *
 
@@ -57,14 +57,25 @@ def submit(request):
                     s3_keys.update({filename: s3_key})
                     s3_urls.update({filename: s3_url})
 
+                s3_urls_json = json.dumps(s3_urls)
+                s3_keys_json = json.dumps(s3_keys)
+
+                if len(s3_urls_json) > CHARFIELD_LEN_LARGE:
+                    s3_key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
+                    s3_url = _upload_file_dict_to_s3(s3_urls, s3_keys, s3_key, queue_name)
+                    s3_keys = {"KEY_FOR_EXTERNAL_DICTS": s3_key}
+                    s3_urls = {"URL_FOR_EXTERNAL_DICTS": s3_url}
+                    s3_urls_json = json.dumps(s3_urls)
+                    s3_keys_json = json.dumps(s3_keys)
+                
                 # Track the submission in the Submission database
                 submission = Submission(requester_id=get_request_ip(request),
                                         lms_callback_url=lms_callback_url,
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
-                                        s3_urls=json.dumps(s3_urls),
-                                        s3_keys=json.dumps(s3_keys))
+                                        s3_urls=s3_urls_json,
+                                        s3_keys=s3_keys_json)
                 submission.save()
                 transaction.commit() # Explicit commit to DB before inserting submission.id into queue
 
@@ -122,6 +133,31 @@ def _is_valid_request(xrequest):
     lms_callback_url = header_dict['lms_callback_url']
 
     return (True, lms_callback_url, queue_name, header, body)
+
+def _upload_file_dict_to_s3(file_dict, key_dict, keyname, bucketname):
+    '''
+    Upload dictionaries of filenames to S3 urls (and filenames to S3 keys) 
+    to S3 using provided keyname.
+    This is useful because the s3_files column on submissions is currently too
+    small.
+
+    Returns:
+        public_url: URL to access uploaded list
+    '''
+    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    bucketname = settings.AWS_ACCESS_KEY_ID + '_' + bucketname
+    bucket = conn.create_bucket(bucketname.lower())
+
+    data = {}
+    data['files'] = file_dict
+    data['keys']  = key_dict
+
+    k = Key(bucket)
+    k.key = keyname
+    k.set_contents_from_string(json.dumps(data))
+    public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
+    
+    return public_url
     
 @statsd.timed('xqueue.lms_interface.s3_upload.time')
 def _upload_to_s3(file_to_upload, keyname, bucketname):
