@@ -92,7 +92,7 @@ def get_submission(request):
                     log.error('Could not fetch uploaded files at %s. Status code: %d' % (url, r.status_code))
                     return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
 
-                xqueue_files = r.text
+                xqueue_files = json.dumps(json.loads(r.text)["files"])
             else:
                 xqueue_files = submission.s3_urls
 
