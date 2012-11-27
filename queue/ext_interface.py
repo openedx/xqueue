@@ -74,10 +74,11 @@ def get_submission(request):
             submission.save()
 
             # Prepare payload to external grader
-            ext_header = {'submission_id':submission.id, 'submission_key':pullkey} 
+            ext_header = {'submission_id':submission.id, 'submission_key':pullkey}
+            s3_urls = json.loads(submission.s3_urls) if submission.s3_urls else {}
 
             if "URL_FOR_EXTERNAL_DICTS" in submission.s3_urls:
-                url = submission.s3_urls["URL_FOR_EXTERNAL_DICTS"]
+                url = s3_urls["URL_FOR_EXTERNAL_DICTS"]
                 timeout = 2
                 try:
                     r = requests.get(url, timeout=timeout)
