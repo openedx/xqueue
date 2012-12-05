@@ -17,7 +17,7 @@ LOGGING = get_logger_config(LOG_DIR,
                             local_loglevel=local_loglevel,
                             debug=False)
 
-RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST)
+RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
 
 with open(ENV_ROOT / "auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
