@@ -11,9 +11,10 @@ def push_to_queue(queue_name, qitem=None):
 
     if queue_name == 'null':
         return 0
-
+    credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                            settings.RABBITMQ_PASS)
     connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=settings.RABBIT_HOST))
+        credentials=credentials, host=settings.RABBIT_HOST))
     channel = connection.channel()
     q = channel.queue_declare(queue=queue_name, durable=True)
     if qitem is not None:
