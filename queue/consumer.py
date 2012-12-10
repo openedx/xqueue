@@ -177,8 +177,9 @@ class SingleChannel(threading.Thread):
         ))
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                                 settings.RABBITMQ_PASS)
-        connection = pika.BlockingConnection(credentials=credentials,
-                    pika.ConnectionParameters(host=settings.RABBIT_HOST))
+        connection = pika.BlockingConnection(
+                        pika.ConnectionParameters(credentials=credentials,
+                        host=settings.RABBIT_HOST))
         channel = connection.channel()
         channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
