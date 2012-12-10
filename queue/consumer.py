@@ -68,7 +68,11 @@ def get_single_qitem(queue_name):
     queue_name = str(queue_name)
 
     # Pull a single submission (if one exists) from the named queue
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBIT_HOST))
+    credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                            settings.RABBITMQ_PASS)
+
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        credentials=credentials, host=settings.RABBIT_HOST))
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
 
@@ -171,7 +175,10 @@ class SingleChannel(threading.Thread):
             qname=self.queue_name,
             push_url=self.workerURL
         ))
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBIT_HOST))
+        credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                                settings.RABBITMQ_PASS)
+        connection = pika.BlockingConnection(credentials=credentials,
+                    pika.ConnectionParameters(host=settings.RABBIT_HOST))
         channel = connection.channel()
         channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
@@ -179,9 +186,9 @@ class SingleChannel(threading.Thread):
                               queue=self.queue_name)
         channel.start_consuming()
 
-    # By default, Django wraps each view code as a DB transaction. We don't want this behavior for the 
-    #   consumer, since it may be the case that a queued ticket arrives at the consumer before the 
-    #   corresponding DB row has been written and closed. In such cases, we want the subsequent accesses 
+    # By default, Django wraps each view code as a DB transaction. We don't want this behavior for the
+    #   consumer, since it may be the case that a queued ticket arrives at the consumer before the
+    #   corresponding DB row has been written and closed. In such cases, we want the subsequent accesses
     #   to the DB (in the same view) to be sensitive to concurrent updates to the DB.
     #
     # We tried to get rid of this and ended up with something that worked on staging but not on prod.
