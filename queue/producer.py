@@ -1,6 +1,6 @@
 import pika
-import json
 from django.conf import settings
+
 
 def push_to_queue(queue_name, qitem=None):
     '''
@@ -26,9 +26,10 @@ def push_to_queue(queue_name, qitem=None):
     connection.close()
     return q.method.message_count
 
+
 def get_queue_length(queue_name):
     """
-    push_to_queue is not a great name for a function that returns the queue length, so make
-    an alias
+    push_to_queue is not a great name for a function
+    that returns the queue length, so make an alias
     """
     return push_to_queue(queue_name)
