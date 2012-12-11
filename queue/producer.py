@@ -1,6 +1,6 @@
 import pika
-import json
 from django.conf import settings
+
 
 def push_to_queue(queue_name, qitem=None):
     '''
@@ -11,9 +11,10 @@ def push_to_queue(queue_name, qitem=None):
 
     if queue_name == 'null':
         return 0
-
+    credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                            settings.RABBITMQ_PASS)
     connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=settings.RABBIT_HOST))
+        credentials=credentials, host=settings.RABBIT_HOST))
     channel = connection.channel()
     q = channel.queue_declare(queue=queue_name, durable=True)
     if qitem is not None:
@@ -25,9 +26,10 @@ def push_to_queue(queue_name, qitem=None):
     connection.close()
     return q.method.message_count
 
+
 def get_queue_length(queue_name):
     """
-    push_to_queue is not a great name for a function that returns the queue length, so make
-    an alias
+    push_to_queue is not a great name for a function
+    that returns the queue length, so make an alias
     """
     return push_to_queue(queue_name)
