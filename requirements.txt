@@ -9,3 +9,4 @@ path.py
 dogstatsd-python==0.2
 south
 MySQL-python
+newrelic
