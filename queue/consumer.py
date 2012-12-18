@@ -72,6 +72,7 @@ def get_single_qitem(queue_name):
                                             settings.RABBITMQ_PASS)
 
     connection = pika.BlockingConnection(pika.ConnectionParameters(
+        heartbeat_interval=5,
         credentials=credentials, host=settings.RABBIT_HOST))
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
@@ -178,8 +179,8 @@ class SingleChannel(threading.Thread):
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                                 settings.RABBITMQ_PASS)
         connection = pika.BlockingConnection(
-                        pika.ConnectionParameters(credentials=credentials,
-                        host=settings.RABBIT_HOST))
+                        pika.ConnectionParameters(heartbeat_interval=5,
+                            credentials=credentials, host=settings.RABBIT_HOST))
         channel = connection.channel()
         channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
