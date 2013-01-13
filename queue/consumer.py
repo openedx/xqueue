@@ -125,6 +125,10 @@ def post_grade_to_lms(header, body):
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
 
+    # Quick kludge retries to fix prod problem with 6.00x push graders. We're 
+    # seeing abrupt disconnects when servers are taken out of the ELB, causing
+    # in flight lms_ack requests to fail. This just tries five times before 
+    # giving up.
     attempts = 0
     success = False
     while (not success) and attempts < 5:
