@@ -124,7 +124,12 @@ def post_grade_to_lms(header, body):
     lms_callback_url = header_dict['lms_callback_url']
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
-    (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
+
+    attempts = 0
+    success = False
+    while (not success) and attempts < 5:
+        (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
+        attempts += 1
 
     if success:
         statsd.increment('xqueue.consumer.post_grade_to_lms.success')
