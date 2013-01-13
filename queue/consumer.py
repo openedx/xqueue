@@ -124,7 +124,16 @@ def post_grade_to_lms(header, body):
     lms_callback_url = header_dict['lms_callback_url']
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
-    (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
+
+    # Quick kludge retries to fix prod problem with 6.00x push graders. We're 
+    # seeing abrupt disconnects when servers are taken out of the ELB, causing
+    # in flight lms_ack requests to fail. This just tries five times before 
+    # giving up.
+    attempts = 0
+    success = False
+    while (not success) and attempts < 5:
+        (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
+        attempts += 1
 
     if success:
         statsd.increment('xqueue.consumer.post_grade_to_lms.success')
