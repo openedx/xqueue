@@ -80,7 +80,7 @@ def get_single_qitem(queue_name):
     # qitem is the item from the queue
     method, header, qitem = channel.basic_get(queue=queue_name)
 
-    if method is not None or method.NAME == 'Basic.GetEmpty':  # Got nothing
+    if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
         connection.close()
         return (False, '')
     else:
