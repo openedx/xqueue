@@ -80,7 +80,7 @@ def get_single_qitem(queue_name):
     # qitem is the item from the queue
     method, header, qitem = channel.basic_get(queue=queue_name)
 
-    if method.NAME == 'Basic.GetEmpty':  # Got nothing
+    if method is not None or method.NAME == 'Basic.GetEmpty':  # Got nothing
         connection.close()
         return (False, '')
     else:
@@ -125,9 +125,9 @@ def post_grade_to_lms(header, body):
 
     payload = {'xqueue_header': header, 'xqueue_body': body}
 
-    # Quick kludge retries to fix prod problem with 6.00x push graders. We're 
+    # Quick kludge retries to fix prod problem with 6.00x push graders. We're
     # seeing abrupt disconnects when servers are taken out of the ELB, causing
-    # in flight lms_ack requests to fail. This just tries five times before 
+    # in flight lms_ack requests to fail. This just tries five times before
     # giving up.
     attempts = 0
     success = False
