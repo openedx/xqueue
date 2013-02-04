@@ -1,0 +1,69 @@
+"""
+  Tests all push queues to ensure that we see a sucessful
+  round trip submission
+"""
+import json
+import logging
+import SimpleHTTPServer, BaseHTTPServer
+import SocketServer
+import cgi
+from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.contrib.auth.models import User
+from queue.xqueue_client import XQueueClient
+import SimpleHTTPServer
+
+PORT = 8989
+logger = logging.getLogger(__name__)
+responses = {}
+
+def check_response(queue_name):
+    if queue_name in responses:
+        return True
+    else:
+        return False
+
+class TCPServerReuse(SocketServer.TCPServer):
+    # prevents address already in use errors
+    # when the server is started
+    allow_reuse_address = True
+
+class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    # handle POSTS from the xserver
+    def setup(self):
+        self.request.settimeout(self.timeout)
+        SimpleHTTPServer.SimpleHTTPRequestHandler.setup(self)
+
+    def do_POST(self):
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD':'POST',
+                     'CONTENT_TYPE':self.headers['Content-Type'],
+                     })
+        queue_name = json.loads(form.getvalue('xqueue_header'))['queue_name']
+        istrue = json.loads(form.getvalue('xqueue_body'))['correct']
+        responses[queue_name] = True
+
+
+class Command(BaseCommand):
+
+    help = """
+       Test all queues that push to the xserver by submitting hello world.
+       If a response is not received it will wait forever
+    """
+
+    def handle(self, *args, **options):
+        xq_client = XQueueClient(server='http://127.0.0.1:8000',
+            passwd=settings.XQUEUE_USERS['lms'],
+            post_url='http://stage-xqueue-001.m.edx.org:8989')
+        xq_client.login()
+        Hander = ServerHandler
+        httpd = TCPServerReuse(("", PORT), Hander)
+        for queue_name, queue_url in settings.XQUEUES.iteritems():
+            if queue_url and 'xserver' in queue_url:
+                # only submit to queues that use the xserver
+                req = xq_client.submit_job(queue_name, queue_name)
+                logger.info("Waiting for response from {0}".format(queue_name))
+                while not check_response(queue_name):
+                    httpd.handle_request()
