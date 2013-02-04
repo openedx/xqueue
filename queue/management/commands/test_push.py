@@ -4,18 +4,17 @@
 """
 import json
 import logging
-import SimpleHTTPServer, BaseHTTPServer
+import SimpleHTTPServer
 import SocketServer
 import cgi
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.contrib.auth.models import User
 from queue.xqueue_client import XQueueClient
-import SimpleHTTPServer
 
 PORT = 8989
 logger = logging.getLogger(__name__)
 responses = {}
+
 
 def check_response(queue_name):
     if queue_name in responses:
@@ -23,10 +22,12 @@ def check_response(queue_name):
     else:
         return False
 
+
 class TCPServerReuse(SocketServer.TCPServer):
     # prevents address already in use errors
     # when the server is started
     allow_reuse_address = True
+
 
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     # handle POSTS from the xserver
@@ -38,12 +39,12 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
-            environ={'REQUEST_METHOD':'POST',
-                     'CONTENT_TYPE':self.headers['Content-Type'],
+            environ={'REQUEST_METHOD': 'POST',
+                     'CONTENT_TYPE': self.headers['Content-Type'],
                      })
         queue_name = json.loads(form.getvalue('xqueue_header'))['queue_name']
         istrue = json.loads(form.getvalue('xqueue_body'))['correct']
-        responses[queue_name] = True
+        responses[queue_name] = istrue
 
 
 class Command(BaseCommand):
@@ -55,15 +56,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         xq_client = XQueueClient(server='http://127.0.0.1:8000',
-            passwd=settings.XQUEUE_USERS['lms'],
-            post_url='http://stage-xqueue-001.m.edx.org:8989')
+                                 passwd=settings.XQUEUE_USERS['lms'],
+                                 post_url=
+                                 'http://stage-xqueue-001.m.edx.org:8989')
         xq_client.login()
         Hander = ServerHandler
         httpd = TCPServerReuse(("", PORT), Hander)
         for queue_name, queue_url in settings.XQUEUES.iteritems():
             if queue_url and 'xserver' in queue_url:
                 # only submit to queues that use the xserver
-                req = xq_client.submit_job(queue_name, queue_name)
+                xq_client.submit_job(queue_name, queue_name)
                 logger.info("Waiting for response from {0}".format(queue_name))
                 while not check_response(queue_name):
                     httpd.handle_request()
