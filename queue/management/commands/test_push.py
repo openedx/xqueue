@@ -16,13 +16,6 @@ logger = logging.getLogger(__name__)
 responses = {}
 
 
-def check_response(queue_name):
-    if queue_name in responses:
-        return True
-    else:
-        return False
-
-
 class TCPServerReuse(SocketServer.TCPServer):
     # prevents address already in use errors
     # when the server is started
@@ -60,12 +53,11 @@ class Command(BaseCommand):
                                  post_url=
                                  'http://stage-xqueue-001.m.edx.org:8989')
         xq_client.login()
-        Hander = ServerHandler
-        httpd = TCPServerReuse(("", PORT), Hander)
+        httpd = TCPServerReuse(("", PORT), ServerHandler)
         for queue_name, queue_url in settings.XQUEUES.iteritems():
             if queue_url and 'xserver' in queue_url:
                 # only submit to queues that use the xserver
                 xq_client.submit_job(queue_name, queue_name)
                 logger.info("Waiting for response from {0}".format(queue_name))
-                while not check_response(queue_name):
+                while not queue_name in responses:
                     httpd.handle_request()
