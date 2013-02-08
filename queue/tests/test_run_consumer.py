@@ -27,6 +27,14 @@ def test_assign_workers_to_queues():
     # C -> 1, 2
     assert min_disjoint_workers(assign_workers_to_queues("ABC", 3, 2, 1)) >= 1
 
+    # Based on prod settings
+    assert_raises(NoAssignmentError, assign_workers_to_queues, range(8), 24, 12, 7)
+    assert min_disjoint_workers(assign_workers_to_queues(range(8), 24, 12, 6)) >= 6
+    assert min_disjoint_workers(assign_workers_to_queues(range(8), 24, 12, 4)) >= 4
+    assert min_disjoint_workers(assign_workers_to_queues(range(8), 24, 12, 3)) >= 3
+    assert min_disjoint_workers(assign_workers_to_queues(range(8), 24, 12, 2)) >= 2
+    assert min_disjoint_workers(assign_workers_to_queues(range(8), 24, 12, 1)) >= 1
+
 
 def test_assign_queues_to_workers():
     assert_equals(
