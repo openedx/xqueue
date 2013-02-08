@@ -286,4 +286,4 @@ class QueueConsumer(object):
         transaction.commit()
 
     def __repr__(self):
-        return "QueueConsumer(%r, %r)" % (self.worker_url, self.worker_name)
+        return "QueueConsumer(%r, %r)" % (self.worker_url, self.queue_name)
