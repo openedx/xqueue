@@ -4,9 +4,9 @@
 """
 import json
 import logging
-import SimpleHTTPServer
 import SocketServer
 import cgi
+from BaseHTTPServer import BaseHTTPRequestHandler
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from queue.xqueue_client import XQueueClient
@@ -22,11 +22,11 @@ class TCPServerReuse(SocketServer.TCPServer):
     allow_reuse_address = True
 
 
-class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class ServerHandler(BaseHTTPRequestHandler):
     # handle POSTS from the xserver
     def setup(self):
         self.request.settimeout(self.timeout)
-        SimpleHTTPServer.SimpleHTTPRequestHandler.setup(self)
+        super(ServerHandler, self).setup()
 
     def do_POST(self):
         form = cgi.FieldStorage(
@@ -38,6 +38,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         queue_name = json.loads(form.getvalue('xqueue_header'))['queue_name']
         istrue = json.loads(form.getvalue('xqueue_body'))['correct']
         responses[queue_name] = istrue
+        self.send_response(200, "OK")
+        self.end_headers()
 
 
 class Command(BaseCommand):
