@@ -1,5 +1,5 @@
 """
-Run me with: 
+Run me with:
     python manage.py test --settings=xqueue.test_settings queue
 """
 import json
@@ -8,8 +8,7 @@ import unittest
 from django.contrib.auth.models import User
 from django.test.client import Client
 
-import ext_interface
-import lms_interface
+from queue import lms_interface
 
 def parse_xreply(xreply):
     xreply = json.loads(xreply)
@@ -29,7 +28,7 @@ class lms_interface_test(unittest.TestCase):
         '''
         c = Client()
         login_url = '/xqueue/login/'
-        
+
         # 0) Attempt login with GET, must fail with message='login_required'
         #    The specific message is important, as it is used as a flag by LMS to reauthenticate!
         response = c.get(login_url)
@@ -37,7 +36,7 @@ class lms_interface_test(unittest.TestCase):
         self.assertEqual(error, True)
         self.assertEqual(msg, 'login_required')
 
-        # 1) Attempt login with POST, but no auth 
+        # 1) Attempt login with POST, but no auth
         response = c.post(login_url)
         (error,_) = parse_xreply(response.content)
         self.assertEqual(error, True)
@@ -91,18 +90,3 @@ class lms_interface_test(unittest.TestCase):
             (is_valid,_,_,_,_) = lms_interface._is_valid_request(bad_request)
             self.assertEqual(is_valid, False)
 
-
-class ext_interface_test(unittest.TestCase):
-
-    def setUp(self):
-        pass
-        
-    def tearDown(self):
-        pass
-
-    def test_put_result(self):
-        pass
-
-    def test_is_valid_reply(self):
-        pass
-        

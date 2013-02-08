@@ -1,1 +1,7 @@
 *.pyc
+.coverage
+cover_html
+coverage.xml
+log
+nosetests.xml
+reports
