@@ -26,7 +26,7 @@ class ServerHandler(BaseHTTPRequestHandler):
     # handle POSTS from the xserver
     def setup(self):
         self.request.settimeout(self.timeout)
-        super(ServerHandler, self).setup()
+        BaseHTTPRequestHandler.setup(self)
 
     def do_POST(self):
         form = cgi.FieldStorage(
