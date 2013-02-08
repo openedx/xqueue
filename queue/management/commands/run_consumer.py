@@ -79,7 +79,7 @@ class Command(BaseCommand):
         for min_disjoint_workers in range(workers_per_queue / 2, 0, -1):
             try:
                 queue_assignments = assign_workers_to_queues(queues, num_workers, workers_per_queue, min_disjoint_workers)
-                assignments = assign_queues_to_workers(num_workers, worker_assignments)
+                assignments = assign_queues_to_workers(num_workers, queue_assignments)
 
                 break
             except NoAssignmentError:
