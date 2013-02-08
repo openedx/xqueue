@@ -174,7 +174,7 @@ class SingleChannel(multiprocessing.Process):
     Encapsulation of a single RabbitMQ listener that listens on multiple queues
     '''
     def __init__(self, worker_id, queues):
-        super(self, SingleChannel).__init__(self)
+        super(SingleChannel, self).__init__(self)
         self.worker_id = worker_id
         self.queues = queues
 
