@@ -30,7 +30,7 @@ if [ ! -d /mnt/virtualenvs/"$JOB_NAME" ]; then
 fi
 
 source /mnt/virtualenvs/"$JOB_NAME"/bin/activate
-yes w | pip install -q -r requirements.txt
+pip install -q -r requirements.txt
 
 rake clobber
 rake pep8 || echo "pep8 failed, continuing"
