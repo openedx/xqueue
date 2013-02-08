@@ -231,6 +231,8 @@ class SingleChannel(threading.Thread):
                 self.queue_name,
                 submission_id
             ))
+            # Don't leave without closing the transaction
+            transaction.commit()
             return  # Just move on
 
         # If item has been retired, skip grading
