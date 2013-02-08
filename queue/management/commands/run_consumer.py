@@ -45,7 +45,7 @@ def assign_workers_to_queues(queues, number_of_workers, workers_per_queue, minim
 def assign_queues_to_workers(num_workers, queue_assignments):
     """
     Takes a dictionary mapping queues to workers for those queues, and converts
-    it to a list of queues assigned to each worker
+    it to a set of queues assigned to each worker
 
     queue_assignments: Dict from queue -> worker ids (ints)
     """
