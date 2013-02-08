@@ -12,7 +12,7 @@ from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
 from statsd import statsd
 
-import queue.producer
+from queue.producer import get_queue_length
 
 from queue.models import Submission
 
@@ -171,19 +171,17 @@ def _http_post(url, data, timeout):
 
 class SingleChannel(threading.Thread):
     '''
-    Encapsulation of a single RabbitMQ queue listener
+    Encapsulation of a single RabbitMQ listener that listens on multiple queues
     '''
-    def __init__(self, workerID, workerURL, queue_name):
+    def __init__(self, worker_id, queues):
         threading.Thread.__init__(self)
-        self.workerID = workerID
-        self.workerURL = workerURL
-        self.queue_name = str(queue_name)  # Important, queue_name must be str, not unicode!
+        self.worker_id = worker_id
+        self.queues = queues
 
     def run(self):
-        log.info(" [{id}-{qname}] Starting consumer for queue '{qname}' using {push_url}".format(
-            id=self.workerID,
-            qname=self.queue_name,
-            push_url=self.workerURL
+        log.info(" [{id}] Starting consumer for queues {queues}".format(
+            id=self.worker_id,
+            queues=self.queues,
         ))
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                                 settings.RABBITMQ_PASS)
@@ -193,9 +191,19 @@ class SingleChannel(threading.Thread):
         channel = connection.channel()
         channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(self.consumer_callback,
-                              queue=self.queue_name)
+        for queue in self.queues:
+            channel.basic_consume(queue.consumer_callback,
+                                  queue=queue.queue_name)
         channel.start_consuming()
+
+
+class QueueConsumer(object):
+    """
+    Encapsulates a queue that work should be pulled from
+    """
+    def __init__(self, worker_url, queue_name):
+        self.worker_url = worker_url
+        self.queue_name = str(queue_name)
 
     # By default, Django wraps each view code as a DB transaction. We don't want this behavior for the
     #   consumer, since it may be the case that a queued ticket arrives at the consumer before the
@@ -214,10 +222,12 @@ class SingleChannel(threading.Thread):
             try:
                 submission = Submission.objects.get(id=submission_id)
             except Submission.DoesNotExist:
-                transaction.commit() # Need to terminate current transaction, allows next queryset to view fresh version of DB
+                # Need to terminate current transaction, allows next queryset to view fresh version of DB
+                transaction.commit()
                 log.info("Queued pointer refers to nonexistent entry in Submission DB on {0}-th lookup: queue_name: {1}, submission_id: {2}".format(
                             i, self.queue_name, submission_id))
-                time.sleep(settings.DB_WAITTIME) # Wait in case the DB hasn't been updated yet
+                # Wait in case the DB hasn't been updated yet
+                time.sleep(settings.DB_WAITTIME)
                 continue
             else:
                 break
@@ -241,14 +251,14 @@ class SingleChannel(threading.Thread):
             payload = {'xqueue_body': submission.xqueue_body,
                        'xqueue_files': submission.s3_urls}
 
-            submission.grader_id = self.workerURL
+            submission.grader_id = self.worker_url
             submission.push_time = timezone.now()
             start = time.time()
-            (grading_success, grader_reply) = _http_post(self.workerURL, json.dumps(payload), settings.GRADING_TIMEOUT)
+            (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
             statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
                           tags=['queue:{0}'.format(self.queue_name)])
 
-            job_count = queue.producer.get_queue_length(self.queue_name)
+            job_count = get_queue_length(self.queue_name)
             statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
                           tags=['queue:{0}'.format(self.queue_name)])
 
@@ -260,11 +270,12 @@ class SingleChannel(threading.Thread):
                 submission.grader_reply = grader_reply
                 submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
             else:
-                log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.workerURL, grader_reply))
+                log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.worker_url, grader_reply))
                 submission.num_failures += 1
                 submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
 
-            submission.retired = True # NOTE: Retiring pushed submissions after one shot regardless of grading_success
+            # NOTE: Retiring pushed submissions after one shot regardless of grading_success
+            submission.retired = True
 
             submission.save()
 
@@ -273,3 +284,6 @@ class SingleChannel(threading.Thread):
 
         # Close transaction
         transaction.commit()
+
+    def __repr__(self):
+        return "QueueConsumer(%r, %r)" % (self.worker_url, self.worker_name)
