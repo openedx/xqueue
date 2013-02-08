@@ -59,7 +59,7 @@ def assign_queues_to_workers(num_workers, queue_assignments):
 
 class Command(BaseCommand):
     args = "<worker count>"
-    help = "Listens to all queues specified as being push-queues in the django configuration with <worker count> threads"
+    help = "Listens to all queues specified as being push-queues in the django configuration with <worker count> processes"
 
     def handle(self, *args, **options):
         log.info(' [*] Starting queue consumers...')

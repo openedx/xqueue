@@ -2,7 +2,7 @@
 import json
 import pika
 import requests
-import threading
+import multiprocessing
 import logging
 import time
 
@@ -169,12 +169,12 @@ def _http_post(url, data, timeout):
     return (True, r.text)
 
 
-class SingleChannel(threading.Thread):
+class SingleChannel(multiprocessing.Process):
     '''
     Encapsulation of a single RabbitMQ listener that listens on multiple queues
     '''
     def __init__(self, worker_id, queues):
-        threading.Thread.__init__(self)
+        super(SingleChannel, self).__init__()
         self.worker_id = worker_id
         self.queues = queues
 
