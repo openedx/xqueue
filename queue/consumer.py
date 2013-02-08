@@ -189,9 +189,9 @@ class SingleChannel(threading.Thread):
                         pika.ConnectionParameters(heartbeat_interval=5,
                             credentials=credentials, host=settings.RABBIT_HOST))
         channel = connection.channel()
-        channel.queue_declare(queue=self.queue_name, durable=True)
         channel.basic_qos(prefetch_count=1)
         for queue in self.queues:
+            channel.queue_declare(queue=queue.queue_name, durable=True)
             channel.basic_consume(queue.consumer_callback,
                                   queue=queue.queue_name)
         channel.start_consuming()
