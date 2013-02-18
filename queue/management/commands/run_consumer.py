@@ -1,4 +1,6 @@
 import logging
+import os
+import time
 
 from itertools import combinations
 from django.core.management.base import BaseCommand, CommandError
@@ -91,10 +93,25 @@ class Command(BaseCommand):
         for wid, queues in enumerate(assignments):
             channel = SingleChannel(wid, queues)
             channel.start()
-            channels.append(channel)
+            channels.append([channel, wid, queues])
 
-        # TODO (cpennington): Manage this so that if a subset of workers die, we figure that out and restart
-        for channel in channels:
-            channel.join()
+        if getattr(settings,'RUN_CONSUMER_FOREVER',''):
+
+            log.info('---------------------------------------- Running consumer forever')
+            while True:
+                for citem in channels:
+                    channel, wid, queues = citem
+                    if not channel.is_alive():
+                        log.error('---> Dead channel %s (queues=%s)!  Dropping and restarting' % (channel, str(queues)))
+                        channels.remove(citem)
+                        channel = SingleChannel(wid, queues)
+                        channel.start()
+                        channels.append([channel, wid, queues])
+                time.sleep(2)	# sleep for 2 seconds between checks
+
+        else:
+            # TODO (cpennington): Manage this so that if a subset of workers die, we figure that out and restart
+            for channel, wid, queues in channels:
+                channel.join()
 
         log.info(' [*] All workers finished. Exiting')
