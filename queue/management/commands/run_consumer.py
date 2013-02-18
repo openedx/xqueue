@@ -64,7 +64,12 @@ class Command(BaseCommand):
     help = "Listens to all queues specified as being push-queues in the django configuration with <worker count> processes"
 
     def handle(self, *args, **options):
+        log.info('====> run_consumer pid=%s' % os.getpid())
         log.info(' [*] Starting queue consumers...')
+
+        pidfn = getattr(settings,'QUEUE_CONSUMER_PID_FILE','')
+        if pidfn:
+            open(pidfn,'w').write(str(os.getpid()))
 
         channels = []
         queues = [
