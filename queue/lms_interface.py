@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponse 
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from boto.s3.connection import S3Connection
@@ -16,7 +16,7 @@ from queue.models import Submission, CHARFIELD_LEN_LARGE
 from queue.views import compose_reply
 from util import *
 
-import queue.producer 
+import queue.producer
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +29,7 @@ def submit(request):
     Handle submissions to Xqueue from the LMS
     '''
     if request.method != 'POST':
+        transaction.commit()
         return HttpResponse(compose_reply(False, 'Queue requests should use HTTP POST'))
     else:
         # queue_name, xqueue_header, xqueue_body are all serialized
@@ -38,10 +39,12 @@ def submit(request):
             log.error("Invalid queue submission from LMS: lms ip: {0}, request.POST: {1}".format(
                 get_request_ip(request),
                 request.POST,
-            )) 
+            ))
+            transaction.commit()
             return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
         else:
             if queue_name not in settings.XQUEUES:
+                transaction.commit()
                 return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
             else:
                 # Limit DOS attacks by invalidating prior submissions from the
@@ -67,7 +70,7 @@ def submit(request):
                     s3_urls = {"URL_FOR_EXTERNAL_DICTS": s3_url}
                     s3_urls_json = json.dumps(s3_urls)
                     s3_keys_json = json.dumps(s3_keys)
-                
+
                 # Track the submission in the Submission database
                 submission = Submission(requester_id=get_request_ip(request),
                                         lms_callback_url=lms_callback_url,
@@ -85,7 +88,7 @@ def submit(request):
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))
 
-
+@transaction.commit_manually
 def _invalidate_prior_submissions(lms_callback_url):
     '''
     Check the Submission DB to invalidate prior submissions from the same
@@ -94,6 +97,7 @@ def _invalidate_prior_submissions(lms_callback_url):
     '''
     prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
     prior_submissions.update(retired=True)
+    transaction.commit()
 
 
 def _is_valid_request(xrequest):
@@ -136,7 +140,7 @@ def _is_valid_request(xrequest):
 
 def _upload_file_dict_to_s3(file_dict, key_dict, keyname, bucketname):
     '''
-    Upload dictionaries of filenames to S3 urls (and filenames to S3 keys) 
+    Upload dictionaries of filenames to S3 urls (and filenames to S3 keys)
     to S3 using provided keyname.
     This is useful because the s3_files column on submissions is currently too
     small.
@@ -156,16 +160,16 @@ def _upload_file_dict_to_s3(file_dict, key_dict, keyname, bucketname):
     k.key = keyname
     k.set_contents_from_string(json.dumps(data))
     public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
-    
+
     return public_url
-    
+
 @statsd.timed('xqueue.lms_interface.s3_upload.time')
 def _upload_to_s3(file_to_upload, keyname, bucketname):
     '''
     Upload file to S3 using provided keyname.
 
     Returns:
-        public_url: URL to access uploaded file 
+        public_url: URL to access uploaded file
     '''
     conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
     bucketname = settings.AWS_ACCESS_KEY_ID + '_' + bucketname
@@ -176,5 +180,5 @@ def _upload_to_s3(file_to_upload, keyname, bucketname):
     k.set_metadata('filename',file_to_upload.name)
     k.set_contents_from_file(file_to_upload)
     public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
-    
+
     return public_url

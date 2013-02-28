@@ -1,10 +1,11 @@
 import logging
-
 from itertools import combinations
-from django.core.management.base import BaseCommand, CommandError
+
+from django.core.management.base import BaseCommand
+
 from django.conf import settings
 
-from queue.consumer import SingleChannel, QueueConsumer
+from queue.consumer import Worker
 
 log = logging.getLogger(__name__)
 
@@ -59,42 +60,25 @@ def assign_queues_to_workers(num_workers, queue_assignments):
 
 class Command(BaseCommand):
     args = "<worker count>"
-    help = "Listens to all queues specified as being push-queues in the django configuration with <worker count> processes"
+    help = """
+    Listens to all queues specified as being push-queues in the django
+    configuration with <worker count> processes
+    """
 
     def handle(self, *args, **options):
         log.info(' [*] Starting queue consumers...')
 
-        channels = []
-        queues = [
-            QueueConsumer(push_url, queue_name)
-            for (queue_name, push_url)
-            in settings.XQUEUES.items()
-            if push_url is not None
-        ]
+        workers = []
+        queues = settings.XQUEUES.items()
 
-        workers_per_queue = settings.XQUEUE_WORKERS_PER_QUEUE
-        num_workers = settings.WORKER_COUNT
+        # Assigned one worker for queue
+        for name, url in queues:
+            if url is not None:
+                worker = Worker(queue_name=name, worker_url=url)
+                worker.start()
+                workers.append(worker)
 
-        assignments = None
-        for min_disjoint_workers in range(max(workers_per_queue / 2, 1), 0, -1):
-            try:
-                queue_assignments = assign_workers_to_queues(queues, num_workers, workers_per_queue, min_disjoint_workers)
-                assignments = assign_queues_to_workers(num_workers, queue_assignments)
-
-                break
-            except NoAssignmentError:
-                continue
-
-        if assignments is None:
-            raise CommandError("Unable to assign workers to queues with constraints: workers_per_queue=%d, num_workers=%d" % (workers_per_queue, num_workers))
-
-        for wid, queues in enumerate(assignments):
-            channel = SingleChannel(wid, queues)
-            channel.start()
-            channels.append(channel)
-
-        # TODO (cpennington): Manage this so that if a subset of workers die, we figure that out and restart
-        for channel in channels:
-            channel.join()
+        for worker in workers:
+            worker.join()
 
         log.info(' [*] All workers finished. Exiting')
