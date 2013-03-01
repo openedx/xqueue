@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 import json
-import pika
+import logging
 import requests
 import multiprocessing
-import logging
+import threading
 import time
+import itertools
 
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from requests.exceptions import ConnectionError, Timeout
+
+import pika
 from statsd import statsd
+from requests.exceptions import ConnectionError, Timeout
 
 from queue.producer import get_queue_length
-
 from queue.models import Submission
 
 log = logging.getLogger(__name__)
@@ -97,16 +99,17 @@ def post_failure_to_lms(header):
         and that the problem should be resubmitted
     '''
 
-    # This is the only part of the XQueue that assumes knowledge of the external
-    #   grader message format. TODO: Make the notification message-format agnostic
-    msg  = '<div class="capa_alert">'
+    # This is the only part of the XQueue that assumes knowledge of
+    # the external grader message format.
+    # TODO: Make the notification message-format agnostic
+    msg = '<div class="capa_alert">'
     msg += 'Your submission could not be graded. '
     msg += 'Please recheck your submission and try again. '
     msg += 'If the problem persists, please notify the course staff.'
     msg += '</div>'
-    failure_msg = { 'correct': None,
-                    'score': 0,
-                    'msg': msg }
+    failure_msg = {'correct': None,
+                   'score': 0,
+                   'msg': msg}
     statsd.increment('xqueue.consumer.post_failure_to_lms')
     return post_grade_to_lms(header, json.dumps(failure_msg))
 
@@ -132,7 +135,9 @@ def post_grade_to_lms(header, body):
     attempts = 0
     success = False
     while (not success) and attempts < 5:
-        (success, lms_reply) = _http_post(lms_callback_url, payload, settings.REQUESTS_TIMEOUT)
+        (success, lms_reply) = _http_post(lms_callback_url,
+                                          payload,
+                                          settings.REQUESTS_TIMEOUT)
         attempts += 1
 
     if success:
@@ -169,55 +174,87 @@ def _http_post(url, data, timeout):
     return (True, r.text)
 
 
-class SingleChannel(multiprocessing.Process):
-    '''
-    Encapsulation of a single RabbitMQ listener that listens on multiple queues
-    '''
-    def __init__(self, worker_id, queues):
-        super(SingleChannel, self).__init__()
-        self.worker_id = worker_id
-        self.queues = queues
+class Worker(multiprocessing.Process):
+    """Encapsulation of a single RabbitMQ listener that listens on a queue
+    """
+    counter = itertools.count()
+
+    def __init__(self, queue_name, worker_url):
+        super(Worker, self).__init__()
+
+        self.id = next(self.counter)
+        self.queue_name = queue_name
+        self.worker_url = worker_url
+
+        # there seems to be an issue with db connections and
+        # multiprocessing. since we are not using the connection in
+        # the main worker thread, lets close it hoping that it does
+        # not get shared with the children threads.
+        from django.db import connection
+        connection.close()
 
     def run(self):
-        log.info(" [{id}] Starting consumer for queues {queues}".format(
-            id=self.worker_id,
-            queues=self.queues,
+        log.info(" [{id}] Starting consumer for queue {queue}".format(
+            id=self.id,
+            queue=self.queue_name,
         ))
+
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                                settings.RABBITMQ_PASS)
-        connection = pika.BlockingConnection(
-                        pika.ConnectionParameters(heartbeat_interval=5,
-                            credentials=credentials, host=settings.RABBIT_HOST))
+                                            settings.RABBITMQ_PASS)
+
+        parameters = pika.ConnectionParameters(heartbeat_interval=5,
+                                               credentials=credentials,
+                                               host=settings.RABBIT_HOST)
+
+        connection = pika.BlockingConnection(parameters)
+
         channel = connection.channel()
+
         channel.basic_qos(prefetch_count=1)
-        for queue in self.queues:
-            channel.queue_declare(queue=queue.queue_name, durable=True)
-            channel.basic_consume(queue.consumer_callback,
-                                  queue=queue.queue_name)
+        channel.queue_declare(queue=self.queue_name, durable=True)
+        channel.basic_consume(self._callback, queue=self.queue_name)
         channel.start_consuming()
 
+        # TODO [rocha] make to to finish all  submissions before exiting
 
-class QueueConsumer(object):
-    """
-    Encapsulates a queue that work should be pulled from
-    """
-    def __init__(self, worker_url, queue_name):
-        self.worker_url = worker_url
-        self.queue_name = str(queue_name)
-
-    # By default, Django wraps each view code as a DB transaction. We don't want this behavior for the
-    #   consumer, since it may be the case that a queued ticket arrives at the consumer before the
-    #   corresponding DB row has been written and closed. In such cases, we want the subsequent accesses
-    #   to the DB (in the same view) to be sensitive to concurrent updates to the DB.
-    #
-    # We tried to get rid of this and ended up with something that worked on staging but not on prod.
-    # SO BE VERY CAREFUL ABOUT TOUCHING THIS PART OF THE CODE...
-    @transaction.commit_manually
-    def consumer_callback(self, ch, method, properties, qitem):
-
+    def _callback(self, channel, method, properties, qitem):
         submission_id = int(qitem)
 
+        # acknowledge the message right away at the risk not getting the
+        # submission processed if the process method crashes
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+
+        # process the submission in a different thread to avoid
+        # blocking pika's ioloop, which can cause disconnects and
+        # othererrors
+        thread = threading.Thread(target=self._process, args=(submission_id,))
+        thread.daemon = True
+        thread.start()
+
+    @transaction.commit_manually
+    def _process(self, submission_id):
+        log.info("Processing submission from queue_name: {0}, submission_id: {1}".format(self.queue_name, submission_id))
+
+        submission = self._get_submission(submission_id)
+
+        if submission is None:
+            statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
+                             tags=['queue:{0}'.format(self.queue_name)])
+            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                self.queue_name,
+                submission_id
+            ))
+
+        # if item has been retired, skip grading
+        if submission and not submission.retired:
+            self._deliver_submission(submission)
+
+        # close transaction
+        transaction.commit()
+
+    def _get_submission(self, submission_id):
         submission = None
+
         for i in range(settings.DB_RETRIES):
             try:
                 submission = Submission.objects.get(id=submission_id)
@@ -225,65 +262,46 @@ class QueueConsumer(object):
                 # Need to terminate current transaction, allows next queryset to view fresh version of DB
                 transaction.commit()
                 log.info("Queued pointer refers to nonexistent entry in Submission DB on {0}-th lookup: queue_name: {1}, submission_id: {2}".format(
-                            i, self.queue_name, submission_id))
+                    i, self.queue_name, submission_id))
                 # Wait in case the DB hasn't been updated yet
                 time.sleep(settings.DB_WAITTIME)
                 continue
             else:
                 break
 
-        if submission == None:
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-            statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
-                             tags=['queue:{0}'.format(self.queue_name)])
+        return submission
 
-            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
-                self.queue_name,
-                submission_id
-            ))
-            # Don't leave without closing the transaction
-            transaction.commit()
-            return  # Just move on
+    def _deliver_submission(self, submission):
+        payload = {'xqueue_body': submission.xqueue_body,
+                   'xqueue_files': submission.s3_urls}
 
-        # If item has been retired, skip grading
-        if not submission.retired:
-            # Deliver job to worker
-            payload = {'xqueue_body': submission.xqueue_body,
-                       'xqueue_files': submission.s3_urls}
+        submission.grader_id = self.worker_url
+        submission.push_time = timezone.now()
+        start = time.time()
+        (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
+        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
+                      tags=['queue:{0}'.format(self.queue_name)])
 
-            submission.grader_id = self.worker_url
-            submission.push_time = timezone.now()
-            start = time.time()
-            (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
-            statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
-                          tags=['queue:{0}'.format(self.queue_name)])
+        job_count = get_queue_length(self.queue_name)
+        statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
+                      tags=['queue:{0}'.format(self.queue_name)])
 
-            job_count = get_queue_length(self.queue_name)
-            statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
-                          tags=['queue:{0}'.format(self.queue_name)])
+        submission.return_time = timezone.now()
 
-            submission.return_time = timezone.now()
+        # TODO: For the time being, a submission in a push interface gets one chance at grading,
+        #       with no requeuing logic
+        if grading_success:
+            submission.grader_reply = grader_reply
+            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
+        else:
+            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission.id, self.worker_url, grader_reply))
+            submission.num_failures += 1
+            submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
 
-            # TODO: For the time being, a submission in a push interface gets one chance at grading,
-            #       with no requeuing logic
-            if grading_success:
-                submission.grader_reply = grader_reply
-                submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
-            else:
-                log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission_id, self.worker_url, grader_reply))
-                submission.num_failures += 1
-                submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
+        # NOTE: retiring pushed submissions after one shot regardless of grading_success
+        submission.retired = True
 
-            # NOTE: Retiring pushed submissions after one shot regardless of grading_success
-            submission.retired = True
-
-            submission.save()
-
-        # Take item off of queue
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        # Close transaction
-        transaction.commit()
+        submission.save()
 
     def __repr__(self):
-        return "QueueConsumer(%r, %r)" % (self.worker_url, self.queue_name)
+        return "Worker (%r, %r)" % (self.worker_url, self.queue_name)
