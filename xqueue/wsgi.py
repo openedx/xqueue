@@ -20,8 +20,36 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xqueue.settings")
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+from django.core.wsgi import WSGIHandler
+
+
+class ForceReadPostHandler(WSGIHandler):
+    """WSGIHandler that forces reading POST data before forwarding to the
+    application.
+
+    nginx as a proxy expects the backend to respond only after the
+    whole body of the request has been read. In some cases (see below)
+    the backend starts responding before reading the request. This
+    causes nginx to return a 502 error, instead of forwarding the
+    proper response to the client, which makes very hard to debug
+    problems with the backend.
+
+    Cases where the backend responds early:
+
+    - Early errors from django, for example errors from view decorators.
+    - POST request with large payloads, which may get chunked by nginx.
+      django sends a 100 Continue response before reading the whole body.
+
+    For more information:
+    http://kudzia.eu/b/2012/01/switching-from-apache2-to-nginx-as-reverse-proxy
+
+    """
+
+    def get_response(self, request):
+        data = request.POST.copy()  # read the POST data passing it
+        return super(ForceReadPostHandler, self).get_response(request)
+
+application = ForceReadPostHandler()
 
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
