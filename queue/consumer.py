@@ -71,7 +71,7 @@ def get_single_qitem(queue_name):
 
     # Pull a single submission (if one exists) from the named queue
     credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                            settings.RABBITMQ_PASS)
+                                        settings.RABBITMQ_PASS)
 
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         heartbeat_interval=5,
@@ -182,10 +182,6 @@ class Worker(multiprocessing.Process):
     def __init__(self, queue_name, worker_url):
         super(Worker, self).__init__()
 
-        self.id = next(self.counter)
-        self.queue_name = queue_name
-        self.worker_url = worker_url
-
         # there seems to be an issue with db connections and
         # multiprocessing. since we are not using the connection in
         # the main worker thread, lets close it hoping that it does
@@ -193,11 +189,9 @@ class Worker(multiprocessing.Process):
         from django.db import connection
         connection.close()
 
-    def run(self):
-        log.info(" [{id}] Starting consumer for queue {queue}".format(
-            id=self.id,
-            queue=self.queue_name,
-        ))
+        self.id = next(self.counter)
+        self.queue_name = queue_name
+        self.worker_url = worker_url
 
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                             settings.RABBITMQ_PASS)
@@ -206,51 +200,94 @@ class Worker(multiprocessing.Process):
                                                credentials=credentials,
                                                host=settings.RABBIT_HOST)
 
-        connection = pika.BlockingConnection(parameters)
+        self.channel = None
+        self.connection = pika.SelectConnection(parameters, self.on_connected)
 
-        channel = connection.channel()
+    def on_connected(self, connection):
+        self.connection.channel(self.on_channel_open)
 
-        channel.basic_qos(prefetch_count=1)
-        channel.queue_declare(queue=self.queue_name, durable=True)
-        channel.basic_consume(self._callback, queue=self.queue_name)
-        channel.start_consuming()
+    def on_channel_open(self, channel):
+        self.channel = channel
 
+        # The prefetch count determines how many messages will be
+        # fetched by pika for processing. New messages will only be
+        # fetched after the ones that are being processed have been
+        # acknowledged. Because we are using a thread to process each
+        # message, the prefecth count also determines the maximum
+        # number of processing threads running at the same time.
+        prefetch_count = settings.XQUEUE_WORKERS_PER_QUEUE
+        channel.basic_qos(prefetch_count=prefetch_count)
+
+        channel.queue_declare(queue=self.queue_name,
+                              durable=True,
+                              callback=self.on_queue_declared)
+
+    def on_queue_declared(self, frame):
+        self.channel.basic_consume(self._callback, queue=self.queue_name)
+
+    def run(self):
+        log.info(" [{id}] Starting consumer for queue {queue}".format(
+            id=self.id,
+            queue=self.queue_name,
+        ))
+
+        self.connection.ioloop.start()
         # TODO [rocha] make to to finish all  submissions before exiting
 
     def _callback(self, channel, method, properties, qitem):
-        submission_id = int(qitem)
+        def on_done():
+            # Acknowledge the delivery of the message in the ioloop of
+            # the current connection. basic_ack is not thread safe,
+            # and calling it outside of the ioloop thread will cause
+            # an error, and the message will never be acknowledged.
+            acknowledge = lambda: channel.basic_ack(delivery_tag=method.delivery_tag)
+            self.connection.add_timeout(0, acknowledge)
 
-        # acknowledge the message right away at the risk not getting the
-        # submission processed if the process method crashes
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+        submission_id = int(qitem)
 
         # process the submission in a different thread to avoid
         # blocking pika's ioloop, which can cause disconnects and
-        # othererrors
-        thread = threading.Thread(target=self._process, args=(submission_id,))
+        # other errors
+        thread = threading.Thread(target=self._process, args=(submission_id,
+                                                              on_done))
         thread.daemon = True
         thread.start()
 
     @transaction.commit_manually
-    def _process(self, submission_id):
+    def _process(self, submission_id, on_done):
         log.info("Processing submission from queue_name: {0}, submission_id: {1}".format(self.queue_name, submission_id))
+        try:
+            submission = self._get_submission(submission_id)
 
-        submission = self._get_submission(submission_id)
+            if submission is None:
+                statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
+                                 tags=['queue:{0}'.format(self.queue_name)])
+                log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                    self.queue_name,
+                    submission_id
+                ))
 
-        if submission is None:
-            statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
+            # if item has been retired, skip grading
+            if submission and not submission.retired:
+                self._deliver_submission(submission)
+
+            # close transaction
+            transaction.commit()
+        except Exception as e:
+            # We need a wide catch here to correctly rollback the
+            # transaction and acknowledge the message if something
+            # goes wrong
+            statsd.increment('xqueue.consumer.consumer_callback.unknown_error',
                              tags=['queue:{0}'.format(self.queue_name)])
-            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+            log.error("Error processing submission_id: {0} on queue_name: {1}, {2}" .format(
+                submission_id,
                 self.queue_name,
-                submission_id
+                e,
             ))
-
-        # if item has been retired, skip grading
-        if submission and not submission.retired:
-            self._deliver_submission(submission)
-
-        # close transaction
-        transaction.commit()
+            transaction.rollback()
+        finally:
+            # acknowledge that the message was processed
+            on_done()
 
     def _get_submission(self, submission_id):
         submission = None
