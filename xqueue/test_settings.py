@@ -8,8 +8,9 @@ try:
 except:
     pass
 
-LOGGING = get_logger_config(log_dir,
-                            logging_env="test",
+LOGGING = get_logger_config(ENV_ROOT / "log",
+                            logging_env="dev",
+                            dev_env=True,
                             debug=True)
 
 DATABASES = {
@@ -20,9 +21,9 @@ DATABASES = {
 
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)
-NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage', '--cover-html',
+NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage', 
+             '--cover-html',
              '--cover-inclusive', '--cover-html-dir',
              os.environ.get('NOSE_COVER_HTML_DIR', 'cover_html'),
-             '--cover-package', 'queue',
-             'queue']
+             '--cover-package', 'queue', 'queue']
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
