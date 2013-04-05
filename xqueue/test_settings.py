@@ -19,6 +19,11 @@ DATABASES = {
     }
 }
 
+# Local RabbitMQ configuration
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASS = 'guest'
+RABBIT_HOST = 'localhost'
+
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)
 NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage', 
