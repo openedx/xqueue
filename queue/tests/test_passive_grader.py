@@ -6,6 +6,7 @@ from tests.integration_framework import PassiveGraderStub, \
 
 from django.utils import unittest
 from django.contrib.auth.models import User
+import json
 
 
 class SimplePassiveGrader(PassiveGraderStub):
@@ -14,7 +15,7 @@ class SimplePassiveGrader(PassiveGraderStub):
     with the same, pre-defined message.
     '''
 
-    PORT_NUM = 12345
+    PORT_NUM = 12347
 
     def __init__(self, response_dict):
         '''
@@ -45,15 +46,14 @@ class PassiveGraderTest(unittest.TestCase):
     grader (one that expects xqueue to send it submissions)
     '''
 
-    GRADER_RESPONSE = {}
-    CALLBACK_PORT = 12346
+    GRADER_RESPONSE = {'submission_data': 'test'}
+    CALLBACK_PORT = 12348
     QUEUE_NAME = 'test_queue'
 
     def setUp(self):
         '''
         Set up the client and stubs to be used across tests.
         '''
-
         # Create the grader
         self.grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
 
@@ -75,7 +75,6 @@ class PassiveGraderTest(unittest.TestCase):
         # and forward them to our grader
         SimplePassiveGrader.start_workers(PassiveGraderTest.QUEUE_NAME,
                                             SimplePassiveGrader.PORT_NUM)
-        pass
 
 
     def tearDown(self):
@@ -87,7 +86,6 @@ class PassiveGraderTest(unittest.TestCase):
 
         # Stop the workers we started earlier
         SimplePassiveGrader.stop_workers()
-        pass
 
 
     def test_submission(self):
@@ -118,5 +116,5 @@ class PassiveGraderTest(unittest.TestCase):
 
         # Check the response matches what we expect
         responses = self.response_listener.get_grade_responses()
-        actual = responses[0]['content']
-        self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, actual)
+        xqueue_body = json.loads(responses[0]['response']['xqueue_body'])
+        self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, xqueue_body)

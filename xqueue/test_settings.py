@@ -16,6 +16,13 @@ LOGGING = get_logger_config(ENV_ROOT / "log",
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test_xqueue.sqlite',
+
+        # We need to use TEST_NAME here,
+        # otherwise Django tests will use an in-memory database 
+        # In-memory databases do not support access from
+        # multiple threads, which the integration tests need
+        'TEST_NAME': 'test_xqueue.sqlite',
     }
 }
 
@@ -23,6 +30,11 @@ DATABASES = {
 RABBITMQ_USER = 'guest'
 RABBITMQ_PASS = 'guest'
 RABBIT_HOST = 'localhost'
+
+# We set up the XQueue to send submissions to test_queue
+# to a local port.  This must match the port we use
+# when we set up passive grader stubs in integration tests.
+XQUEUES = {'test_queue': 'http://127.0.0.1:12348'}
 
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)

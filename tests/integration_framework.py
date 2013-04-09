@@ -206,19 +206,16 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
         Parses the request, then 
         delegates to the server to construct the response.
         '''
+
         # Get the length of the request
         length = int(self.headers.getheader('content-length'))
 
-        # Retrieve the POST dict, which has the form:
-        # { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
-        # 
-        # Note that each key in POST dict is a list, even
-        # if the list has only 1 value.
-        post_dict = urlparse.parse_qs(self.rfile.read(length))
+        # Parse the POST data, which XQueue sends to
+        # us as directly-encoded JSON
+        post_data = self.rfile.read(length)
 
-        # Get a submission dict from the POST dict
         try:
-            submission = self._parse_post_dict(post_dict)
+            submission = json.loads(post_data)
 
         # If we could not process the request, log it
         # and ignore the request
@@ -244,33 +241,8 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             # Send the response
-
-    def _parse_post_dict(self, post_dict):
-        '''
-        post_dict: a dict of the form
-            { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
-
-        returns: dict of the form
-            {'xqueue_header': {'submission_id': ID,
-                                'submission_key': KEY },
-            'xqueue_body: STRING,
-            'xqueue_files': list of file URLs }
-        
-        raises KeyError if the post_dict did not contain expected keys
-        raises ValueError if the post_dict values could not be parsed
-            as valid JSON.
-        '''
-
-        # Retrieve the keys we need
-        # If the value is one element, we return just that
-        # element, not the list.
-        xqueue_header = json.loads(post_dict['xqueue_header'][0])
-        xqueue_body = post_dict['xqueue_body'][0]
-        xqueue_files = post_dict['xqueue_files']
-
-        return {'xqueue_header': xqueue_header,
-                'xqueue_body': xqueue_body,
-                'xqueue_files': xqueue_files}
+            response_str = json.dumps(response)
+            self.wfile.write(response_str)
 
 class PassiveGraderStub(ForkingMixIn, HTTPServer):
     '''
@@ -382,12 +354,49 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         # if the list has only 1 value.
         post_dict = urlparse.parse_qs(self.rfile.read(length))
 
-        self.server.log_post_request(post_dict)
+        # Try to parse the grade response
+        try:
+            grade_response = self._parse_post_dict(post_dict)
 
-        # Respond with success
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
+        except KeyError:
+            log.warning('Received grade response with missing or invalid keys')
+            self.send_response(500)
+
+        except ValueError:
+            log.warning('Could not parse JSON grade response')
+            self.send_response(500)
+
+        else:
+            # Store the response
+            self.server.log_grade_response(grade_response)
+
+            # Respond with success
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+
+    def _parse_post_dict(self, post_dict):
+        '''
+        post_dict: a dict of the form
+            { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
+
+        returns: dict of the form
+            {'xqueue_header': {'submission_id': ID,
+                                'submission_key': KEY },
+            'xqueue_body: STRING }
+        
+        raises KeyError if the post_dict did not contain expected keys
+        raises ValueError if the post_dict values could not be parsed
+            as valid JSON.
+        '''
+
+        # Retrieve the keys we need
+        # If the value is one element, we return just that
+        # element, not the list.
+        xqueue_header = json.loads(post_dict['xqueue_header'][0])
+        xqueue_body = post_dict['xqueue_body'][0]
+
+        return {'xqueue_header': xqueue_header, 'xqueue_body': xqueue_body }
 
 
 class GradeResponseListener(ThreadingMixIn, HTTPServer):
@@ -412,33 +421,27 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
 
     def get_grade_responses(self):
         '''
-        Retrieves record of POST requests received
+        Retrieves record of grade responses received
 
         Returns: list of dictionaries of the form
-            {'datetime_received': datetime, 'post_dict': dict}
+            {'datetime_received': datetime, 'response': dict}
 
-        The POST dict has the form
-        { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
-
-        where each entry is a list, even if it has only 1 value
+        response is usually (but not necessarily) a dict of the form
+        {'xqueue_header': dict, 'xqueue_body': dict }
         '''
         return self._request_list
 
-    def log_post_request(self, post_dict):
+    def log_grade_response(self, response_dict):
         '''
         Store that a POST request was received.
         Called by LoggingRequestHandler when it receives POST requests
         from the xqueue.
 
-        post_dict: dictionary of the form
-            { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
-
-        where each entry is a list, even if it has only 1 value
+        response_dict is any dictionary
         '''
 
         request_record = {'datetime_received': datetime.datetime.now(),
-                            'post_dict': post_dict }
-
+                            'response': response_dict }
 
         # Python lists are thread-safe, so 
         # we can add to the list even if log_post_request()
@@ -561,9 +564,9 @@ class XQueueTestClient(Client):
         if submission_time is None:
             submission_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-        header = {'lms_callback_url': self._callback_url(),
-                'lms_key': 'not used',
-                'queue_name': queuename }
+        header = json.dumps({'lms_callback_url': self._callback_url(),
+                            'lms_key': 'not used',
+                            'queue_name': queuename })
 
         content = json.dumps({'grader_payload': grader_payload,
                             'submission_time': submission_time,
