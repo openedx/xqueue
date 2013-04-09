@@ -54,6 +54,7 @@ import json
 from abc import ABCMeta, abstractmethod
 from queue.consumer import Worker
 import urlparse
+import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn, ForkingMixIn
 
@@ -335,6 +336,15 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
         '''
         address = ('', port_num)
         HTTPServer.__init__(self, address, GradingRequestHandler)
+        self.start()
+
+    def start(self):
+        '''
+        Start the listener in a separate thread
+        '''
+        server_thread = threading.Thread(target=self.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
 
     def stop(self):
         '''
@@ -399,6 +409,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         # Create and start the server
         address = ('', listen_port)
         HTTPServer.__init__(self, address, LoggingRequestHandler)
+        self.start()
 
     def get_grade_responses(self):
         '''
@@ -434,6 +445,14 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         # we can add to the list even if log_post_request()
         # is called from multiple threads simultaneously.
         self._request_list.append(request_record)
+
+    def start(self):
+        '''
+        Start the listener in a separate thread
+        '''
+        server_thread = threading.Thread(target=self.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
 
     def stop(self):
         '''
