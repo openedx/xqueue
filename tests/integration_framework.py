@@ -47,7 +47,6 @@ to messages, or to send invalid responses.
 '''
 
 from django.test.client import Client
-from django.core.urlresolvers import reverse
 import datetime
 import time
 import json
@@ -506,7 +505,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
 
                 # Update elapsed time
                 now = datetime.datetime.now()
-                total_time += (now - last_time)
+                total_time += (now - last_time).total_seconds()
                 last_time = now
 
         # We timed out, so return False
@@ -583,7 +582,11 @@ class XQueueTestClient(Client):
 
         Returns the status code of the request.
         '''
-        response = self.post(reverse('submit'), request)
+
+        # TODO -- why is the url reversal not working?
+        #submit_url = reverse('submit')
+        submit_url = 'http://127.0.0.1:%d/xqueue/submit/' % self._callback_port
+        response = self.post(submit_url, request)
         return response.status_code
 
     def _callback_url(self):

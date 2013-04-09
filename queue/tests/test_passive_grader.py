@@ -75,6 +75,7 @@ class PassiveGraderTest(unittest.TestCase):
         # and forward them to our grader
         SimplePassiveGrader.start_workers(PassiveGraderTest.QUEUE_NAME,
                                             SimplePassiveGrader.PORT_NUM)
+        pass
 
 
     def tearDown(self):
@@ -86,6 +87,7 @@ class PassiveGraderTest(unittest.TestCase):
 
         # Stop the workers we started earlier
         SimplePassiveGrader.stop_workers()
+        pass
 
 
     def test_submission(self):
@@ -93,25 +95,28 @@ class PassiveGraderTest(unittest.TestCase):
         Submit a single response to the XQueue and check that
         we get the expected response.
         '''
-        self.fail()
 
         payload = {'test': 'test'}
         student_input = 'test response'
 
         # Send the XQueue a submission to be graded
-        submission = self.client.build_request(grader_payload=payload,
+        submission = self.client.build_request(PassiveGraderTest.QUEUE_NAME,
+                                                grader_payload=payload,
                                                 student_response=student_input)
 
-        self.client.send_request(PassiveGraderTest.QUEUE_NAME, submission)
+        self.client.send_request(submission)
 
         # Poll the response listener until we get a response
         # or reach the timeout
         poll_func = lambda listener: len(listener.get_grade_responses()) > 0
-        self.response_listener.block_until(poll_func, 
-                                            sleep_time=0.5, 
-                                            timeout=10.0)
+        success = self.response_listener.block_until(poll_func,
+                                                    sleep_time=0.5,
+                                                    timeout=10.0)
+
+        # Check that we did not time out
+        self.assertTrue(success)
 
         # Check the response matches what we expect
-        actual = self.response_listener.get_grade_responses[0]['content']
+        responses = self.response_listener.get_grade_responses()
+        actual = responses[0]['content']
         self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, actual)
-
