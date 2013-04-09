@@ -8,8 +8,8 @@ try:
 except:
     pass
 
-LOGGING = get_logger_config(ENV_ROOT / "log",
-                            logging_env="dev",
+LOGGING = get_logger_config(log_dir,
+                            logging_env="test",
                             dev_env=True,
                             debug=True)
 
