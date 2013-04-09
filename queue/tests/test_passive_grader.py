@@ -19,8 +19,6 @@ class SimplePassiveGrader(PassiveGraderStub):
         '''
         Configure the stub to always respond with the same message
 
-        port_num: The local port to listen on (int)
-
         response_dict: JSON-serializable dict to send in response to
             a submission.
         '''
