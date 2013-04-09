@@ -78,8 +78,8 @@ class PassiveGraderTest(unittest.TestCase):
 
 
     def tearDown(self):
-        ''' 
-        Stop each of the listening services to free up the ports 
+        '''
+        Stop each of the listening services to free up the ports
         '''
         self.grader.stop()
         self.response_listener.stop()

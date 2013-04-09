@@ -72,11 +72,12 @@ from SocketServer import ThreadingMixIn, ForkingMixIn
 from logging import getLogger
 logger = getLogger(__name__)
 
+
 class GraderStubBase(object):
     '''
     Abstract base class for external grader service stubs.
 
-    Subclasses are: 
+    Subclasses are:
 
     * ActiveGraderStub: Uses the REST-like interface for pulling
         and pushing requests to the XQueue.
@@ -104,7 +105,7 @@ class GraderStubBase(object):
 
         Returns: valid xqueue response (dict)
         '''
-        return json.dumps({'xqueue_header': 
+        return json.dumps({'xqueue_header':
                                 {'submission_id': submission_id,
                                  'submission_key': submission_key},
                            'xqueue_body': score_msg})
@@ -152,7 +153,7 @@ class GraderStubBase(object):
             'xqueue_body: STRING,
             'xqueue_files': list of file URLs }
 
-        returns: dictionary 
+        returns: dictionary
 
         XQueue expects the dict to be of the form used by
         build_response(), but you can provide invalid responses
@@ -211,11 +212,11 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
     they can use PassiveGraderStub instead.
     '''
 
-    protocol = "HTTP/1.0" 
+    protocol = "HTTP/1.0"
 
     def do_POST(self):
         '''
-        Parses the request, then 
+        Parses the request, then
         delegates to the server to construct the response.
         '''
 
@@ -235,7 +236,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
 
             # Respond with failure
             self.send_response(500)
-            self.send_headers('Content-type', 'text/plain')
+            self.send_header('Content-type', 'text/plain')
             self.end_headers()
 
             logger.warning('Could not retrieve submission from POST request')
@@ -255,6 +256,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
             # Send the response
             response_str = json.dumps(response)
             self.wfile.write(response_str)
+
 
 class PassiveGraderStub(ForkingMixIn, HTTPServer):
     '''
@@ -312,7 +314,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
     def stop_workers(cls):
         '''
         Stop all workers we created earlier.
-        
+
         Raises an AssertionError if called without first calling
         start_workers()
         '''
@@ -359,7 +361,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
     can use GradeResponseListener.
     '''
 
-    protocol = "HTTP/1.0" 
+    protocol = "HTTP/1.0"
 
     def do_POST(self):
         '''
@@ -371,7 +373,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
 
         # Retrieve the POST dict, which has the form:
         # { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
-        # 
+        #
         # Note that each key in POST dict is a list, even
         # if the list has only 1 value.
         post_dict = urlparse.parse_qs(self.rfile.read(length))
@@ -381,11 +383,11 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
             grade_response = self._parse_post_dict(post_dict)
 
         except KeyError:
-            log.warning('Received grade response with missing or invalid keys')
+            logger.warning('Received grade response with missing or invalid keys')
             self.send_response(500)
 
         except ValueError:
-            log.warning('Could not parse JSON grade response')
+            logger.warning('Could not parse JSON grade response')
             self.send_response(500)
 
         else:
@@ -406,7 +408,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
             {'xqueue_header': {'submission_id': ID,
                                 'submission_key': KEY },
             'xqueue_body: STRING }
-        
+
         raises KeyError if the post_dict did not contain expected keys
         raises ValueError if the post_dict values could not be parsed
             as valid JSON.
@@ -418,7 +420,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         xqueue_header = json.loads(post_dict['xqueue_header'][0])
         xqueue_body = post_dict['xqueue_body'][0]
 
-        return {'xqueue_header': xqueue_header, 'xqueue_body': xqueue_body }
+        return {'xqueue_header': xqueue_header, 'xqueue_body': xqueue_body}
 
 
 class GradeResponseListener(ThreadingMixIn, HTTPServer):
@@ -463,9 +465,9 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         '''
 
         request_record = {'datetime_received': datetime.datetime.now(),
-                            'response': response_dict }
+                            'response': response_dict}
 
-        # Python lists are thread-safe, so 
+        # Python lists are thread-safe, so
         # we can add to the list even if log_post_request()
         # is called from multiple threads simultaneously.
         self._request_list.append(request_record)
@@ -503,7 +505,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
             If poll_func returns True, stop blocking and return.
             If poll_func returns False, continue polling.
 
-        sleep_time: The number of seconds to sleep 
+        sleep_time: The number of seconds to sleep
             between calls to poll_func (float)
 
         timeout: The maximum number of seconds to poll (float)
@@ -515,7 +517,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         last_time = datetime.datetime.now()
         total_time = 0.0
 
-        # While we still have time 
+        # While we still have time
         while total_time < timeout:
 
             # We satisfy the poll condition, return True
@@ -544,7 +546,7 @@ class XQueueTestClient(Client):
     Since this is a subclass of Django's test client,
     we can use it to login and send HTTP requests.
     '''
-    
+
     def __init__(self, callback_port):
         '''
         Create a test client for interacting with the xqueue.
@@ -588,13 +590,13 @@ class XQueueTestClient(Client):
 
         header = json.dumps({'lms_callback_url': self._callback_url(),
                             'lms_key': 'not used',
-                            'queue_name': queuename })
+                            'queue_name': queuename})
 
         content = json.dumps({'grader_payload': grader_payload,
                             'submission_time': submission_time,
-                            'student_response': student_response })
+                            'student_response': student_response})
 
-        return {'xqueue_header': header, 'xqueue_body': content }
+        return {'xqueue_header': header, 'xqueue_body': content}
 
     def send_request(self, request):
         '''
