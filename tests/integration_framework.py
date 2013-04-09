@@ -283,7 +283,17 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
             destination_url = 'http://127.0.0.1:%d' % int(destination_port)
             worker = Worker(queue_name=queue_name,
                             worker_url=destination_url)
-            worker.start()
+
+            # There is a bug in pika on Mac OS X
+            # in which using multithreading.Process with
+            # pika's ioloop causes an IncompatibleProtocolError
+            # to be raised.
+            # The workaround for now is to run each worker
+            # as a separate thread.
+            worker_thread = threading.Thread(target=worker.run)
+            worker_thread.daemon = True
+            worker_thread.start()
+
             cls.worker_list.append(worker)
 
     @classmethod
