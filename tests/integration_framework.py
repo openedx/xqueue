@@ -607,9 +607,6 @@ class XQueueTestClient(Client):
 
         Returns the status code of the request.
         '''
-
-        # TODO -- why is the url reversal not working?
-        #submit_url = reverse('submit')
         submit_url = 'http://127.0.0.1:%d/xqueue/submit/' % self._callback_port
         response = self.post(submit_url, request)
         return response.status_code
