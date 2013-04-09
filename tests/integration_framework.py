@@ -3,7 +3,7 @@ Framework for writing integration tests for xqueue and external
 graders at the level of HTTP requests.
 Basic xqueue communication:
 
-1)    XQueueTestClient --(push)--> xqueue --(pull)--> GraderStub subclass
+1)    XQueueTestClient --(push)--> xqueue --(push/pull)--> GraderStub subclass
 
 2)    GraderStub subclass --(push)--> xqueue --(push)--> GradeResponseListener
 
@@ -32,8 +32,8 @@ The test client sends messages to a particular queue.
 XQueue checks its settings and finds that the queue has
 a URL associated with it.  XQueue forwards the message to that URL.
 
-PassiveGraderStub is listening at the URL and receives POST request
-from XQueue.  The stub responds synchronously with the graded response
+PassiveGraderStub is listening at the URL and receives a POST request
+from XQueue.  The stub responds synchronously with the graded response.
 
 XQueue forwards grading responses to GradeResponseListener using
 the callback_url provided by the test client.
@@ -231,7 +231,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
             submission = json.loads(post_data)
 
         # If we could not process the request, log it
-        # and ignore the request
+        # and respond with failure
         except ValueError:
 
             # Respond with failure
@@ -368,6 +368,10 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         Store the request and respond with success
 
         '''
+        # Send header information
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+
         # Get the length of the request
         length = int(self.headers.getheader('content-length'))
 
@@ -396,8 +400,6 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
 
             # Respond with success
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
 
     def _parse_post_dict(self, post_dict):
         '''
@@ -405,9 +407,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
             { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
 
         returns: dict of the form
-            {'xqueue_header': {'submission_id': ID,
-                                'submission_key': KEY },
-            'xqueue_body: STRING }
+            {'xqueue_header': DICT, 'xqueue_body: DICT }
 
         raises KeyError if the post_dict did not contain expected keys
         raises ValueError if the post_dict values could not be parsed
@@ -418,7 +418,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         # If the value is one element, we return just that
         # element, not the list.
         xqueue_header = json.loads(post_dict['xqueue_header'][0])
-        xqueue_body = post_dict['xqueue_body'][0]
+        xqueue_body = json.loads(post_dict['xqueue_body'][0])
 
         return {'xqueue_header': xqueue_header, 'xqueue_body': xqueue_body}
 

@@ -6,8 +6,6 @@ from tests.integration_framework import PassiveGraderStub, \
 
 from django.utils import unittest
 from django.contrib.auth.models import User
-import json
-
 
 class SimplePassiveGrader(PassiveGraderStub):
     '''
@@ -116,5 +114,5 @@ class PassiveGraderTest(unittest.TestCase):
 
         # Check the response matches what we expect
         responses = self.response_listener.get_grade_responses()
-        xqueue_body = json.loads(responses[0]['response']['xqueue_body'])
+        xqueue_body = responses[0]['response']['xqueue_body']
         self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, xqueue_body)
