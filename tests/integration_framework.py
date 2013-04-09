@@ -44,6 +44,18 @@ Failure injection:
 This framework also makes it easy to inject failure into the system:
 for example, by configuring ExternalGraderStub to stop responding
 to messages, or to send invalid responses.
+
+
+RabbitMQ Requirement:
+
+Integration tests currently require that rabbitmq is running.
+You can start rabbitmq using the commands:
+
+    rabbitmq-server
+    rabbitmqctl start_app
+
+See the installation guides at http://www.rabbitmq.com/download.html
+for platform-specific instructions.
 '''
 
 from django.test.client import Client
