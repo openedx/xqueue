@@ -6,6 +6,8 @@ from tests.integration_framework import PassiveGraderStub, \
 
 from django.utils import unittest
 from django.conf import settings
+from django.test.utils import override_settings
+from uuid import uuid4
 from nose.plugins.attrib import attr
 
 
@@ -28,7 +30,8 @@ class MatlabGraderTest(unittest.TestCase):
     If the required settings cannot be loaded, the test will fail.
     '''
 
-    QUEUE_NAME = 'matlab'
+    # Choose a unique queue name to prevent conflicts in Jenkins
+    QUEUE_NAME = 'matlab_%s' % uuid4().hex
 
     def setUp(self):
         '''
@@ -37,12 +40,12 @@ class MatlabGraderTest(unittest.TestCase):
 
         # Attempt to load settings for the Mathworks servers
         self.api_key = settings.MATHWORKS_API_KEY
-        grader_url = settings.XQUEUES.get(MatlabGraderTest.QUEUE_NAME, None)
+        self.grader_url = settings.XQUEUES.get('matlab', None)
 
         # Fail immediately if settings are missing
         self.assertTrue(self.api_key is not None,
                     'You must specify an API key for Mathworks in envs.json.')
-        self.assertTrue(grader_url is not None,
+        self.assertTrue(self.grader_url is not None,
                 'You must specify a URL for the Mathworks grader in envs.json')
 
         # Create the response listener
@@ -62,7 +65,7 @@ class MatlabGraderTest(unittest.TestCase):
         # and forward them to our grader
         PassiveGraderStub.start_workers_for_grader_url(\
                                         MatlabGraderTest.QUEUE_NAME,
-                                        grader_url)
+                                        self.grader_url)
 
 
     def tearDown(self):
@@ -124,19 +127,25 @@ class MatlabGraderTest(unittest.TestCase):
         '''
         payload = "%%api_key=%s\n%%%%\n%s\n" % (self.api_key, matlab_code)
 
-        # Send the XQueue a submission to be graded
-        submission = self.client.build_request(MatlabGraderTest.QUEUE_NAME,
-                                                grader_payload=payload,
-                                                student_response=student_input)
 
-        self.client.send_request(submission)
+        # Tell the xqueue to forward messages to the mathworks grader
+        # using our unique queue name
+        xqueue_settings = { MatlabGraderTest.QUEUE_NAME: self.grader_url }
+        with override_settings(XQUEUES=xqueue_settings):
 
-        # Poll the response listener until we get a response
-        # or reach the timeout
-        poll_func = lambda listener: len(listener.get_grade_responses()) > 0
-        success = self.response_listener.block_until(poll_func,
-                                                    sleep_time=0.5,
-                                                    timeout=4.0)
+            # Send the XQueue a submission to be graded
+            submission = self.client.build_request(MatlabGraderTest.QUEUE_NAME,
+                                                    grader_payload=payload,
+                                                    student_response=student_input)
+
+            self.client.send_request(submission)
+
+            # Poll the response listener until we get a response
+            # or reach the timeout
+            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            success = self.response_listener.block_until(poll_func,
+                                                        sleep_time=0.5,
+                                                        timeout=4.0)
 
         # Check that we did not time out
         self.assertTrue(success, 'Timed out waiting for response')
