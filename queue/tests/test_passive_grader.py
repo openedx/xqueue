@@ -82,6 +82,9 @@ class PassiveGraderTest(unittest.TestCase):
         # Stop the workers we started earlier
         SimplePassiveGrader.stop_workers()
 
+        # Delete the queue we created
+        SimplePassiveGrader.delete_queue(PassiveGraderTest.QUEUE_NAME)
+
 
     def test_submission(self):
         '''

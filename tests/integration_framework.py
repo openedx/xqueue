@@ -66,6 +66,7 @@ for re-use when finished to avoid TCP port conflicts.
 
 from django.test.client import Client
 from django.contrib.auth.models import User
+from django.conf import settings
 import datetime
 import time
 import json
@@ -75,6 +76,7 @@ import urlparse
 import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn, ForkingMixIn
+import pika
 
 import logging
 logger = logging.getLogger(__name__)
@@ -262,6 +264,28 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
 
         for worker in cls.worker_list:
             worker.stop()
+
+
+    @staticmethod
+    def delete_queue(queue_name):
+        '''
+        Delete the queue named queue_name.
+
+        Use this to clean up queues created implicitly when
+        instantiating workers.
+        '''
+
+        # Establish a connection to the broker
+        creds = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                    settings.RABBITMQ_PASS)
+
+        params = pika.ConnectionParameters(credentials=creds,
+                                            host=settings.RABBIT_HOST)
+
+        connection = pika.BlockingConnection(parameters=params)
+        channel = connection.channel()
+        channel.queue_delete(queue=queue_name)
+
 
     def __init__(self):
         '''
