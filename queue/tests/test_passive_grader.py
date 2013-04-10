@@ -12,8 +12,6 @@ class SimplePassiveGrader(PassiveGraderStub):
     with the same, pre-defined message.
     '''
 
-    PORT_NUM = 12347
-
     def __init__(self, response_dict):
         '''
         Configure the stub to always respond with the same message
@@ -22,7 +20,7 @@ class SimplePassiveGrader(PassiveGraderStub):
             a submission.
         '''
         self._response_dict = response_dict
-        PassiveGraderStub.__init__(self, SimplePassiveGrader.PORT_NUM)
+        PassiveGraderStub.__init__(self)
 
     def response_for_submission(self, submission):
         '''
@@ -42,7 +40,6 @@ class PassiveGraderTest(unittest.TestCase):
     '''
 
     GRADER_RESPONSE = {'submission_data': 'test'}
-    CALLBACK_PORT = 12349
     QUEUE_NAME = 'test_queue'
 
     def setUp(self):
@@ -52,15 +49,14 @@ class PassiveGraderTest(unittest.TestCase):
         # Create the grader
         self.grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
 
-        # Create the client (input submissions)
-        # and configure it to send messages
-        # that end up back at CALLBACK_PORT
-        self.client = XQueueTestClient(PassiveGraderTest.CALLBACK_PORT)
-
         # Create the response listener
         # and configure it to receive messages on CALLBACK_PORT
-        self.response_listener = \
-                GradeResponseListener(PassiveGraderTest.CALLBACK_PORT)
+        self.response_listener = GradeResponseListener()
+
+        # Create the client (input submissions)
+        # and configure it to send messages
+        # that will be sent back to our response listener
+        self.client = XQueueTestClient(self.response_listener.port_num())
 
         # Create the user and make sure we are logged in
         XQueueTestClient.create_user('test', 'test@edx.org', 'password')
@@ -68,9 +64,7 @@ class PassiveGraderTest(unittest.TestCase):
 
         # Start up workers to pull messages from the queue
         # and forward them to our grader
-        callback_url = "http://127.0.0.1:%d" % SimplePassiveGrader.PORT_NUM
-        SimplePassiveGrader.start_workers(PassiveGraderTest.QUEUE_NAME,
-                                            callback_url)
+        self.grader.start_workers(PassiveGraderTest.QUEUE_NAME)
 
 
     def tearDown(self):
@@ -105,7 +99,7 @@ class PassiveGraderTest(unittest.TestCase):
         poll_func = lambda listener: len(listener.get_grade_responses()) > 0
         success = self.response_listener.block_until(poll_func,
                                                     sleep_time=0.5,
-                                                    timeout=10.0)
+                                                    timeout=4.0)
 
         # Check that we did not time out
         self.assertTrue(success)

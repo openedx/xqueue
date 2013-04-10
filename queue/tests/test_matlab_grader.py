@@ -28,7 +28,6 @@ class MatlabGraderTest(unittest.TestCase):
     If the required settings cannot be loaded, the test will fail.
     '''
 
-    CALLBACK_PORT = 12348
     QUEUE_NAME = 'matlab'
 
     def setUp(self):
@@ -46,15 +45,14 @@ class MatlabGraderTest(unittest.TestCase):
         self.assertTrue(grader_url is not None,
                 'You must specify a URL for the Mathworks grader in envs.json')
 
+        # Create the response listener
+        # which listens for responses on an open port
+        self.response_listener = GradeResponseListener()
+
         # Create the client (input submissions)
         # and configure it to send messages
-        # that end up back at CALLBACK_PORT
-        self.client = XQueueTestClient(MatlabGraderTest.CALLBACK_PORT)
-
-        # Create the response listener
-        # and configure it to receive messages on CALLBACK_PORT
-        self.response_listener = \
-                GradeResponseListener(MatlabGraderTest.CALLBACK_PORT)
+        # that xqueue will send to our response listener
+        self.client = XQueueTestClient(self.response_listener.port_num())
 
         # Create the user and make sure we are logged in
         XQueueTestClient.create_user('test', 'test@edx.org', 'password')
@@ -62,7 +60,8 @@ class MatlabGraderTest(unittest.TestCase):
 
         # Start up workers to pull messages from the queue
         # and forward them to our grader
-        PassiveGraderStub.start_workers(MatlabGraderTest.QUEUE_NAME,
+        PassiveGraderStub.start_workers_for_grader_url(\
+                                        MatlabGraderTest.QUEUE_NAME,
                                         grader_url)
 
 
@@ -137,7 +136,7 @@ class MatlabGraderTest(unittest.TestCase):
         poll_func = lambda listener: len(listener.get_grade_responses()) > 0
         success = self.response_listener.block_until(poll_func,
                                                     sleep_time=0.5,
-                                                    timeout=10.0)
+                                                    timeout=4.0)
 
         # Check that we did not time out
         self.assertTrue(success, 'Timed out waiting for response')

@@ -231,9 +231,10 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
 
     Concrete subclass need to implement response_for_submission()
     '''
-
+    
     @classmethod
-    def start_workers(cls, queue_name, destination_url, num_workers=1):
+    def start_workers_for_grader_url(cls, queue_name, 
+                                    destination_url, num_workers=1):
         '''
         We need to start workers (consumers) to pull messages
         from the queue and pass them to our passive grader.
@@ -241,7 +242,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
         queue_name: The name of the queue to pull messages from (string)
 
         destination_url: The url to forward responses to.
-
+        
         num_workers: The number of workers to start for this queue (int)
 
         Raises an AssertionError if trying to start workers before
@@ -252,7 +253,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
 
         else:
             cls.worker_list = []
-
+    
         for i in range(num_workers):
             worker = Worker(queue_name=queue_name, worker_url=destination_url)
 
@@ -272,7 +273,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
     def stop_workers(cls):
         '''
         Stop all workers we created earlier.
-
+        
         Raises an AssertionError if called without first calling
         start_workers()
         '''
@@ -281,15 +282,18 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
         for worker in cls.worker_list:
             worker.stop()
 
-    def __init__(self, port_num):
+    def __init__(self):
         '''
         Create the stub and start listening on a local port
-
-        port_num: The local port to listen on (int)
         '''
-        address = ('', port_num)
+
+        # Choose a local open port
+        address = ('', 0)
+
+        # Start the server
         HTTPServer.__init__(self, address, GradingRequestHandler)
         self.start()
+
 
     def start(self):
         '''
@@ -308,6 +312,22 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
         # We also need to manually close the socket, so it can
         # be re-used later
         self.socket.close()
+
+    def grader_url(self):
+        '''
+        Returns the URL for the local port we are listening on
+        '''
+        port_num = self.socket.getsockname()[1]
+        return "http://127.0.0.1:%d" % port_num
+
+    def start_workers(self, queue_name, num_workers=1):
+        '''
+        Start workers that will forward submissions
+        to the port the grader stub is listening on
+        '''
+        PassiveGraderStub.start_workers_for_grader_url(queue_name,
+                                                    self.grader_url(),
+                                                    num_workers=num_workers)
 
 
 class LoggingRequestHandler(BaseHTTPRequestHandler):
@@ -387,17 +407,17 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
     records grade responses from the xqueue.
     '''
 
-    def __init__(self, listen_port):
+    def __init__(self):
         '''
         Start listening on a local port for responses from the xqueue
-
-        listen_port: the local port xqueue will POST responses to (int)
         '''
         # Create an empty list in which to store request records
         self._request_list = []
 
+        # Choose an open local port
+        address = ('', 0)
+
         # Create and start the server
-        address = ('', listen_port)
         HTTPServer.__init__(self, address, LoggingRequestHandler)
         self.start()
 
@@ -495,6 +515,12 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
 
         # We timed out, so return False
         return False
+
+    def port_num(self):
+        '''
+        Return the local port we are listening on
+        '''
+        return self.socket.getsockname()[1]
 
 
 class XQueueTestClient(Client):
