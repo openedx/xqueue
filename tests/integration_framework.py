@@ -76,8 +76,13 @@ import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn, ForkingMixIn
 
-from logging import getLogger
-logger = getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
+
+# Suppress low-level network messages
+# from rabbitmq (pika) and requests
+logging.getLogger('pika').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
 
 class GraderStubBase(object):
     '''
