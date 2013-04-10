@@ -55,7 +55,7 @@ class PassiveGraderTest(unittest.TestCase):
         self.grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
 
         # Create the response listener
-        # and configure it to receive messages on CALLBACK_PORT
+        # and configure it to receive messages on a local port
         self.response_listener = GradeResponseListener()
 
         # Create the client (input submissions)
