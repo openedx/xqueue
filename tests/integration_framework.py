@@ -11,20 +11,6 @@ Test cases verify that the output to GradeResponseListener given
 inputs specified by XQueueTestClient.
 
 
-How messages get routed (ActiveGraderStub):
-
-The test client sends messages to a particular queue.
-
-ActiveGraderStub pulls messages from a particular queue, which
-is specified by the test client.
-
-ActiveGraderStub pushes the response back to XQueue
-
-XQueue forwards grading responses to GradeResponseListener using
-the callback_url provided by the test client.
-
-
-
 How messages get routed (PassiveGraderStub):
 
 The test client sends messages to a particular queue.
@@ -56,6 +42,26 @@ You can start rabbitmq using the commands:
 
 See the installation guides at http://www.rabbitmq.com/download.html
 for platform-specific instructions.
+
+
+Jenkins:
+
+XQueue's current design makes it difficult to test in a 
+continuous integration environment. 
+Here are some of the conflicts that can occur:
+
+    1) Because workers run in separate threads and each access
+        the database, we cannot use an in-memory database.
+        File-based databases need unique names in order
+        to avoid conflicts.
+
+    2) Because workers pull messages from rabbitmq queues,
+        the queue names need to be unique.  Otherwise,
+        a test might pull a message created by another test.
+
+The integration tests use open local ports and free the ports
+for re-use when finished to avoid TCP port conflicts.
+
 '''
 
 from django.test.client import Client
@@ -77,12 +83,13 @@ class GraderStubBase(object):
     '''
     Abstract base class for external grader service stubs.
 
-    Subclasses are:
+    We make this abstract to accommodate the two kinds of grading servers:
 
-    * ActiveGraderStub: Uses the REST-like interface for pulling
+    * Active: Uses the REST-like interface for pulling
         and pushing requests to the XQueue.
+        
 
-    * PassiveGraderStub: Waits for XQueue to send it a message,
+    * Passive: Waits for XQueue to send it a message,
         then responds synchronously.
     '''
 
@@ -131,37 +138,6 @@ class GraderStubBase(object):
         to test error handling.
         '''
         pass
-
-
-class ActiveGraderStub(object):
-    '''
-    Stub for external grader service that pulls messages from the queue
-    using the LMS interface and pushes responses using a REST-like
-    interface.
-
-    To better simulate real-world conditions, the external grader
-    runs in its own thread.
-
-    Concrete subclasses need to implement response_for_submission()
-    '''
-
-    __metaclass__ = ABCMeta
-
-    def __init__(self, queuename):
-        '''
-        Create the external grader and start polling
-        for messages in a particular queue.
-
-        queuename: name of the queue to poll (string)
-        '''
-        raise NotImplemented
-
-
-    def stop(self):
-        '''
-        Stops polling the queue for new submissions.
-        '''
-        raise NotImplemented
 
 
 class GradingRequestHandler(BaseHTTPRequestHandler):
