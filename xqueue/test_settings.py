@@ -1,6 +1,7 @@
 from settings import *
 from logsettings import get_logger_config
 import json
+from uuid import uuid4
 
 log_dir = REPO_PATH / "log"
 
@@ -23,7 +24,9 @@ DATABASES = {
         # otherwise Django tests will use an in-memory database 
         # In-memory databases do not support access from
         # multiple threads, which the integration tests need
-        'TEST_NAME': 'test_xqueue.sqlite',
+        # We also need to choose *unique* names to avoid
+        # conflicts in the Jenkins server
+        'TEST_NAME': 'test_xqueue_%s.sqlite' % uuid4().hex,
     }
 }
 
