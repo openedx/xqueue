@@ -7,8 +7,10 @@ from tests.integration_framework import PassiveGraderStub, \
 from django.utils import unittest
 from django.contrib.auth.models import User
 from django.conf import settings
+from nose.plugins.attrib import attr
 
 
+@attr('grader_integration')
 class MatlabGraderTest(unittest.TestCase):
     '''
     Test that we can send messages to the xqueue
