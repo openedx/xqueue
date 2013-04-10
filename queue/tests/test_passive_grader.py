@@ -5,7 +5,6 @@ from tests.integration_framework import PassiveGraderStub, \
                                 GradeResponseListener, XQueueTestClient
 
 from django.utils import unittest
-from django.contrib.auth.models import User
 
 class SimplePassiveGrader(PassiveGraderStub):
     '''
@@ -64,13 +63,14 @@ class PassiveGraderTest(unittest.TestCase):
                 GradeResponseListener(PassiveGraderTest.CALLBACK_PORT)
 
         # Create the user and make sure we are logged in
-        User.objects.create_user('test', 'test@edx.org', 'password')
+        XQueueTestClient.create_user('test', 'test@edx.org', 'password')
         self.client.login(username='test', password='password')
 
         # Start up workers to pull messages from the queue
         # and forward them to our grader
+        callback_url = "http://127.0.0.1:%d" % SimplePassiveGrader.PORT_NUM
         SimplePassiveGrader.start_workers(PassiveGraderTest.QUEUE_NAME,
-                                            SimplePassiveGrader.PORT_NUM)
+                                            callback_url)
 
 
     def tearDown(self):

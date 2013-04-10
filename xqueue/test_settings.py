@@ -1,5 +1,6 @@
 from settings import *
 from logsettings import get_logger_config
+import json
 
 log_dir = REPO_PATH / "log"
 
@@ -31,10 +32,30 @@ RABBITMQ_USER = 'guest'
 RABBITMQ_PASS = 'guest'
 RABBIT_HOST = 'localhost'
 
+# Try to load sensitive information from env.json
+# Fail gracefully if  we can't find or parse the file.
+try:
+    env_file = open(ENV_ROOT / "env.json")
+    ENV_TOKENS = json.load(env_file)
+
+except (IOError, ValueError):
+    ENV_TOKENS = {}
+
+# Mathworks setup
+# We load the Mathworks settings from envs.json
+# to avoid storing auth information in the repository
+# If you do not configure envs.json with the auth information
+# for the Mathworks servers, then the Mathworks integration
+# tests will fail.
+XQUEUES = ENV_TOKENS.get('XQUEUES', {})
+MATHWORKS_API_KEY = ENV_TOKENS.get('MATHWORKS_API_KEY', None)
+
 # We set up the XQueue to send submissions to test_queue
 # to a local port.  This must match the port we use
 # when we set up passive grader stubs in integration tests.
-XQUEUES = {'test_queue': 'http://127.0.0.1:12348'}
+XQUEUES['test_queue'] = 'http://127.0.0.1:12348'
+
+
 
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)

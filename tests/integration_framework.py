@@ -59,6 +59,7 @@ for platform-specific instructions.
 '''
 
 from django.test.client import Client
+from django.contrib.auth.models import User
 import datetime
 import time
 import json
@@ -71,7 +72,6 @@ from SocketServer import ThreadingMixIn, ForkingMixIn
 
 from logging import getLogger
 logger = getLogger(__name__)
-
 
 class GraderStubBase(object):
     '''
@@ -272,15 +272,14 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
     '''
 
     @classmethod
-    def start_workers(cls, queue_name, destination_port, num_workers=1):
+    def start_workers(cls, queue_name, destination_url, num_workers=1):
         '''
         We need to start workers (consumers) to pull messages
         from the queue and pass them to our passive grader.
 
         queue_name: The name of the queue to pull messages from (string)
 
-        destination_port: The local port to forward messages to
-            (the one our grader stub is listening on)
+        destination_url: The url to forward responses to.
 
         num_workers: The number of workers to start for this queue (int)
 
@@ -294,9 +293,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer):
             cls.worker_list = []
 
         for i in range(num_workers):
-            destination_url = 'http://127.0.0.1:%d' % int(destination_port)
-            worker = Worker(queue_name=queue_name,
-                            worker_url=destination_url)
+            worker = Worker(queue_name=queue_name, worker_url=destination_url)
 
             # There is a bug in pika on Mac OS X
             # in which using multithreading.Process with
@@ -546,6 +543,20 @@ class XQueueTestClient(Client):
     Since this is a subclass of Django's test client,
     we can use it to login and send HTTP requests.
     '''
+
+    @staticmethod
+    def create_user(username, email, password):
+        '''
+        Utility to create a user (if one does not already exist)
+
+        username: string
+        email: string
+        password: string
+        '''
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            User.objects.create_user(username, email, password)
 
     def __init__(self, callback_port):
         '''
