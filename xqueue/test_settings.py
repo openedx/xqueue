@@ -38,7 +38,7 @@ RABBIT_HOST = 'localhost'
 # Try to load sensitive information from env.json
 # Fail gracefully if  we can't find or parse the file.
 try:
-    env_file = open(ENV_ROOT / "env.json")
+    env_file = open(ENV_ROOT / "test_env.json")
     ENV_TOKENS = json.load(env_file)
 
 except (IOError, ValueError):

@@ -26,7 +26,7 @@ class MatlabGraderTest(unittest.TestCase):
     * MATLAB_API_KEY must contain the API key to send the Mathworks
         servers.
 
-    You can specify these in env.json (see test_settings.py for details)
+    You can specify these in test_env.json (see test_settings.py for details)
     If the required settings cannot be loaded, the test will fail.
     '''
 
@@ -44,9 +44,9 @@ class MatlabGraderTest(unittest.TestCase):
 
         # Fail immediately if settings are missing
         self.assertTrue(self.api_key is not None,
-                    'You must specify an API key for Mathworks in envs.json.')
+                    'You must specify an API key for Mathworks in test_env.json.')
         self.assertTrue(self.grader_url is not None,
-                'You must specify a URL for the Mathworks grader in envs.json')
+                'You must specify a URL for the Mathworks grader in test_env.json')
 
         # Create the response listener
         # which listens for responses on an open port
