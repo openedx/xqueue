@@ -612,7 +612,7 @@ class XQueueTestClient(Client):
 
         Returns the status code of the request.
         '''
-        submit_url = 'http://127.0.0.1:%d/xqueue/submit/' % self._callback_port
+        submit_url = '/xqueue/submit/'
         response = self.post(submit_url, request)
         return response.status_code
 
