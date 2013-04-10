@@ -5,7 +5,6 @@ from tests.integration_framework import PassiveGraderStub, \
                                     GradeResponseListener, XQueueTestClient
 
 from django.utils import unittest
-from django.contrib.auth.models import User
 from django.conf import settings
 from nose.plugins.attrib import attr
 
@@ -76,13 +75,55 @@ class MatlabGraderTest(unittest.TestCase):
         # Stop the workers we started earlier
         PassiveGraderStub.stop_workers()
 
+    def test_matlab_check_correct(self):
+        response = self._submit_to_mathworks("assert(isequal(x,1))", "x=1")
 
-    def test_submission(self):
+        self.assertEqual(response.get('msg', None), 
+                        "<div class='matlabResponse'><ul></ul></div>")
+        self.assertEqual(response.get('correct', None), True)
+        self.assertEqual(response.get('score', None), 1)
+
+    def test_matlab_check_incorrect(self):
+        response = self._submit_to_mathworks("assert(isequal(x,1))", "x=5")
+
+        self.assertEqual(response.get('msg', None), 
+                        "<div class='matlabResponse'>" + 
+                        "<ul><li>Assertion failed.\n</li></ul></div>")
+        self.assertEqual(response.get('correct', None), False)
+        self.assertEqual(response.get('score', None), 0)
+
+    def test_matlab_graph(self):
+        response = self._submit_to_mathworks("peaks;", "")
+
+        # The response message is usually very long,
+        # so we scan for the CSS tag instead.
+        response_msg = response.get('msg', '')
+        self.assertTrue('matlabFigures' in response_msg)
+
+        self.assertEqual(response.get('correct', None), True)
+        self.assertEqual(response.get('score', None), 1)
+
+    def test_matlab_invalid(self):
+        response = self._submit_to_mathworks("invalid", "x=5")
+
+        self.assertEqual(response.get('msg', None), 
+            "<div class='matlabResponse'><ul>" +
+            "<li>Undefined function or variable 'invalid'.\n</li></ul></div>")
+        self.assertEqual(response.get('correct', None), False)
+        self.assertEqual(response.get('score', None), 0)
+
+
+    def _submit_to_mathworks(self, matlab_code, student_input):
         '''
-        Test submitting directly to Mathworks
+        Assert that Mathworks servers provide the correct response.
+
+        matlab_code: Matlab code to be processed by external servers (string)
+
+        student_input: The student's response (string)
+
+        Returns the response from Mathworks (dict)
         '''
-        payload = "%%api_key=%s\n%%%%\nassert(isequal(x,1))\n" % self.api_key
-        student_input = 'x=1'
+        payload = "%%api_key=%s\n%%%%\n%s\n" % (self.api_key, matlab_code)
 
         # Send the XQueue a submission to be graded
         submission = self.client.build_request(MatlabGraderTest.QUEUE_NAME,
@@ -99,13 +140,9 @@ class MatlabGraderTest(unittest.TestCase):
                                                     timeout=10.0)
 
         # Check that we did not time out
-        self.assertTrue(success)
+        self.assertTrue(success, 'Timed out waiting for response')
 
-        # Check that the response matches what we expect
+        # Return the response
         responses = self.response_listener.get_grade_responses()
         xqueue_body = responses[0]['response']['xqueue_body']
-
-        self.assertEqual(xqueue_body.get('msg', None), 
-                        "<div class='matlabResponse'><ul></ul></div>")
-        self.assertEqual(xqueue_body.get('correct', None), True)
-        self.assertEqual(xqueue_body.get('score', None), 1)
+        return xqueue_body
