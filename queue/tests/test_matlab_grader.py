@@ -81,7 +81,7 @@ class MatlabGraderTest(unittest.TestCase):
         '''
         Test submitting directly to Mathworks
         '''
-        payload = "%%api_key=%s\n%%\nassert(isequal(x,1))\n" % self.api_key
+        payload = "%%api_key=%s\n%%%%\nassert(isequal(x,1))\n" % self.api_key
         student_input = 'x=1'
 
         # Send the XQueue a submission to be graded
@@ -105,6 +105,7 @@ class MatlabGraderTest(unittest.TestCase):
         responses = self.response_listener.get_grade_responses()
         xqueue_body = responses[0]['response']['xqueue_body']
 
-        self.assertEqual(xqueue_body.get('msg', None), 'test message')
+        self.assertEqual(xqueue_body.get('msg', None), 
+                        "<div class='matlabResponse'><ul></ul></div>")
         self.assertEqual(xqueue_body.get('correct', None), True)
         self.assertEqual(xqueue_body.get('score', None), 1)
