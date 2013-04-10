@@ -202,7 +202,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(response_str)
 
 
-class PassiveGraderStub(ForkingMixIn, HTTPServer):
+class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
     '''
     Stub for external grader service that responds to submissions
     it receives directly from the XQueue.
