@@ -5,6 +5,8 @@ from tests.integration_framework import PassiveGraderStub, \
                                 GradeResponseListener, XQueueTestClient
 
 from django.utils import unittest
+from django.test.utils import override_settings
+from uuid import uuid4
 
 class SimplePassiveGrader(PassiveGraderStub):
     '''
@@ -40,7 +42,10 @@ class PassiveGraderTest(unittest.TestCase):
     '''
 
     GRADER_RESPONSE = {'submission_data': 'test'}
-    QUEUE_NAME = 'test_queue'
+
+    # Choose a unique queue name to prevent conflicts 
+    # in Jenkins
+    QUEUE_NAME = 'test_queue_%s' % uuid4().hex
 
     def setUp(self):
         '''
@@ -87,19 +92,23 @@ class PassiveGraderTest(unittest.TestCase):
         payload = {'test': 'test'}
         student_input = 'test response'
 
-        # Send the XQueue a submission to be graded
-        submission = self.client.build_request(PassiveGraderTest.QUEUE_NAME,
-                                                grader_payload=payload,
-                                                student_response=student_input)
+        # Tell the xqueue to forward messages to our grader
+        xqueue_settings = { PassiveGraderTest.QUEUE_NAME: self.grader.grader_url() }
+        with override_settings(XQUEUES=xqueue_settings):
 
-        self.client.send_request(submission)
+            # Send the XQueue a submission to be graded
+            submission = self.client.build_request(PassiveGraderTest.QUEUE_NAME,
+                                                    grader_payload=payload,
+                                                    student_response=student_input)
 
-        # Poll the response listener until we get a response
-        # or reach the timeout
-        poll_func = lambda listener: len(listener.get_grade_responses()) > 0
-        success = self.response_listener.block_until(poll_func,
-                                                    sleep_time=0.5,
-                                                    timeout=4.0)
+            self.client.send_request(submission)
+
+            # Poll the response listener until we get a response
+            # or reach the timeout
+            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            success = self.response_listener.block_until(poll_func,
+                                                        sleep_time=0.5,
+                                                        timeout=4.0)
 
         # Check that we did not time out
         self.assertTrue(success)

@@ -23,7 +23,7 @@ DATABASES = {
         # We need to use TEST_NAME here,
         # otherwise Django tests will use an in-memory database 
         # In-memory databases do not support access from
-        # multiple threads, which the integration tests need
+        # multiple threads, which the integration tests need.
         # We also need to choose *unique* names to avoid
         # conflicts in the Jenkins server
         'TEST_NAME': 'test_xqueue_%s.sqlite' % uuid4().hex,
@@ -56,7 +56,8 @@ MATHWORKS_API_KEY = ENV_TOKENS.get('MATHWORKS_API_KEY', None)
 # We set up the XQueue to send submissions to test_queue
 # to a local port.  This must match the port we use
 # when we set up passive grader stubs in integration tests.
-XQUEUES['test_queue'] = 'http://127.0.0.1:12348'
+TEST_XQUEUE_NAME = 'test_queue_%s' % uuid4().hex
+XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 
 
 
