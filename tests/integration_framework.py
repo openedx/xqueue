@@ -88,12 +88,6 @@ class GraderStubBase(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        '''
-        Initialize the grader
-        '''
-        self._delay = 0.0
-
     @staticmethod
     def build_response(submission_id, submission_key, score_msg):
         '''
@@ -109,29 +103,6 @@ class GraderStubBase(object):
                                 {'submission_id': submission_id,
                                  'submission_key': submission_key},
                            'xqueue_body': score_msg})
-
-    def get_response(self, submission):
-        '''
-        Return a response, with the configured delay.
-        Delegates to concrete subclass response_for_submission()
-        to construct the actual response.
-
-        submission: dict of the form
-            {'xqueue_header': {'submission_id': ID,
-                                'submission_key': KEY },
-            'xqueue_body: STRING,
-            'xqueue_files': list of file URLs }
-
-        returns: dict created by subclasss response_for_submission()
-        '''
-
-        # If we have a delay set, wait before responding
-        if self._delay > 0.0:
-            time.sleep(self._delay)
-
-        # Delegate to the concrete subclass to actually
-        # construct the response
-        return self.response_for_submission(submission)
 
     @abstractmethod
     def response_for_submission(self, submission):
@@ -160,16 +131,6 @@ class GraderStubBase(object):
         to test error handling.
         '''
         pass
-
-    def set_delay(self, seconds):
-        '''
-        Specify a delay before responding to a submission.
-        The default is to respond immediately.
-
-        seconds: the number of seconds to delay (float)
-        '''
-        assert(seconds >= 0.0)
-        self._delay = seconds
 
 
 class ActiveGraderStub(object):

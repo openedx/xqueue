@@ -42,7 +42,7 @@ class PassiveGraderTest(unittest.TestCase):
     '''
 
     GRADER_RESPONSE = {'submission_data': 'test'}
-    CALLBACK_PORT = 12348
+    CALLBACK_PORT = 12349
     QUEUE_NAME = 'test_queue'
 
     def setUp(self):
