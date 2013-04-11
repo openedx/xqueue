@@ -48,5 +48,5 @@ desc "Run all tests"
 task :test => REPORT_DIR do
     ENV['NOSE_XUNIT_FILE'] = File.join(REPORT_DIR, "nosetests.xml")
     ENV['NOSE_COVER_HTML_DIR'] = File.join(REPORT_DIR, "cover")
-    sh("python manage.py test --settings xqueue.test_settings")
+    sh("python manage.py test --settings xqueue.test_settings --noinput")
 end
