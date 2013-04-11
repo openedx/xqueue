@@ -1,5 +1,7 @@
 from settings import *
 from logsettings import get_logger_config
+import os
+import os.path
 import json
 from uuid import uuid4
 
@@ -30,12 +32,27 @@ DATABASES = {
     }
 }
 
+# If we are running on Jenkins, then expect that
+# an environment variable is set for
+# the config file directory
+JENKINS_CONFIG_DIR = os.environ.get('JENKINS_CONFIG_DIR', None)
+
 # Try to load sensitive information from env.json
 # Fail gracefully if  we can't find or parse the file.
 try:
-    env_file = open(ENV_ROOT / "test_env.json")
+
+    # If a Jenkins config directory is specified,
+    # then look there
+    if JENKINS_CONFIG_DIR is not None:
+        env_file = open(os.path.join(JENKINS_CONFIG_DIR, 'test_env.json'))
+
+    # Otherwise look in the repo root (used if running locally)
+    else:
+        env_file = open(ENV_ROOT / "test_env.json")
+
     ENV_TOKENS = json.load(env_file)
 
+# Fail gracefully if the file could not be found or parsed
 except (IOError, ValueError):
     ENV_TOKENS = {}
 
