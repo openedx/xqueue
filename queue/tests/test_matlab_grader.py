@@ -148,7 +148,7 @@ class MatlabGraderTest(unittest.TestCase):
             poll_func = lambda listener: len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
                                                         sleep_time=0.5,
-                                                        timeout=4.0)
+                                                        timeout=10.0)
 
         # Check that we did not time out
         self.assertTrue(success, 'Timed out waiting for response')

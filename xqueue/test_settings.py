@@ -30,11 +30,6 @@ DATABASES = {
     }
 }
 
-# Local RabbitMQ configuration
-RABBITMQ_USER = 'guest'
-RABBITMQ_PASS = 'guest'
-RABBIT_HOST = 'localhost'
-
 # Try to load sensitive information from env.json
 # Fail gracefully if  we can't find or parse the file.
 try:
@@ -43,6 +38,13 @@ try:
 
 except (IOError, ValueError):
     ENV_TOKENS = {}
+
+# RabbitMQ configuration
+# Default to local broker if no external
+# broker defined in test_env.json
+RABBITMQ_USER = ENV_TOKENS.get('RABBITMQ_USER', 'guest')
+RABBITMQ_PASS = ENV_TOKENS.get('RABBITMQ_PASS', 'guest')
+RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', 'localhost')
 
 # Mathworks setup
 # We load the Mathworks settings from envs.json
