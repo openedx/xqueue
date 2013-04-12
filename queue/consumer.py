@@ -234,6 +234,12 @@ class Worker(multiprocessing.Process):
         self.connection.ioloop.start()
         # TODO [rocha] make to to finish all  submissions before exiting
 
+    def stop(self):
+        '''
+        Stop the worker from processing messages
+        '''
+        self.connection.close()
+
     def _callback(self, channel, method, properties, qitem):
         def on_done():
             # Acknowledge the delivery of the message in the ioloop of
