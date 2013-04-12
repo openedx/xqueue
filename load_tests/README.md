@@ -24,5 +24,5 @@ because of a conflict between pika (rabbitmq python wrapper) and
 Python's multithreading library.  You can fix the issue by changing
 `Worker` in `queue/consumer.py` to subclass `threading.Thread` instead 
 of `multiprocessing.Process`.
-7. Run your load test.  See `matlab` for an example using multi-mechanize
-and the XQueue integration testing framework.
+7. Run your load test.  If you are using multi-mechanize, the command
+is `multimech-run PROJECT_NAME`.
