@@ -1,29 +1,32 @@
 '''
-Test that the XQueue responds to a client, using a Passive Grader
-(one that the XQueue pushes submissions to)
+Test that the XQueue responds to a client, using an Active Grader
+(one that polls the XQueue and pushes responses using a REST-like
+interface)
 '''
-from test_framework.integration_framework import PassiveGraderStub, \
+from test_framework.integration_framework import ActiveGraderStub, \
                                 GradeResponseListener, XQueueTestClient
-
-from django.utils import unittest
 from django.test.utils import override_settings
+from django.conf import settings
+from django.utils import unittest
 from uuid import uuid4
 
-class SimplePassiveGrader(PassiveGraderStub):
+class SimpleActiveGrader(ActiveGraderStub):
     '''
-    Passive external grader stub that always responds
+    Active external grader stub that always responds
     with the same, pre-defined message.
     '''
 
-    def __init__(self, response_dict):
+    def __init__(self, queue_name, response_dict):
         '''
         Configure the stub to always respond with the same message
 
-        response_dict: JSON-serializable dict to send in response to
+        `queue_name`: The name of the queue to poll
+
+        `response_dict`: JSON-serializable dict to send in response to
             a submission.
         '''
         self._response_dict = response_dict
-        PassiveGraderStub.__init__(self)
+        ActiveGraderStub.__init__(self, queue_name)
 
     def response_for_submission(self, submission):
         '''
@@ -32,14 +35,19 @@ class SimplePassiveGrader(PassiveGraderStub):
         submission: The student's submission (dict)
         returns: response to submission (dict)
         '''
-        return self._response_dict
+
+        # Pass the same XQueue header back, so the XQueue
+        # can validate our response
+        return {'xqueue_header': submission['xqueue_header'],
+                'xqueue_body': self._response_dict}
 
 
-class PassiveGraderTest(unittest.TestCase):
+class ActiveGraderTest(unittest.TestCase):
     '''
     Test that we can send messages to the xqueue
-    and receive a response when using a "passive" external
-    grader (one that expects xqueue to send it submissions)
+    and receive a response when using an "active" external
+    grader (one that polls the XQueue and pushes responses using
+    a REST-like interface)
     '''
 
     GRADER_RESPONSE = {'submission_data': 'test'}
@@ -53,7 +61,8 @@ class PassiveGraderTest(unittest.TestCase):
         Set up the client and stubs to be used across tests.
         '''
         # Create the grader
-        self.grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
+        self.grader = SimpleActiveGrader(ActiveGraderTest.QUEUE_NAME,
+                                        ActiveGraderTest.GRADER_RESPONSE)
 
         # Create the response listener
         # and configure it to receive messages on a local port
@@ -68,9 +77,9 @@ class PassiveGraderTest(unittest.TestCase):
         XQueueTestClient.create_user('test', 'test@edx.org', 'password')
         self.client.login(username='test', password='password')
 
-        # Start up workers to pull messages from the queue
-        # and forward them to our grader
-        self.grader.start_workers(PassiveGraderTest.QUEUE_NAME)
+        # Since the ActiveGraderStub is polling the XQueue,
+        # we do NOT need to start any workers (consumers)
+        # that pull messages from the XQueue and pass them on
 
 
     def tearDown(self):
@@ -80,11 +89,8 @@ class PassiveGraderTest(unittest.TestCase):
         self.grader.stop()
         self.response_listener.stop()
 
-        # Stop the workers we started earlier
-        SimplePassiveGrader.stop_workers()
-
         # Delete the queue we created
-        SimplePassiveGrader.delete_queue(PassiveGraderTest.QUEUE_NAME)
+        SimpleActiveGrader.delete_queue(ActiveGraderTest.QUEUE_NAME)
 
 
     def test_submission(self):
@@ -92,18 +98,22 @@ class PassiveGraderTest(unittest.TestCase):
         Submit a single response to the XQueue and check that
         we get the expected response.
         '''
-
         payload = {'test': 'test'}
         student_input = 'test response'
 
-        # Tell the xqueue to forward messages to our grader
-        xqueue_settings = { PassiveGraderTest.QUEUE_NAME: self.grader.grader_url() }
+        # Add our queue to the available queues
+        # Otherwise, XQueue will not process our messages
+        # We set the callback URL to None because XQueue does not
+        # need to forward the messages; instead, our ActiveGrader
+        # polls for them
+        xqueue_settings = settings.XQUEUES
+        xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
         with override_settings(XQUEUES=xqueue_settings):
 
             # Send the XQueue a submission to be graded
-            submission = self.client.build_request(PassiveGraderTest.QUEUE_NAME,
-                                                    grader_payload=payload,
-                                                    student_response=student_input)
+            submission = self.client.build_request(ActiveGraderTest.QUEUE_NAME,
+                                                grader_payload=payload,
+                                                student_response=student_input)
 
             self.client.send_request(submission)
 
@@ -120,4 +130,4 @@ class PassiveGraderTest(unittest.TestCase):
         # Check the response matches what we expect
         responses = self.response_listener.get_grade_responses()
         xqueue_body = responses[0]['response']['xqueue_body']
-        self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, xqueue_body)
+        self.assertEqual(ActiveGraderTest.GRADER_RESPONSE, xqueue_body)

@@ -25,6 +25,18 @@ XQueue forwards grading responses to GradeResponseListener using
 the callback_url provided by the test client.
 
 
+How messages get routed (ActiveGraderStub):
+
+The test client sends messages to a particular queue.
+XQueue puts the messages in a RabbitMQ queue.
+
+The ActiveGraderStub polls the XQueue using a REST-like interface.
+When it receives a submission, it pushes a response back to XQueue
+using the REST-like interface.
+
+XQueue pushes the response back to the LMS.
+
+
 Failure injection:
 
 This framework also makes it easy to inject failure into the system:
@@ -146,6 +158,26 @@ class GraderStubBase(object):
         '''
         pass
 
+    @staticmethod
+    def delete_queue(queue_name):
+        '''
+        Delete the queue named queue_name.
+
+        Use this to clean up queues created implicitly when
+        using XQueue.
+        '''
+
+        # Establish a connection to the broker
+        creds = pika.PlainCredentials(settings.RABBITMQ_USER,
+                                    settings.RABBITMQ_PASS)
+
+        params = pika.ConnectionParameters(credentials=creds,
+                                            host=settings.RABBIT_HOST)
+
+        connection = pika.BlockingConnection(parameters=params)
+        channel = connection.channel()
+        channel.queue_delete(queue=queue_name)
+
 
 class GradingRequestHandler(BaseHTTPRequestHandler):
     '''
@@ -266,27 +298,6 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
             worker.stop()
 
 
-    @staticmethod
-    def delete_queue(queue_name):
-        '''
-        Delete the queue named queue_name.
-
-        Use this to clean up queues created implicitly when
-        instantiating workers.
-        '''
-
-        # Establish a connection to the broker
-        creds = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                    settings.RABBITMQ_PASS)
-
-        params = pika.ConnectionParameters(credentials=creds,
-                                            host=settings.RABBIT_HOST)
-
-        connection = pika.BlockingConnection(parameters=params)
-        channel = connection.channel()
-        channel.queue_delete(queue=queue_name)
-
-
     def __init__(self):
         '''
         Create the stub and start listening on a local port
@@ -334,6 +345,170 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
                                                     self.grader_url(),
                                                     num_workers=num_workers)
 
+class ActiveGraderStub(GraderStubBase):
+    '''
+    Stub for an active grader, which polls the XQueue for new
+    submissions, processes the submissions, then pushes
+    responses back to the XQueue.  It uses XQueue's REST-like interface.
+
+    It runs a daemon thread to asynchronously poll the XQueue.
+    '''
+
+    SLEEP_TIME = 0.5
+
+    USERNAME = 'active_grader'
+    PASSWORD = 'password'
+
+    _poll_thread = None
+    _is_polling = True
+    _queue_name = None
+
+    def __init__(self, queue_name):
+        '''
+        Start polling the Xqueue for new submissions
+        '''
+
+        # Store the queue name, so we know
+        # which queue to poll
+        self._queue_name = queue_name
+
+        # Create a logged-in Django test client
+        # to interact with the XQueue
+        XQueueTestClient.create_user(ActiveGraderStub.USERNAME, 
+                                    ActiveGraderStub.USERNAME + '@edx.org',
+                                    ActiveGraderStub.PASSWORD)
+        self._client = XQueueTestClient(0)
+        self._client.login(username=ActiveGraderStub.USERNAME,
+                            password=ActiveGraderStub.PASSWORD)
+        
+        # The polling thread will run until
+        # this flag is set to False
+        self._is_polling = True
+
+        # Start polling the XQueue
+        self._poll_thread = threading.Thread(target=self.poll)
+        self._poll_thread.daemon = True
+        self._poll_thread.start()
+
+    def stop(self):
+        '''
+        Stop polling the XQueue
+        '''
+        self._is_polling = False
+
+    def poll(self):
+        '''
+        Poll the XQueue for new submissions, delegating
+        to concrete subclasses to determine the response.
+        '''
+
+        # Check the running flag
+        while self._is_polling:
+
+            # Try to get a submission
+            submission = self._pop_submission()
+
+            # If we can't get one now, wait a bit then retry
+            if submission is None:
+                time.sleep(ActiveGraderStub.SLEEP_TIME)
+
+            # Otherwise, process the submission
+            # and push a response back to the XQueue
+            else:
+
+                # Delegate to the concrete base class
+                # to create a response
+                response = self.response_for_submission(submission)
+
+                # Push the response back to the XQueue
+                self._push_response(response)
+
+    def _pop_submission(self):
+        '''
+        Attempts to pop a submission from the XQueue.
+        If it succeeds, it returns a `dict` of the submission info,
+        which has keys `xqueue_header` and `xqueue_body`
+        (and sometimes `xqueue_files` as well).
+        
+        The `xqueue_header` is itself a JSON-decoded dict,
+        but `xqueue_body` is a string.
+
+        If no submission is available, or an error occurs,
+        returns None.
+        '''
+
+        # Use the Django test client to retrieve a submission
+        # from our queue
+        response = self._client.get('/xqueue/get_submission/',
+                                    {'queue_name': self._queue_name})
+
+        # If any kind of HTTP error occurred,
+        # log it and return None
+        if response.status_code != 200:
+            logger.warning('Could not get submission from XQueue: status = %d',
+                            response.status_code)
+            return None
+
+        # Otherwise the response was successful
+        else:
+            
+            # JSON-decode the response
+            response_dict = json.loads(response.content)
+
+            # Check that we successfully retrieved a submission
+            if response_dict['return_code'] == 0:
+
+                # If so, JSON-decode the submission and
+                # return the resulting dict
+                submission_dict = json.loads(response_dict['content'])
+                xqueue_header = json.loads(submission_dict['xqueue_header'])
+                xqueue_body = submission_dict['xqueue_body']
+                return {'xqueue_header': xqueue_header,
+                        'xqueue_body': xqueue_body}
+
+            # Otherwise, we could not retrieve the submission,
+            # usually because the queue is empty.
+            else:
+                return None
+
+    def _push_response(self, response_dict):
+        '''
+        Push a response back to the XQueue.
+        `response_dict` is a JSON-serializable dictionary
+        with keys `xqueue_header` and `xqueue_body`,
+        both JSON-serialized strings.
+
+        Returns `True` if successful, `False` otherwise.
+        '''
+
+        # Construct the response
+        xqueue_header = response_dict['xqueue_header']
+        xqueue_body = response_dict['xqueue_body']
+
+        post_params = {'xqueue_header': json.dumps(xqueue_header),
+                        'xqueue_body': json.dumps(xqueue_body) }
+
+        # Use the Django test client to POST a response
+        # back to the XQueue
+        response = self._client.post('/xqueue/put_result/', post_params)
+
+        # Check the status code, and log a warning if we failed
+        if response.status_code != 200:
+            logger.warning('Could not push response to XQueue: status=%d' 
+                            % response.status_code)
+            return False
+
+        else:
+            # Check the response's return_code and log a warning if we failed
+            response_dict = json.loads(response.content)
+            if response_dict['return_code'] != 0:
+                logger.warning('Could not submit response to XQueue: %s' %
+                                response_dict['content'])
+                return False
+            
+            # Otherwise, everything was successful
+            else:
+                return True
 
 class LoggingRequestHandler(BaseHTTPRequestHandler):
     '''
