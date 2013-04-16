@@ -4,7 +4,7 @@ Test that the XQueue responds to a client, using an Active Grader
 interface)
 '''
 from test_framework.integration_framework \
-    import GradeResponseListener, XQueueTestClient
+    import GradeResponseListener, XQueueTestClient, ActiveGraderStub
 from django.test.utils import override_settings
 from django.conf import settings
 from django.utils import unittest
