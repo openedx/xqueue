@@ -25,4 +25,6 @@ Python's multithreading library.  You can fix the issue by changing
 `Worker` in `queue/consumer.py` to subclass `threading.Thread` instead 
 of `multiprocessing.Process`.
 7. Run your load test.  If you are using multi-mechanize, the command
-is `multimech-run PROJECT_NAME`.
+is `multimech-run PROJECT_NAME`.  
+**Note**: You can configure multi-mechanize by updating the `config.cfg` file 
+in the test directory.
