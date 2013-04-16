@@ -2,7 +2,7 @@
 Test that the XQueue responds to a client.
 '''
 from test_framework.integration_framework import PassiveGraderStub, \
-                                    GradeResponseListener, XQueueTestClient
+    GradeResponseListener, XQueueTestClient
 
 from django.utils import unittest
 from django.conf import settings
@@ -44,9 +44,9 @@ class MatlabGraderTest(unittest.TestCase):
 
         # Fail immediately if settings are missing
         self.assertTrue(self.api_key is not None,
-                    'You must specify an API key for Mathworks in test_env.json.')
+                        'You must specify an API key for Mathworks in test_env.json.')
         self.assertTrue(self.grader_url is not None,
-                'You must specify a URL for the Mathworks grader in test_env.json')
+                        'You must specify a URL for the Mathworks grader in test_env.json')
 
         # Create the response listener
         # which listens for responses on an open port
@@ -63,10 +63,8 @@ class MatlabGraderTest(unittest.TestCase):
 
         # Start up workers to pull messages from the queue
         # and forward them to our grader
-        PassiveGraderStub.start_workers_for_grader_url(\
-                                        MatlabGraderTest.QUEUE_NAME,
-                                        self.grader_url)
-
+        PassiveGraderStub.start_workers_for_grader_url(MatlabGraderTest.QUEUE_NAME,
+                                                       self.grader_url)
 
     def tearDown(self):
         '''
@@ -83,17 +81,17 @@ class MatlabGraderTest(unittest.TestCase):
     def test_matlab_check_correct(self):
         response = self._submit_to_mathworks("assert(isequal(x,1))", "x=1")
 
-        self.assertEqual(response.get('msg', None), 
-                        "<div class='matlabResponse'><ul></ul></div>")
+        self.assertEqual(response.get('msg', None),
+                         "<div class='matlabResponse'><ul></ul></div>")
         self.assertEqual(response.get('correct', None), True)
         self.assertEqual(response.get('score', None), 1)
 
     def test_matlab_check_incorrect(self):
         response = self._submit_to_mathworks("assert(isequal(x,1))", "x=5")
 
-        self.assertEqual(response.get('msg', None), 
-                        "<div class='matlabResponse'>" + 
-                        "<ul><li>Assertion failed.\n</li></ul></div>")
+        self.assertEqual(response.get('msg', None),
+                         "<div class='matlabResponse'>" +
+                         "<ul><li>Assertion failed.\n</li></ul></div>")
         self.assertEqual(response.get('correct', None), False)
         self.assertEqual(response.get('score', None), 0)
 
@@ -111,12 +109,11 @@ class MatlabGraderTest(unittest.TestCase):
     def test_matlab_invalid(self):
         response = self._submit_to_mathworks("invalid", "x=5")
 
-        self.assertEqual(response.get('msg', None), 
-            "<div class='matlabResponse'><ul>" +
-            "<li>Undefined function or variable 'invalid'.\n</li></ul></div>")
+        self.assertEqual(response.get('msg', None),
+                         "<div class='matlabResponse'><ul>" +
+                         "<li>Undefined function or variable 'invalid'.\n</li></ul></div>")
         self.assertEqual(response.get('correct', None), False)
         self.assertEqual(response.get('score', None), 0)
-
 
     def _submit_to_mathworks(self, matlab_code, student_input):
         '''
@@ -130,16 +127,15 @@ class MatlabGraderTest(unittest.TestCase):
         '''
         payload = "%%api_key=%s\n%%%%\n%s\n" % (self.api_key, matlab_code)
 
-
         # Tell the xqueue to forward messages to the mathworks grader
         # using our unique queue name
-        xqueue_settings = { MatlabGraderTest.QUEUE_NAME: self.grader_url }
+        xqueue_settings = {MatlabGraderTest.QUEUE_NAME: self.grader_url}
         with override_settings(XQUEUES=xqueue_settings):
 
             # Send the XQueue a submission to be graded
             submission = self.client.build_request(MatlabGraderTest.QUEUE_NAME,
-                                                    grader_payload=payload,
-                                                    student_response=student_input)
+                                                   grader_payload=payload,
+                                                   student_response=student_input)
 
             self.client.send_request(submission)
 
@@ -147,8 +143,8 @@ class MatlabGraderTest(unittest.TestCase):
             # or reach the timeout
             poll_func = lambda listener: len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
-                                                        sleep_time=0.5,
-                                                        timeout=10.0)
+                                                         sleep_time=0.5,
+                                                         timeout=10.0)
 
         # Check that we did not time out
         self.assertTrue(success, 'Timed out waiting for response')

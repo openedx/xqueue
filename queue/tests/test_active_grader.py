@@ -3,12 +3,13 @@ Test that the XQueue responds to a client, using an Active Grader
 (one that polls the XQueue and pushes responses using a REST-like
 interface)
 '''
-from test_framework.integration_framework import ActiveGraderStub, \
-                                GradeResponseListener, XQueueTestClient
+from test_framework.integration_framework \
+    import GradeResponseListener, XQueueTestClient
 from django.test.utils import override_settings
 from django.conf import settings
 from django.utils import unittest
 from uuid import uuid4
+
 
 class SimpleActiveGrader(ActiveGraderStub):
     '''
@@ -52,7 +53,7 @@ class ActiveGraderTest(unittest.TestCase):
 
     GRADER_RESPONSE = {'submission_data': 'test'}
 
-    # Choose a unique queue name to prevent conflicts 
+    # Choose a unique queue name to prevent conflicts
     # in Jenkins
     QUEUE_NAME = 'test_queue_%s' % uuid4().hex
 
@@ -62,7 +63,7 @@ class ActiveGraderTest(unittest.TestCase):
         '''
         # Create the grader
         self.grader = SimpleActiveGrader(ActiveGraderTest.QUEUE_NAME,
-                                        ActiveGraderTest.GRADER_RESPONSE)
+                                         ActiveGraderTest.GRADER_RESPONSE)
 
         # Create the response listener
         # and configure it to receive messages on a local port
@@ -81,7 +82,6 @@ class ActiveGraderTest(unittest.TestCase):
         # we do NOT need to start any workers (consumers)
         # that pull messages from the XQueue and pass them on
 
-
     def tearDown(self):
         '''
         Stop each of the listening services to free up the ports
@@ -91,7 +91,6 @@ class ActiveGraderTest(unittest.TestCase):
 
         # Delete the queue we created
         SimpleActiveGrader.delete_queue(ActiveGraderTest.QUEUE_NAME)
-
 
     def test_submission(self):
         '''
@@ -112,8 +111,8 @@ class ActiveGraderTest(unittest.TestCase):
 
             # Send the XQueue a submission to be graded
             submission = self.client.build_request(ActiveGraderTest.QUEUE_NAME,
-                                                grader_payload=payload,
-                                                student_response=student_input)
+                                                   grader_payload=payload,
+                                                   student_response=student_input)
 
             self.client.send_request(submission)
 
@@ -121,8 +120,8 @@ class ActiveGraderTest(unittest.TestCase):
             # or reach the timeout
             poll_func = lambda listener: len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
-                                                        sleep_time=0.5,
-                                                        timeout=4.0)
+                                                         sleep_time=0.5,
+                                                         timeout=4.0)
 
         # Check that we did not time out
         self.assertTrue(success)

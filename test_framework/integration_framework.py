@@ -58,8 +58,8 @@ for platform-specific instructions.
 
 Jenkins:
 
-XQueue's current design makes it difficult to test in a 
-continuous integration environment. 
+XQueue's current design makes it difficult to test in a
+continuous integration environment.
 Here are some of the conflicts that can occur:
 
     1) Because workers run in separate threads and each access
@@ -98,6 +98,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('pika').setLevel(logging.WARNING)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
+
 class GraderStubBase(object):
     '''
     Abstract base class for external grader service stubs.
@@ -106,7 +107,7 @@ class GraderStubBase(object):
 
     * Active: Uses the REST-like interface for pulling
         and pushing requests to the XQueue.
-        
+
 
     * Passive: Waits for XQueue to send it a message,
         then responds synchronously.
@@ -126,8 +127,8 @@ class GraderStubBase(object):
         Returns: valid xqueue response (dict)
         '''
         return json.dumps({'xqueue_header':
-                                {'submission_id': submission_id,
-                                 'submission_key': submission_key},
+                          {'submission_id': submission_id,
+                           'submission_key': submission_key},
                            'xqueue_body': score_msg})
 
     @abstractmethod
@@ -169,10 +170,10 @@ class GraderStubBase(object):
 
         # Establish a connection to the broker
         creds = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                    settings.RABBITMQ_PASS)
+                                      settings.RABBITMQ_PASS)
 
         params = pika.ConnectionParameters(credentials=creds,
-                                            host=settings.RABBIT_HOST)
+                                           host=settings.RABBIT_HOST)
 
         connection = pika.BlockingConnection(parameters=params)
         channel = connection.channel()
@@ -246,10 +247,10 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
     Concrete subclass need to implement response_for_submission()
     '''
-    
+
     @classmethod
-    def start_workers_for_grader_url(cls, queue_name, 
-                                    destination_url, num_workers=1):
+    def start_workers_for_grader_url(cls, queue_name,
+                                     destination_url, num_workers=1):
         '''
         We need to start workers (consumers) to pull messages
         from the queue and pass them to our passive grader.
@@ -257,7 +258,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         queue_name: The name of the queue to pull messages from (string)
 
         destination_url: The url to forward responses to.
-        
+
         num_workers: The number of workers to start for this queue (int)
 
         Raises an AssertionError if trying to start workers before
@@ -268,7 +269,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
         else:
             cls.worker_list = []
-    
+
         for i in range(num_workers):
             worker = Worker(queue_name=queue_name, worker_url=destination_url)
 
@@ -288,7 +289,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
     def stop_workers(cls):
         '''
         Stop all workers we created earlier.
-        
+
         Raises an AssertionError if called without first calling
         start_workers()
         '''
@@ -296,7 +297,6 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
         for worker in cls.worker_list:
             worker.stop()
-
 
     def __init__(self):
         '''
@@ -309,7 +309,6 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         # Start the server
         HTTPServer.__init__(self, address, GradingRequestHandler)
         self.start()
-
 
     def start(self):
         '''
@@ -342,8 +341,9 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         to the port the grader stub is listening on
         '''
         PassiveGraderStub.start_workers_for_grader_url(queue_name,
-                                                    self.grader_url(),
-                                                    num_workers=num_workers)
+                                                       self.grader_url(),
+                                                       num_workers=num_workers)
+
 
 class ActiveGraderStub(GraderStubBase):
     '''
@@ -366,6 +366,8 @@ class ActiveGraderStub(GraderStubBase):
     def __init__(self, queue_name):
         '''
         Start polling the Xqueue for new submissions
+
+        `queue_name`: The name of the queue to poll.
         '''
 
         # Store the queue name, so we know
@@ -374,13 +376,13 @@ class ActiveGraderStub(GraderStubBase):
 
         # Create a logged-in Django test client
         # to interact with the XQueue
-        XQueueTestClient.create_user(ActiveGraderStub.USERNAME, 
-                                    ActiveGraderStub.USERNAME + '@edx.org',
-                                    ActiveGraderStub.PASSWORD)
+        XQueueTestClient.create_user(ActiveGraderStub.USERNAME,
+                                     ActiveGraderStub.USERNAME + '@edx.org',
+                                     ActiveGraderStub.PASSWORD)
         self._client = XQueueTestClient(0)
         self._client.login(username=ActiveGraderStub.USERNAME,
-                            password=ActiveGraderStub.PASSWORD)
-        
+                           password=ActiveGraderStub.PASSWORD)
+
         # The polling thread will run until
         # this flag is set to False
         self._is_polling = True
@@ -429,12 +431,12 @@ class ActiveGraderStub(GraderStubBase):
         If it succeeds, it returns a `dict` of the submission info,
         which has keys `xqueue_header` and `xqueue_body`
         (and sometimes `xqueue_files` as well).
-        
+
         The `xqueue_header` is itself a JSON-decoded dict,
         but `xqueue_body` is a string.
 
         If no submission is available, or an error occurs,
-        returns None.
+        returns `None`.
         '''
 
         # Use the Django test client to retrieve a submission
@@ -446,12 +448,12 @@ class ActiveGraderStub(GraderStubBase):
         # log it and return None
         if response.status_code != 200:
             logger.warning('Could not get submission from XQueue: status = %d',
-                            response.status_code)
+                           response.status_code)
             return None
 
         # Otherwise the response was successful
         else:
-            
+
             # JSON-decode the response
             response_dict = json.loads(response.content)
 
@@ -486,7 +488,7 @@ class ActiveGraderStub(GraderStubBase):
         xqueue_body = response_dict['xqueue_body']
 
         post_params = {'xqueue_header': json.dumps(xqueue_header),
-                        'xqueue_body': json.dumps(xqueue_body) }
+                       'xqueue_body': json.dumps(xqueue_body)}
 
         # Use the Django test client to POST a response
         # back to the XQueue
@@ -495,7 +497,7 @@ class ActiveGraderStub(GraderStubBase):
         # Check the status code, and log a warning if we failed
         if response.status_code != 200:
             logger.warning('Could not push response to XQueue: status=%d',
-                             response.status_code)
+                           response.status_code)
             return False
 
         else:
@@ -503,12 +505,13 @@ class ActiveGraderStub(GraderStubBase):
             response_dict = json.loads(response.content)
             if response_dict['return_code'] != 0:
                 logger.warning('Could not submit response to XQueue: %s',
-                                response_dict['content'])
+                               response_dict['content'])
                 return False
-            
+
             # Otherwise, everything was successful
             else:
                 return True
+
 
 class LoggingRequestHandler(BaseHTTPRequestHandler):
     '''
@@ -623,7 +626,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         '''
 
         request_record = {'datetime_received': datetime.datetime.now(),
-                            'response': response_dict}
+                          'response': response_dict}
 
         # Python lists are thread-safe, so
         # we can add to the list even if log_post_request()
@@ -736,9 +739,9 @@ class XQueueTestClient(Client):
         super(XQueueTestClient, self).__init__()
 
     def build_request(self, queuename,
-                            grader_payload=None,
-                            submission_time=None,
-                            student_response=""):
+                      grader_payload=None,
+                      submission_time=None,
+                      student_response=""):
         '''
         Create a valid xqueue request.
 
@@ -771,8 +774,8 @@ class XQueueTestClient(Client):
                             'queue_name': queuename})
 
         content = json.dumps({'grader_payload': grader_payload,
-                            'submission_time': submission_time,
-                            'student_response': student_response})
+                             'submission_time': submission_time,
+                             'student_response': student_response})
 
         return {'xqueue_header': header, 'xqueue_body': content}
 
