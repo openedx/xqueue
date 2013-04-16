@@ -494,15 +494,15 @@ class ActiveGraderStub(GraderStubBase):
 
         # Check the status code, and log a warning if we failed
         if response.status_code != 200:
-            logger.warning('Could not push response to XQueue: status=%d' 
-                            % response.status_code)
+            logger.warning('Could not push response to XQueue: status=%d',
+                             response.status_code)
             return False
 
         else:
             # Check the response's return_code and log a warning if we failed
             response_dict = json.loads(response.content)
             if response_dict['return_code'] != 0:
-                logger.warning('Could not submit response to XQueue: %s' %
+                logger.warning('Could not submit response to XQueue: %s',
                                 response_dict['content'])
                 return False
             
