@@ -1,7 +1,7 @@
 '''
 Test that the XQueue responds to a client.
 '''
-from tests.integration_framework import PassiveGraderStub, \
+from test_framework.integration_framework import PassiveGraderStub, \
                                     GradeResponseListener, XQueueTestClient
 
 from django.utils import unittest
