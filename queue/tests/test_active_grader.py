@@ -10,7 +10,6 @@ from django.conf import settings
 from django.utils import unittest
 from uuid import uuid4
 
-
 class SimpleActiveGrader(ActiveGraderStub):
     '''
     Active external grader stub that always responds
@@ -113,7 +112,6 @@ class ActiveGraderTest(unittest.TestCase):
             submission = self.client.build_request(ActiveGraderTest.QUEUE_NAME,
                                                    grader_payload=payload,
                                                    student_response=student_input)
-
             self.client.send_request(submission)
 
             # Poll the response listener until we get a response
