@@ -10,6 +10,7 @@ import itertools
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from django.db import connection as db_connection
 
 import pika
 from statsd import statsd
@@ -171,6 +172,7 @@ def _http_post(url, data, timeout):
     if r.status_code not in [200]:
         log.error('Server %s returned status_code=%d' % (url, r.status_code))
         return (False, 'unexpected HTTP status code [%d]' % r.status_code)
+
     return (True, r.text)
 
 
@@ -186,8 +188,7 @@ class Worker(multiprocessing.Process):
         # multiprocessing. since we are not using the connection in
         # the main worker thread, lets close it hoping that it does
         # not get shared with the children threads.
-        from django.db import connection
-        connection.close()
+        db_connection.close()
 
         self.id = next(self.counter)
         self.queue_name = queue_name
@@ -243,6 +244,9 @@ class Worker(multiprocessing.Process):
             acknowledge = lambda: channel.basic_ack(delivery_tag=method.delivery_tag)
             self.connection.add_timeout(0, acknowledge)
 
+            # close the db connection manually.
+            db_connection.close()
+
         submission_id = int(qitem)
 
         # process the submission in a different thread to avoid
@@ -289,6 +293,7 @@ class Worker(multiprocessing.Process):
             # acknowledge that the message was processed
             on_done()
 
+
     def _get_submission(self, submission_id):
         submission = None
 
@@ -317,11 +322,11 @@ class Worker(multiprocessing.Process):
         start = time.time()
         (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
         statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
-                      tags=['queue:{0}'.format(self.queue_name)])
+                         tags=['queue:{0}'.format(self.queue_name)])
 
         job_count = get_queue_length(self.queue_name)
         statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
-                      tags=['queue:{0}'.format(self.queue_name)])
+                     tags=['queue:{0}'.format(self.queue_name)])
 
         submission.return_time = timezone.now()
 
