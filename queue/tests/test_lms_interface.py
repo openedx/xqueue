@@ -10,9 +10,11 @@ from django.test.client import Client
 
 from queue import lms_interface
 
+
 def parse_xreply(xreply):
     xreply = json.loads(xreply)
     return (xreply['return_code'], xreply['content'])
+
 
 class lms_interface_test(unittest.TestCase):
 
@@ -38,17 +40,17 @@ class lms_interface_test(unittest.TestCase):
 
         # 1) Attempt login with POST, but no auth
         response = c.post(login_url)
-        (error,_) = parse_xreply(response.content)
+        (error, _) = parse_xreply(response.content)
         self.assertEqual(error, True)
 
         # 2) Attempt login with POST, incorrect auth
-        response = c.post(login_url,{'username':'LMS','password':'PaloAltoCA'})
-        (error,_) = parse_xreply(response.content)
+        response = c.post(login_url,{'username':'LMS','password': 'PaloAltoCA'})
+        (error, _) = parse_xreply(response.content)
         self.assertEqual(error, True)
 
         # 3) Login correctly
         response = c.post(login_url,{'username':'LMS','password':'CambridgeMA'})
-        (error,_) = parse_xreply(response.content)
+        (error, _) = parse_xreply(response.content)
         self.assertEqual(error, False)
 
     def test_is_valid_request(self):
@@ -57,27 +59,27 @@ class lms_interface_test(unittest.TestCase):
             and its ability to gracefully reject
         '''
         # 0) This is a valid Xqueue request from LMS
-        good_request = {'xqueue_header': json.dumps({'lms_callback_url':'/',
-                                                     'lms_key':'qwerty',
-                                                     'queue_name':'python'}),
+        good_request = {'xqueue_header': json.dumps({'lms_callback_url': '/',
+                                                     'lms_key': 'qwerty',
+                                                     'queue_name': 'python'}),
                         'xqueue_body': 'def square(x):\n    return n**2'}
-        (is_valid,_,_,_,_) = lms_interface._is_valid_request(good_request)
+        (is_valid,_,_,_, _) = lms_interface._is_valid_request(good_request)
         self.assertEqual(is_valid, True)
 
         # 1) Header is missing
         bad_request1 = {'xqueue_body': 'def square(x):\n    return n**2'}
         # 2) Body is missing
-        bad_request2 = {'xqueue_header': json.dumps({'lms_callback_url':'/',
-                                                     'lms_key':'qwerty',
-                                                     'queue_name':'python'})}
+        bad_request2 = {'xqueue_header': json.dumps({'lms_callback_url': '/',
+                                                     'lms_key': 'qwerty',
+                                                     'queue_name': 'python'})}
         # 3) Header not serialized
-        bad_request3 = {'xqueue_header': {'lms_callback_url':'/',
-                                          'lms_key':'qwerty',
-                                          'queue_name':'python'},
+        bad_request3 = {'xqueue_header': {'lms_callback_url': '/',
+                                          'lms_key': 'qwerty',
+                                          'queue_name': 'python'},
                         'xqueue_body': 'def square(x):\n    return n**2'}
         # 4) 'lms_key' is missing in header
-        bad_request4 = {'xqueue_header': json.dumps({'lms_callback_url':'/',
-                                                     'queue_name':'python'}),
+        bad_request4 = {'xqueue_header': json.dumps({'lms_callback_url': '/',
+                                                     'queue_name': 'python'}),
                         'xqueue_body': 'def square(x):\n    return n**2'}
         # 5) Header is not a dict
         bad_request5 = {'xqueue_header': json.dumps(['MIT', 'Harvard', 'Berkeley']),
@@ -87,6 +89,5 @@ class lms_interface_test(unittest.TestCase):
 
         bad_requests = [bad_request1, bad_request2, bad_request3, bad_request4, bad_request5, bad_request6]
         for bad_request in bad_requests:
-            (is_valid,_,_,_,_) = lms_interface._is_valid_request(bad_request)
+            (is_valid,_,_,_, _) = lms_interface._is_valid_request(bad_request)
             self.assertEqual(is_valid, False)
-
