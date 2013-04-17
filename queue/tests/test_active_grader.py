@@ -1,8 +1,6 @@
-'''
-Test that the XQueue responds to a client, using an Active Grader
+"""Test that the XQueue responds to a client, using an Active Grader
 (one that polls the XQueue and pushes responses using a REST-like
-interface)
-'''
+interface)"""
 from test_framework.integration_framework \
     import GradeResponseListener, XQueueTestClient, ActiveGraderStub
 from django.test.utils import override_settings
@@ -11,30 +9,26 @@ from django.utils import unittest
 from uuid import uuid4
 
 class SimpleActiveGrader(ActiveGraderStub):
-    '''
-    Active external grader stub that always responds
-    with the same, pre-defined message.
-    '''
+    """Active external grader stub that always responds
+    with the same, pre-defined message."""
 
     def __init__(self, queue_name, response_dict):
-        '''
-        Configure the stub to always respond with the same message
+        """Configure the stub to always respond with the same message
 
         `queue_name`: The name of the queue to poll
 
         `response_dict`: JSON-serializable dict to send in response to
             a submission.
-        '''
+        """
         self._response_dict = response_dict
         ActiveGraderStub.__init__(self, queue_name)
 
     def response_for_submission(self, submission):
-        '''
-        Always send the same response
+        """Always send the same response
 
         submission: The student's submission (dict)
         returns: response to submission (dict)
-        '''
+        """
 
         # Pass the same XQueue header back, so the XQueue
         # can validate our response
@@ -43,12 +37,11 @@ class SimpleActiveGrader(ActiveGraderStub):
 
 
 class ActiveGraderTest(unittest.TestCase):
-    '''
-    Test that we can send messages to the xqueue
+    """Test that we can send messages to the xqueue
     and receive a response when using an "active" external
     grader (one that polls the XQueue and pushes responses using
     a REST-like interface)
-    '''
+    """
 
     GRADER_RESPONSE = {'submission_data': 'test'}
 
@@ -57,9 +50,7 @@ class ActiveGraderTest(unittest.TestCase):
     QUEUE_NAME = 'test_queue_%s' % uuid4().hex
 
     def setUp(self):
-        '''
-        Set up the client and stubs to be used across tests.
-        '''
+        """Set up the client and stubs to be used across tests."""
         # Create the grader
         self.grader = SimpleActiveGrader(ActiveGraderTest.QUEUE_NAME,
                                          ActiveGraderTest.GRADER_RESPONSE)
@@ -82,9 +73,7 @@ class ActiveGraderTest(unittest.TestCase):
         # that pull messages from the XQueue and pass them on
 
     def tearDown(self):
-        '''
-        Stop each of the listening services to free up the ports
-        '''
+        """Stop each of the listening services to free up the ports"""
         self.grader.stop()
         self.response_listener.stop()
 
@@ -92,10 +81,8 @@ class ActiveGraderTest(unittest.TestCase):
         SimpleActiveGrader.delete_queue(ActiveGraderTest.QUEUE_NAME)
 
     def test_submission(self):
-        '''
-        Submit a single response to the XQueue and check that
-        we get the expected response.
-        '''
+        """Submit a single response to the XQueue and check that
+        we get the expected response."""
         payload = {'test': 'test'}
         student_input = 'test response'
 

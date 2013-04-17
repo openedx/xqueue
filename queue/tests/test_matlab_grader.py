@@ -1,6 +1,4 @@
-'''
-Test that the XQueue responds to a client.
-'''
+"""Test that the XQueue responds to a client."""
 from test_framework.integration_framework import PassiveGraderStub, \
     GradeResponseListener, XQueueTestClient
 
@@ -13,30 +11,24 @@ from nose.plugins.attrib import attr
 
 @attr('grader_integration')
 class MatlabGraderTest(unittest.TestCase):
-    '''
-    Test that we can send messages to the xqueue
+    """Test that we can send messages to the xqueue
     and receive a response from a Mathworks server
 
     The test requires that the Mathworks end-point is set up
     correctly in the settings:
 
-    * XQUEUES must contain an entry for matlab:
-        {'matlab': URL }
+    * `XQUEUES` must contain an entry for matlab: `{'matlab': URL }`
 
-    * MATLAB_API_KEY must contain the API key to send the Mathworks
-        servers.
+    * `MATLAB_API_KEY` must contain the API key to send the Mathworks servers.
 
     You can specify these in test_env.json (see test_settings.py for details)
-    If the required settings cannot be loaded, the test will fail.
-    '''
+    If the required settings cannot be loaded, the test will fail."""
 
     # Choose a unique queue name to prevent conflicts in Jenkins
     QUEUE_NAME = 'matlab_%s' % uuid4().hex
 
     def setUp(self):
-        '''
-        Set up the client and stubs to be used across tests.
-        '''
+        """Set up the client and stubs to be used across tests."""
 
         # Attempt to load settings for the Mathworks servers
         self.api_key = settings.MATHWORKS_API_KEY
@@ -67,9 +59,7 @@ class MatlabGraderTest(unittest.TestCase):
                                                        self.grader_url)
 
     def tearDown(self):
-        '''
-        Stop each of the listening services to free up the ports
-        '''
+        """Stop each of the listening services to free up the ports"""
         self.response_listener.stop()
 
         # Stop the workers we started earlier
@@ -116,15 +106,14 @@ class MatlabGraderTest(unittest.TestCase):
         self.assertEqual(response.get('score', None), 0)
 
     def _submit_to_mathworks(self, matlab_code, student_input):
-        '''
-        Assert that Mathworks servers provide the correct response.
+        """Assert that Mathworks servers provide the correct response.
 
-        matlab_code: Matlab code to be processed by external servers (string)
+        `matlab_code`: Matlab code to be processed by external servers (string)
 
-        student_input: The student's response (string)
+        `student_input`: The student's response (string)
 
-        Returns the response from Mathworks (dict)
-        '''
+        Returns the response from Mathworks (dict)"""
+
         payload = "%%api_key=%s\n%%%%\n%s\n" % (self.api_key, matlab_code)
 
         # Tell the xqueue to forward messages to the mathworks grader
