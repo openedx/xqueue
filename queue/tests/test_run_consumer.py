@@ -49,6 +49,5 @@ def test_assign_queues_to_workers():
 
     assert_equals(
         [set("AB"), set("ABC"), set("AC"), set("BC")],
-        assign_queues_to_workers(4, {"A": [0, 1, 2], "B": [0, 1, 3], "C": [1, 2 ,3]})
+        assign_queues_to_workers(4, {"A": [0, 1, 2], "B": [0, 1, 3], "C": [1, 2 , 3]})
     )
-
