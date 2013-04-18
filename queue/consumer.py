@@ -197,15 +197,32 @@ class Worker(multiprocessing.Process):
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                             settings.RABBITMQ_PASS)
 
-        parameters = pika.ConnectionParameters(heartbeat_interval=5,
-                                               credentials=credentials,
-                                               host=settings.RABBIT_HOST)
-
+        self.parameters = pika.ConnectionParameters(heartbeat_interval=5,
+                                                    credentials=credentials,
+                                                    host=settings.RABBIT_HOST)
         self.channel = None
-        self.connection = pika.SelectConnection(parameters, self.on_connected)
+        self.connection = self.connect()
+
+    def connect(self):
+        return pika.SelectConnection(self.parameters, self.on_connected)
 
     def on_connected(self, connection):
+        # Register callback invoked when the connection is lost unexpectedly
+        self.connection.add_on_close_callback(self.on_connection_closed)
+
         self.connection.channel(self.on_channel_open)
+
+    def on_connection_closed(self, method_frame):
+        """Invoked when the connection is closed unexpectedly."""
+
+        log.warning('Connection closed, trying to reconnect: ({0}) {1}'.format(
+            method_frame.method.reply_code,
+            method_frame.method.reply_text,
+        ))
+
+        # Try to reconnect
+        self.channel = None
+        self.connection = self.connect()
 
     def on_channel_open(self, channel):
         self.channel = channel
