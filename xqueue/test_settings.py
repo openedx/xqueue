@@ -68,7 +68,7 @@ RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', 'localhost')
 # to avoid storing auth information in the repository
 # If you do not configure envs.json with the auth information
 # for the Mathworks servers, then the Mathworks integration
-# tests will fail.
+# tests will be skipped.
 XQUEUES = ENV_TOKENS.get('XQUEUES', {})
 MATHWORKS_API_KEY = ENV_TOKENS.get('MATHWORKS_API_KEY', None)
 
