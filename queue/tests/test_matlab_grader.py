@@ -7,6 +7,7 @@ from django.conf import settings
 from django.test.utils import override_settings
 from uuid import uuid4
 from nose.plugins.attrib import attr
+from nose.plugins.skip import SkipTest
 
 
 @attr('grader_integration')
@@ -34,12 +35,10 @@ class MatlabGraderTest(unittest.TestCase):
         self.api_key = settings.MATHWORKS_API_KEY
         self.grader_url = settings.XQUEUES.get('matlab', None)
 
-        # Fail immediately if settings are missing
-        self.assertTrue(self.api_key is not None,
-                        'You must specify an API key for Mathworks in test_env.json.')
-        self.assertTrue(self.grader_url is not None,
-                        'You must specify a URL for the Mathworks grader in test_env.json')
-
+        # Skip if the settings are missing
+        if self.api_key is None or self.grader_url is None:
+            raise SkipTest('You must specify an API key and URL for Mathworks in test_env.json')
+        
         # Create the response listener
         # which listens for responses on an open port
         self.response_listener = GradeResponseListener()
