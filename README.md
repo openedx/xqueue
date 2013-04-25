@@ -55,10 +55,5 @@ You can run the unit/integration test suite using:
 
 from the base `xqueue` directory.
 
-Some of the tests require that RabbitMQ is running locally.  See
-`test_framework/README.md` for details.
-
-Many of the tests use an integration testing framework to handle setup/teardown
-and to stub out the LMS and external graders.  The framework is defined
-in `test_framework/integration_framework.py` and is used by tests in
-`queue/tests`
+**Note:** If you do not have RabbitMQ installed and running, some tests
+will produce errors.  See `test_framework/README.md` for more information.
