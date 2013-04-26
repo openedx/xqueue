@@ -6,6 +6,7 @@ from django.utils import unittest
 from django.conf import settings
 from django.test.utils import override_settings
 from uuid import uuid4
+from textwrap import dedent
 from nose.plugins.attrib import attr
 from nose.plugins.skip import SkipTest
 
@@ -38,7 +39,7 @@ class MatlabGraderTest(unittest.TestCase):
         # Skip if the settings are missing
         if self.api_key is None or self.grader_url is None:
             raise SkipTest('You must specify an API key and URL for Mathworks in test_env.json')
-        
+
         # Create the response listener
         # which listens for responses on an open port
         self.response_listener = GradeResponseListener()
@@ -70,17 +71,33 @@ class MatlabGraderTest(unittest.TestCase):
     def test_matlab_check_correct(self):
         response = self._submit_to_mathworks("assert(isequal(x,1))", "x=1")
 
-        self.assertEqual(response.get('msg', None),
-                         "<div class='matlabResponse'><ul></ul></div>")
+        expected = dedent("""
+        <div class='matlabResponse'><div style='white-space:pre' class='commandWindowOutput'>
+        x =
+
+             1
+
+        </div><ul></ul></div>
+        """).strip()
+
+        self.assertEqual(response.get('msg', None), expected)
         self.assertEqual(response.get('correct', None), True)
         self.assertEqual(response.get('score', None), 1)
 
     def test_matlab_check_incorrect(self):
         response = self._submit_to_mathworks("assert(isequal(x,1))", "x=5")
 
-        self.assertEqual(response.get('msg', None),
-                         "<div class='matlabResponse'>" +
-                         "<ul><li>Assertion failed.\n</li></ul></div>")
+        expected = dedent("""
+        <div class='matlabResponse'><div style='white-space:pre' class='commandWindowOutput'>
+        x =
+
+             5
+
+        </div><ul><li>Assertion failed.
+        </li></ul></div>
+        """).strip()
+
+        self.assertEqual(response.get('msg', None), expected)
         self.assertEqual(response.get('correct', None), False)
         self.assertEqual(response.get('score', None), 0)
 
@@ -98,9 +115,17 @@ class MatlabGraderTest(unittest.TestCase):
     def test_matlab_invalid(self):
         response = self._submit_to_mathworks("invalid", "x=5")
 
-        self.assertEqual(response.get('msg', None),
-                         "<div class='matlabResponse'><ul>" +
-                         "<li>Undefined function or variable 'invalid'.\n</li></ul></div>")
+        expected = dedent("""
+        <div class='matlabResponse'><div style='white-space:pre' class='commandWindowOutput'>
+        x =
+
+             5
+
+        </div><ul><li>Undefined function or variable 'invalid'.
+        </li></ul></div>
+        """).strip()
+
+        self.assertEqual(response.get('msg', None), expected)
         self.assertEqual(response.get('correct', None), False)
         self.assertEqual(response.get('score', None), 0)
 
