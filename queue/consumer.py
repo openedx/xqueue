@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.db import connection as db_connection
 
 import pika
+from pika.exceptions import AMQPConnectionError
 from statsd import statsd
 from requests.exceptions import ConnectionError, Timeout
 
@@ -212,12 +213,12 @@ class Worker(multiprocessing.Process):
 
         self.connection.channel(self.on_channel_open)
 
-    def on_connection_closed(self, method_frame):
+    def on_connection_closed(self, connection, reply_code, reply_text):
         """Invoked when the connection is closed unexpectedly."""
 
         log.warning('Connection closed, trying to reconnect: ({0}) {1}'.format(
-            method_frame.method.reply_code,
-            method_frame.method.reply_text,
+            reply_code,
+            reply_text,
         ))
 
         # Try to reconnect
@@ -249,7 +250,24 @@ class Worker(multiprocessing.Process):
             queue=self.queue_name,
         ))
 
-        self.connection.ioloop.start()
+        try:
+            self.connection.ioloop.start()
+
+        except AMQPConnectionError as ex:
+            log.error("[{id}] Consumer for queue {queue} connection error: {err}".format(
+                id=self.id, queue=self.queue_name, err=ex))
+
+        else:
+            # Log that the worker exited without an exception
+            log.info(" [{id}] Consumer for queue {queue} is exiting normally...".format(
+                id=self.id, queue=self.queue_name))
+
+        finally:
+            # Log that the worker stopped
+            log.info(" [{id}] Consumer for queue {queue} stopped".format(
+                id=self.id, queue=self.queue_name))
+
+
         # TODO [rocha] make to to finish all  submissions before exiting
 
     def stop(self):
