@@ -42,7 +42,7 @@ RABBIT_HOST = 'localhost'
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
-# Value pre-pended to the bucketname here:
+# Value prepended to the bucketname here:
 # /queue/lms_interface.py:_upload_file_dict_to_s3 used to create a bucket
 # that is unique per environment and course.
 S3_BUCKET_PREFIX = "s3_bucket_prefix"
