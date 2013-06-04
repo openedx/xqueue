@@ -149,8 +149,8 @@ def _upload_file_dict_to_s3(file_dict, key_dict, keyname, bucketname):
         public_url: URL to access uploaded list
     '''
     conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucketname = settings.AWS_ACCESS_KEY_ID + '_' + bucketname
-    bucket = conn.create_bucket(bucketname.lower())
+    bucketname = _get_fully_qualified_bucketname(bucketname)
+    bucket = conn.create_bucket(bucketname)
 
     data = {}
     data['files'] = file_dict
@@ -172,8 +172,8 @@ def _upload_to_s3(file_to_upload, keyname, bucketname):
         public_url: URL to access uploaded file
     '''
     conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucketname = settings.AWS_ACCESS_KEY_ID + '_' + bucketname
-    bucket = conn.create_bucket(bucketname.lower())
+    bucketname = _get_fully_qualified_bucketname(bucketname)
+    bucket = conn.create_bucket(bucketname)
 
     k = Key(bucket)
     k.key = keyname
@@ -182,3 +182,7 @@ def _upload_to_s3(file_to_upload, keyname, bucketname):
     public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
 
     return public_url
+
+def _get_fully_qualified_bucketname(bucketname):
+    return "{prefix}_{course}".format(prefix=settings.S3_BUCKET_PREFIX,
+                                      course=bucketname).lower()
