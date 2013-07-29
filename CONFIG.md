@@ -4,7 +4,7 @@ Need a user and password for the lms to log in as.
 
 There's a management command, which is a bit funny since it's intended for AWS.
 
-Put this in the base xqueue directory
+Put this in a file named `auth.json` in the base xqueue directory
 
 ```{
   "USERS": {"lms": "abcd"}
