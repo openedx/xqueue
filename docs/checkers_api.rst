@@ -1,5 +1,5 @@
-External Checkers
-=================
+External Checkers API
+=====================
 
 
 Overview
