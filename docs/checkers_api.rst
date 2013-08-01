@@ -656,9 +656,9 @@ Payload
 +-------------+--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Property    | Type   | Description                                                                                                                                                        |
 +=============+========+====================================================================================================================================================================+
-| ``student`` | String | The studend payload. A Base64 encoded string. Contains student's answer to the problem.                                                                            |
+| ``student`` | String | The student payload. A Base64 encoded string. Contains student's answer to the problem.                                                                            |
 +-------------+--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``problem`` | String | The problem payload. A string configured in the problem content that can contain any arbitrary value required by the instructor from grading the specific problem. |
+| ``problem`` | String | The problem payload. A string configured in the problem content that can contain any arbitrary value required by the instructor for checking the specific problem. |
 +-------------+--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
