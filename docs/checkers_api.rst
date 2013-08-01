@@ -381,7 +381,7 @@ response body.
 ``lease`` method
 ````````````````
 
-The lease method is use to lease one or many submissions for
+The lease method is used to lease one or many submissions for
 processing. The checker application can optionally specify the lease
 time and the number of submissions to lease. The response is a list of
 leased submissions, which can be equal or less than the number of
