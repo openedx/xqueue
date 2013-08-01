@@ -543,7 +543,7 @@ Subscription
 ------------
 
 A resource representing a subscription for notifications between a
-queue and an endpoing.
+queue and an endpoint.
 
 
 Representation
