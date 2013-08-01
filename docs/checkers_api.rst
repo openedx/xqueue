@@ -148,7 +148,7 @@ when there are submissions pending in the Queue.
 
 
 2. A ``POST`` request with a Queue resource will be done to the
-   specified endpoint. The response code should be ``204 Accepted``.
+   specified endpoint. The response code should be ``202 Accepted``.
 
 ::
 
