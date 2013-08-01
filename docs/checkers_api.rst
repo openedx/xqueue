@@ -43,7 +43,7 @@ Basic Usage Example
 ::
 
     Request:
-    GET /checker/v1/queue/{queue-name} HTTP/1.1
+    GET /checker/v2/queue/{queue-name} HTTP/1.1
     Host: api.edx.org
     ...
     
@@ -66,7 +66,7 @@ Basic Usage Example
 ::
 
     Request:
-    POST /checker/v1/queue/{queue-name}/lease HTTP/1.1
+    POST /checker/v2/queue/{queue-name}/lease HTTP/1.1
     Host: api.edx.org
     ...
     
@@ -81,7 +81,7 @@ Basic Usage Example
             {
                 "id": "{submission-id}",
                 "type": "{problem-type}",
-                "url": "https://api.edx.org/checker/v1/submission/{submission-id}",
+                "url": "https://api.edx.org/checker/v2/submission/{submission-id}",
                 "state": "LEASED",
                 "enqueue": 1368459052,
                 "expires": 1368459112,
@@ -97,7 +97,7 @@ Basic Usage Example
 ::
 
     Request:
-    PATCH /checker/v1/submission/{submission-id} HTTP/1.1
+    PATCH /checker/v2/submission/{submission-id} HTTP/1.1
     Host: api.edx.org
     ...
     
@@ -128,7 +128,7 @@ when there are submissions pending in the Queue.
 ::
 
     Request:
-    POST /checker/v1/queue/{queue-name}/subscription HTTP/1.1
+    POST /checker/v2/queue/{queue-name}/subscription HTTP/1.1
     Host: api.edx.org
     ...
      
@@ -138,7 +138,7 @@ when there are submissions pending in the Queue.
     
     Response:
     HTTP/1.1 201 Created
-    Location: https://api.edx.org/checker/v1/queue/{queue-name}/subscription/{subscription-id}
+    Location: https://api.edx.org/checker/v2/queue/{queue-name}/subscription/{subscription-id}
     ...
     {
       "id": "{subscription-id}",
@@ -163,7 +163,7 @@ when there are submissions pending in the Queue.
     
     {
         "name": "{queue-name}",
-        "url": "https://api.edx.org/checker/v1/{path}/{queue-name}",
+        "url": "https://api.edx.org/checker/v2/{path}/{queue-name}",
         "length": {queue-length}
     }
     
@@ -299,7 +299,7 @@ API Reference
 =============
 
 For all the URL paths below assume a host (e.g. ``http://api.edx.org``)
-and prefix path (e.g. ``/checker/v1/``).
+and prefix path (e.g. ``/checker/v2/``).
 
 For example:
 
@@ -307,7 +307,7 @@ For example:
 
 should be interpreted as:
 
-``GET /checker/v1/submission/{id} HTTP/1.1``
+``GET /checker/v2/submission/{id} HTTP/1.1``
 
 
 
@@ -694,7 +694,7 @@ The Submission:
 ::
 
     Request:
-    POST /checker/v1/queue/problem1.1/lease HTTP/1.1
+    POST /checker/v2/queue/problem1.1/lease HTTP/1.1
     Host: api.edx.org
     ...
     
@@ -709,7 +709,7 @@ The Submission:
             {
                 "id": "AB1233",
                 "type": "coderesponse",
-                "url": "https://api.edx.org/checker/v1/submission/AB1233",
+                "url": "https://api.edx.org/checker/v2/submission/AB1233",
                 "state": "LEASED",
                 "enqueue": 1368459052,
                 "expires": 1368459112,
@@ -727,7 +727,7 @@ The result:
 ::
 
     Request:
-    PATCH /checker/v1/submission/AB1233 HTTP/1.1
+    PATCH /checker/v2/submission/AB1233 HTTP/1.1
     Host: api.edx.org
     ...
      
