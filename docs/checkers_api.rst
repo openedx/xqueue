@@ -1,3 +1,5 @@
+**NOTE**: This document describes the in-progress "v2" of the checker API, not the existing approach implemented by xqueue, etc.
+
 External Checkers API
 =====================
 
