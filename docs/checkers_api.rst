@@ -7,7 +7,7 @@ External Checkers API
 Overview
 ========
 
-The Checkers API allow third party applications (**checkers**) to consume
+The Checkers API allows third party applications (**checkers**) to consume
 student **submissions** for specific problem **types** from a named **queue**.
 The checker is in charge of processing the submission and publish a
 **result**. The applications acquire a *lease* when they start working on
