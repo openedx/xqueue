@@ -24,7 +24,10 @@ ORPHANED_SUBMISSION_TIMEOUT = 30 # seconds
 DB_RETRIES = 3    # Max number of times to query the DB when queued ticket is not found
 DB_WAITTIME = 0.5 # seconds
 
-XQUEUES = {'test-pull': None}
+XQUEUES = {'test_course_queue' : 'http://localhost:1234'}
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASS = 'guest'
+RABBIT_HOST = 'localhost'
 XQUEUE_WORKERS_PER_QUEUE = 4
 WORKER_COUNT = 4
 
@@ -75,14 +78,8 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_ROOT = ENV_ROOT / "uploads"
+MEDIA_URL = "/static/uploads/"
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
