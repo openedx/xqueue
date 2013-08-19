@@ -54,9 +54,10 @@ def submit(request):
                 # Check for file uploads
                 s3_keys = dict() # For internal Xqueue use
                 s3_urls = dict() # For external grader use
-                for key, url in json.loads(request.POST['xqueue_body'])['files'].items():
-                    s3_keys[key] = key
-                    s3_urls[key] = url
+                if 'files' in json.loads(request.POST['xqueue_body']):
+                    for key, url in json.loads(request.POST['xqueue_body'])['files'].items():
+                        s3_keys[key] = key
+                        s3_urls[key] = url
 
                 # Track the submission in the Submission database
                 submission = Submission(requester_id=get_request_ip(request),
