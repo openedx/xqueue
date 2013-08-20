@@ -24,10 +24,14 @@ ORPHANED_SUBMISSION_TIMEOUT = 30 # seconds
 DB_RETRIES = 3    # Max number of times to query the DB when queued ticket is not found
 DB_WAITTIME = 0.5 # seconds
 
-XQUEUES = {'test_course_queue' : 'http://localhost:1234'}
+XQUEUES = {'test_course_queue' : 'http://localhost:1234',
+           'test_pull': None}
+           # test_pull is a pull-style grader.
+           # We don't specify a push destination for pull-style graders.
 RABBITMQ_USER = 'guest'
 RABBITMQ_PASS = 'guest'
 RABBIT_HOST = 'localhost'
+
 XQUEUE_WORKERS_PER_QUEUE = 4
 WORKER_COUNT = 4
 
@@ -41,6 +45,8 @@ DATABASES = {
     }
 }
 RABBIT_HOST = 'localhost'
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASS = 'guest'
 
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
