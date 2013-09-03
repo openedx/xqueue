@@ -1,6 +1,7 @@
 import os
-from logsettings import get_logger_config
 from path import path
+
+from xqueue.logsettings import get_logger_config
 
 ROOT_PATH = path(__file__).dirname()
 REPO_PATH = ROOT_PATH.dirname()
@@ -42,10 +43,9 @@ RABBIT_HOST = 'localhost'
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
-# Value prepended to the bucketname here:
-# /queue/lms_interface.py:_upload_file_dict_to_s3 used to create a bucket
-# that is unique per environment and course.
-S3_BUCKET_PREFIX = "s3_bucket_prefix"
+# Bucket where files will be uploaded
+S3_BUCKET = "s3_bucket"
+
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
 
@@ -158,7 +158,8 @@ INSTALLED_APPS = (
 
 LOGIN_URL = '/xqueue/login'
 
-LOGGING = get_logger_config(ENV_ROOT / "log",
-                            logging_env="dev",
-                            dev_env=True,
-                            debug=True)
+LOGGING = get_logger_config(
+    log_dir=ENV_ROOT / "log",
+    logging_env="dev",
+    dev_env=True,
+    debug=True)
