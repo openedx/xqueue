@@ -2,7 +2,12 @@ from settings import *
 import json
 from logsettings import get_logger_config
 
-with open(ENV_ROOT / "env.json") as env_file:
+# Allow to specify a prefix for env/auth configuration files
+SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', '')
+if SERVICE_VARIANT:
+    CONFIG_PREFIX = SERVICE_VARIANT + "."
+
+with open(ENV_ROOT / CONFIG_PREFIX + "env.json") as env_file:
     ENV_TOKENS = json.load(env_file)
 
 XQUEUES = ENV_TOKENS['XQUEUES']
@@ -21,7 +26,7 @@ LOGGING = get_logger_config(LOG_DIR,
 
 RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
 
-with open(ENV_ROOT / "auth.json") as auth_file:
+with open(ENV_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
 DATABASES = AUTH_TOKENS['DATABASES']

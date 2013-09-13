@@ -6,6 +6,7 @@ from xqueue.logsettings import get_logger_config
 ROOT_PATH = path(__file__).dirname()
 REPO_PATH = ROOT_PATH.dirname()
 ENV_ROOT = REPO_PATH.dirname()
+CONFIG_PREFIX = ''
 
 # Django settings for xqueue project.
 
