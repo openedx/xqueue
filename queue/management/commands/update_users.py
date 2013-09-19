@@ -8,6 +8,7 @@ Ensure that the right users exist:
 """
 import json
 import logging
+import os
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -21,7 +22,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         log.info("root is : " + settings.ENV_ROOT)
-        auth_path = settings.ENV_ROOT / "auth.json"
+        auth_filename = '{0}auth.json'.format(settings.CONFIG_PREFIX)
+        auth_path = os.path.join(settings.ENV_ROOT, auth_filename)
 
         log.info(' [*] reading {0}'.format(auth_path))
 
