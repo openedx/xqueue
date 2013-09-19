@@ -136,7 +136,6 @@ def put_result(request):
                 return HttpResponse(compose_reply(False,'Incorrect key for submission'))
 
             submission.return_time = timezone.now()
-            submission.pullkey = ''
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
