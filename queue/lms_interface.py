@@ -130,7 +130,7 @@ def _is_valid_request(xrequest):
         return fail
 
     for tag in ['lms_callback_url', 'lms_key', 'queue_name']:
-        if tag in header_dict:
+        if tag not in header_dict:
             return fail
 
     queue_name = str(header_dict['queue_name']) # Important: Queue name must be str!
