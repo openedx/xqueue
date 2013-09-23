@@ -117,7 +117,7 @@ def _is_valid_request(xrequest):
     fail = (False, '', '', '', '')
     try:
         header = xrequest['xqueue_header']
-        body   = xrequest['xqueue_body']
+        body = xrequest['xqueue_body']
     except (TypeError, KeyError):
         return fail
 
@@ -130,10 +130,10 @@ def _is_valid_request(xrequest):
         return fail
 
     for tag in ['lms_callback_url', 'lms_key', 'queue_name']:
-        if not header_dict.has_key(tag):
+        if tag in header_dict:
             return fail
 
-    queue_name   = str(header_dict['queue_name']) # Important: Queue name must be str!
+    queue_name = str(header_dict['queue_name']) # Important: Queue name must be str!
     lms_callback_url = header_dict['lms_callback_url']
 
     return (True, lms_callback_url, queue_name, header, body)
@@ -157,7 +157,8 @@ def _upload_file_dict_to_s3(file_dict, key_dict, path, name):
     data['files'] = file_dict
     data['keys'] = key_dict
 
-    path = 'xqueue/{0}'.format(path)
+    prefix = getattr(settings, 'S3_PATH_PREFIX', 'xqueue')
+    path = '{0}/{1}'.format(prefix, path)
 
     k = Key(bucket)
     k.key = '{path}/{name}'.format(path=path, name=name)
@@ -178,12 +179,13 @@ def _upload_to_s3(file_to_upload, path, name):
     bucketname = settings.S3_BUCKET
     bucket = conn.create_bucket(bucketname)
 
-    path = 'xqueue/{0}'.format(path)
+    prefix = getattr(settings, 'S3_PATH_PREFIX', 'xqueue')
+    path = '{0}/{1}'.format(prefix, path)
 
     k = Key(bucket)
     k.key = '{path}/{name}'.format(path=path, name=name)
-    k.set_metadata('filename',file_to_upload.name)
+    k.set_metadata('filename', file_to_upload.name)
     k.set_contents_from_file(file_to_upload)
-    public_url = k.generate_url(60*60*24*365) # URL timeout in seconds.
+    public_url = k.generate_url(60*60*24*365)  # URL timeout in seconds.
 
     return public_url
