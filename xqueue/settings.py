@@ -46,6 +46,7 @@ AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
 # Bucket where files will be uploaded
 S3_BUCKET = "s3_bucket"
+S3_PATH_PREFIX = "xqueue"
 
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
