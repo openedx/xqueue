@@ -157,7 +157,7 @@ def _upload_file_dict_to_s3(file_dict, key_dict, path, name):
     data['files'] = file_dict
     data['keys'] = key_dict
 
-    prefix = getattr(settings, 'S3_PATH_PREFIX', 'xqueue')
+    prefix = getattr(settings, 'S3_PATH_PREFIX')
     path = '{0}/{1}'.format(prefix, path)
 
     k = Key(bucket)
@@ -179,7 +179,7 @@ def _upload_to_s3(file_to_upload, path, name):
     bucketname = settings.S3_BUCKET
     bucket = conn.create_bucket(bucketname)
 
-    prefix = getattr(settings, 'S3_PATH_PREFIX', 'xqueue')
+    prefix = getattr(settings, 'S3_PATH_PREFIX')
     path = '{0}/{1}'.format(prefix, path)
 
     k = Key(bucket)
