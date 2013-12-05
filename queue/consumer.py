@@ -202,7 +202,7 @@ class Worker(multiprocessing.Process):
                                                     credentials=credentials,
                                                     host=settings.RABBIT_HOST)
         self.channel = None
-        self.connection = self.connect()
+        self.connection = None
 
     def connect(self):
         return pika.SelectConnection(self.parameters, self.on_connected)
@@ -251,22 +251,20 @@ class Worker(multiprocessing.Process):
         ))
 
         try:
+            self.connection = self.connect()
             self.connection.ioloop.start()
-
         except AMQPConnectionError as ex:
             log.error("[{id}] Consumer for queue {queue} connection error: {err}".format(
                 id=self.id, queue=self.queue_name, err=ex))
-
+            raise
         else:
             # Log that the worker exited without an exception
             log.info(" [{id}] Consumer for queue {queue} is exiting normally...".format(
                 id=self.id, queue=self.queue_name))
-
         finally:
             # Log that the worker stopped
             log.info(" [{id}] Consumer for queue {queue} stopped".format(
                 id=self.id, queue=self.queue_name))
-
 
         # TODO [rocha] make to to finish all  submissions before exiting
 

@@ -1,4 +1,5 @@
 import logging
+import time
 from itertools import combinations
 
 from django.core.management.base import BaseCommand
@@ -8,6 +9,9 @@ from django.conf import settings
 from queue.consumer import Worker
 
 log = logging.getLogger(__name__)
+
+
+MONITOR_SLEEPTIME = 10
 
 
 class NoAssignmentError(Exception):
@@ -66,7 +70,7 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-        log.info(' [*] Starting queue consumers...')
+        log.info(' [*] Starting queue workers...')
 
         workers = []
         queues = settings.XQUEUES.items()
@@ -75,10 +79,47 @@ class Command(BaseCommand):
         for name, url in queues:
             if url is not None:
                 worker = Worker(queue_name=name, worker_url=url)
-                worker.start()
                 workers.append(worker)
 
+        # Start workers
         for worker in workers:
-            worker.join()
+            log.info(' [{}] Starting worker'.format(worker.id))
+            worker.start()
+
+        # Monitor workers
+        while workers:
+            self.monitor(workers)
+            time.sleep(MONITOR_SLEEPTIME)
 
         log.info(' [*] All workers finished. Exiting')
+
+
+    def monitor(self, workers):
+        finished_workers = []
+        failed_workers = []
+
+        for worker in workers:
+            exitcode = worker.exitcode
+
+            if exitcode is None: # the process is running
+                continue
+            elif exitcode >= 1:  # the process failed
+                failed_workers.append(worker)
+            else:  # the process has finished (0) or was interrupted (<0)
+                finished_workers.append(worker)
+
+        # remove finished workers
+        for worker in finished_workers:
+            log.info(' [{}] Worker stopped'.format(worker.id))
+            workers.remove(worker)
+
+        # restart failed workers
+        for worker in failed_workers:
+            log.info(' [{}] Worker failed'.format(worker.id))
+            workers.remove(worker)
+
+            new_worker = Worker(queue_name=worker.queue_name, worker_url=worker.worker_url)
+            workers.append(new_worker)
+
+            log.info(' [{}] Starting worker'.format(new_worker.id))
+            new_worker.start()
