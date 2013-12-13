@@ -360,8 +360,13 @@ class Worker(multiprocessing.Process):
         submission.push_time = timezone.now()
         start = time.time()
         (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
-        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', time.time() - start,
+        grading_time = time.time() - start
+        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', grading_time,
                          tags=['queue:{0}'.format(self.queue_name)])
+
+        if grading_time > settings.GRADING_TIMEOUT:
+            log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
+                      grading_time, submission.xqueue_body, submission.s3_urls))
 
         job_count = get_queue_length(self.queue_name)
         statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
