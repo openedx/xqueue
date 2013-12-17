@@ -23,6 +23,20 @@ from queue.models import Submission
 log = logging.getLogger(__name__)
 
 
+class FailOnDisconnectError(Exception):
+    '''
+    An error we intentionally throw when a disconnect happens, to force the
+    worker to die and be respawned. Trying to manually reconnect the same
+    process is somewhat strange according to Pika docs:
+
+    https://pika.readthedocs.org/en/0.9.13/examples/asynchronous_consumer_example.html
+
+    (Note the ioloop.start() inside other ioloop.start()).
+
+    Instead of dealing with that, we let the worker die, and then let the
+    monitor restart it.
+    '''
+
 def clean_up_submission(submission):
     '''
     TODO: Delete files on S3
@@ -221,9 +235,13 @@ class Worker(multiprocessing.Process):
             reply_text,
         ))
 
-        # Try to reconnect
-        self.channel = None
-        self.connection = self.connect()
+        # Reconnect logic is odd with pika, and a simple self.connect() doesn't
+        # seem to work here. So instead of that, we'll just throw an exception,
+        # causing this worker process to end and the monitor will then spawn a
+        # new process.
+        raise FailOnDisconnectError(
+            "Reply code: {}; Reply text: {}".format(reply_code, reply_text)
+        )
 
     def on_channel_open(self, channel):
         self.channel = channel
