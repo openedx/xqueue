@@ -62,7 +62,7 @@ except (IOError, ValueError):
 RABBITMQ_USER = ENV_TOKENS.get('RABBITMQ_USER', 'guest')
 RABBITMQ_PASS = ENV_TOKENS.get('RABBITMQ_PASS', 'guest')
 RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', 'localhost')
-
+RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', '/')
 # Mathworks setup
 # We load the Mathworks settings from envs.json
 # to avoid storing auth information in the repository

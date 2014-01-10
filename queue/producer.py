@@ -24,7 +24,8 @@ def push_to_queue(queue_name, qitem=None):
 
     parameters = pika.ConnectionParameters(heartbeat_interval=5,
                                            credentials=credentials,
-                                           host=settings.RABBIT_HOST)
+                                           host=settings.RABBIT_HOST,
+                                           virtual_host=settings.RABBIT_VHOST)
 
     retries = 0
     while True:

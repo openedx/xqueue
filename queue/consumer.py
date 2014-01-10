@@ -91,7 +91,8 @@ def get_single_qitem(queue_name):
 
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         heartbeat_interval=5,
-        credentials=credentials, host=settings.RABBIT_HOST))
+        credentials=credentials, host=settings.RABBIT_HOST,
+        virtual_host=settings.RABBIT_VHOST))
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
 
