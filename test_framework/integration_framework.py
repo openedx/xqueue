@@ -164,7 +164,8 @@ class GraderStubBase(object):
                                       settings.RABBITMQ_PASS)
 
         params = pika.ConnectionParameters(credentials=creds,
-                                           host=settings.RABBIT_HOST)
+                                           host=settings.RABBIT_HOST,
+                                           virtual_host=settings.RABBIT_VHOST)
 
         connection = pika.BlockingConnection(parameters=params)
         channel = connection.channel()
