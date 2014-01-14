@@ -215,7 +215,8 @@ class Worker(multiprocessing.Process):
 
         self.parameters = pika.ConnectionParameters(heartbeat_interval=5,
                                                     credentials=credentials,
-                                                    host=settings.RABBIT_HOST)
+                                                    host=settings.RABBIT_HOST,
+                                                    virtual_host=settings.RABBIT_VHOST)
         self.channel = None
         self.connection = None
 
