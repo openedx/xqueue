@@ -6,6 +6,7 @@ import multiprocessing
 import threading
 import time
 import itertools
+import contextlib
 
 from django.conf import settings
 from django.db import transaction
@@ -44,7 +45,7 @@ def clean_up_submission(submission):
     return
 
 
-def get_single_unretired_submission(queue_name):
+def get_single_unretired_submission(queue_name, blocking=False):
     '''
     Retrieve a single unretired queued item, if one exists, from the named queue
 
@@ -56,7 +57,7 @@ def get_single_unretired_submission(queue_name):
     items_in_queue = True
     while items_in_queue:
         # Try to pull out a single submission from the queue, which may or may not be retired
-        (items_in_queue, qitem) = get_single_qitem(queue_name)
+        (items_in_queue, qitem) = get_single_qitem(queue_name, blocking=blocking)
         if not items_in_queue: # No more submissions to consider
             return (False, '')
 
@@ -74,7 +75,7 @@ def get_single_unretired_submission(queue_name):
             return (True, submission)
 
 
-def get_single_qitem(queue_name):
+def get_single_qitem(queue_name, blocking=False):
     '''
     Retrieve a single queued item, if one exists, from the named queue
 
@@ -93,21 +94,47 @@ def get_single_qitem(queue_name):
         heartbeat_interval=5,
         credentials=credentials, host=settings.RABBIT_HOST,
         virtual_host=settings.RABBIT_VHOST))
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
+    result = (False, '')
+    with contextlib.closing(connection):
+        channel = connection.channel()
+        channel.queue_declare(queue=queue_name, durable=True)
 
-    # qitem is the item from the queue
-    method, header, qitem = channel.basic_get(queue=queue_name)
 
-    if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
-        connection.close()
-        return (False, '')
-    else:
-        channel.basic_ack(method.delivery_tag)
-        connection.close()
-        statsd.increment('xqueue.consumer.get_single_qitem',
-                         tags=['queue:{0}'.format(queue_name)])
-        return (True, qitem)
+        if blocking:
+            calledback = {}
+            def _timeout():
+                channel.stop_consuming()
+
+            def _callback(channel, method, header, qitem):
+                calledback['item'] = qitem
+                calledback['method'] = method
+                channel.stop_consuming()
+
+            log.debug('starting blocking get')
+            connection.add_timeout(60, _timeout)
+            channel.basic_consume(_callback, queue=queue_name)
+            channel.start_consuming()
+            # _callback will cancel the consuming
+            if calledback:
+                channel.basic_ack(calledback['method'].delivery_tag)
+
+                result = (True, calledback['item'])
+            else:
+                result = (False, "timeout")
+            log.debug('finished blocking get -> %r', result)
+        else:
+            # qitem is the item from the queue
+            method, header, qitem = channel.basic_get(queue=queue_name)
+
+            if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
+                result = (False, '')
+            else:
+                channel.basic_ack(method.delivery_tag)
+                result = (True, qitem)
+        if result[0]:
+            statsd.increment('xqueue.consumer.get_single_qitem',
+                     tags=['queue:{0}'.format(queue_name)])
+    return result
 
 
 def post_failure_to_lms(header):

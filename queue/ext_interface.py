@@ -10,7 +10,7 @@ import json
 import logging
 
 from queue.models import Submission
-from queue.views import compose_reply
+from queue.views import XQueueResponse
 from util import *
 
 import queue.producer
@@ -33,13 +33,13 @@ def get_queuelen(request):
     try:
         queue_name = request.GET['queue_name']
     except KeyError:
-        return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
+        return XQueueResponse(False, "'get_queuelen' must provide parameter 'queue_name'")
 
     if queue_name in settings.XQUEUES:
         job_count = queue.producer.get_queue_length(queue_name)
-        return HttpResponse(compose_reply(True, job_count))
+        return XQueueResponse(True, job_count)
     else:
-        return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
+        return XQueueResponse(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys()))
 
 @login_required
 @statsd.timed('xqueue.ext_interface.get_submission.time')
@@ -50,16 +50,17 @@ def get_submission(request):
     try:
         queue_name = request.GET['queue_name']
     except KeyError:
-        return HttpResponse(compose_reply(False, "'get_submission' must provide parameter 'queue_name'"))
+        return XQueueResponse(False, "'get_submission' must provide parameter 'queue_name'")
 
     if queue_name not in settings.XQUEUES:
-        return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
+        return XQueueResponse(False, "Queue '%s' not found" % queue_name)
     else:
         # Try to pull a single item from named queue
-        (got_submission, submission) = queue.consumer.get_single_unretired_submission(queue_name)
+        blocking = request.GET.get('block') == 'true' and can_block(request)
+        got_submission, submission = queue.consumer.get_single_unretired_submission(queue_name, blocking=blocking)
 
         if not got_submission:
-            return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
+            return XQueueResponse(False, "Queue '%s' is empty" % queue_name)
         else:
             # Collect info on pull event
             grader_id = get_request_ip(request)
@@ -86,11 +87,11 @@ def get_submission(request):
                 except (ConnectionError, Timeout):
                     success = False
                     log.error('Could not fetch uploaded files at %s in timeout=%f' % (url, timeout))
-                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+                    return XQueueResponse(False, "Error fetching submission. Please try again." % queue_name)
 
                 if (r.status_code not in [200]) or (not success):
                     log.error('Could not fetch uploaded files at %s. Status code: %d' % (url, r.status_code))
-                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+                    return XQueueResponse(False, "Error fetching submission. Please try again." % queue_name)
 
                 xqueue_files = json.dumps(json.loads(r.text)["files"])
             else:
@@ -100,7 +101,7 @@ def get_submission(request):
                        'xqueue_body': submission.xqueue_body,
                        'xqueue_files': xqueue_files}
 
-            return HttpResponse(compose_reply(True,content=json.dumps(payload)))
+            return XQueueResponse(True,content=json.dumps(payload))
 
 @csrf_exempt
 @login_required
@@ -110,7 +111,7 @@ def put_result(request):
     Graders post their results here.
     '''
     if request.method != 'POST':
-        return HttpResponse(compose_reply(False, "'put_result' must use HTTP POST"))
+        return XQueueResponse(False, "'put_result' must use HTTP POST")
     else:
         (reply_is_valid, submission_id, submission_key, grader_reply) = _is_valid_reply(request.POST)
 
@@ -119,7 +120,7 @@ def put_result(request):
                 get_request_ip(request),
                 request.POST,
             ))
-            return HttpResponse(compose_reply(False, 'Incorrect reply format'))
+            return XQueueResponse(False, 'Incorrect reply format')
         else:
             try:
                 submission = Submission.objects.select_for_update().get(id=submission_id)
@@ -130,10 +131,10 @@ def put_result(request):
                     submission_key,
                     grader_reply
                 ))
-                return HttpResponse(compose_reply(False,'Submission does not exist'))
+                return XQueueResponse(False,'Submission does not exist')
 
             if not submission.pullkey or submission_key != submission.pullkey:
-                return HttpResponse(compose_reply(False,'Incorrect key for submission'))
+                return XQueueResponse(False,'Incorrect key for submission')
 
             submission.return_time = timezone.now()
             submission.grader_reply = grader_reply
@@ -144,7 +145,7 @@ def put_result(request):
 
             submission.save()
 
-            return HttpResponse(compose_reply(success=True, content=''))
+            return XQueueResponse(success=True, content='')
 
 def _is_valid_reply(external_reply):
     '''

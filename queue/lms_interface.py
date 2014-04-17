@@ -13,7 +13,7 @@ from boto.s3.key import Key
 from statsd import statsd
 
 from queue.models import Submission, CHARFIELD_LEN_LARGE
-from queue.views import compose_reply
+from queue.views import XQueueResponse
 from util import *
 
 import queue.producer
@@ -30,7 +30,7 @@ def submit(request):
     '''
     if request.method != 'POST':
         transaction.commit()
-        return HttpResponse(compose_reply(False, 'Queue requests should use HTTP POST'))
+        return XQueueResponse(False, 'Queue requests should use HTTP POST')
     else:
         # queue_name, xqueue_header, xqueue_body are all serialized
         (request_is_valid, lms_callback_url, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
@@ -41,11 +41,11 @@ def submit(request):
                 request.POST,
             ))
             transaction.commit()
-            return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
+            return XQueueResponse(False, 'Queue request has invalid format')
         else:
             if queue_name not in settings.XQUEUES:
                 transaction.commit()
-                return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
+                return XQueueResponse(False, "Queue '%s' not found" % queue_name)
             else:
                 # Limit DOS attacks by invalidating prior submissions from the
                 #   same (user, module-id) pair as encoded in the lms_callback_url
@@ -86,7 +86,7 @@ def submit(request):
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
 
                 # For a successful submission, return the count of prior items
-                return HttpResponse(compose_reply(success=True, content="%d" % qcount))
+                return XQueueResponse(success=True, content="%d" % qcount)
 
 @transaction.commit_manually
 def _invalidate_prior_submissions(lms_callback_url):

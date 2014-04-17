@@ -11,35 +11,40 @@ import json
 #    { 'return_code': 0(success)/1(error),
 #      'content'    : 'my content', }
 #--------------------------------------------------
-def compose_reply(success, content):
-    return_code = 0 if success else 1
-    return json.dumps({ 'return_code': return_code,
-                        'content': content })
+
+
+class XQueueResponse(HttpResponse):
+    def __init__(self, success, content):
+        return_code = 0 if success else 1
+        resp = json.dumps({ 'return_code': return_code,
+                            'content': content })
+        super(XQueueResponse, self).__init__(resp, content_type="application/json")
 
 
 # Log in
 #--------------------------------------------------
 @csrf_exempt
 def log_in(request):
+    resp = (False, "login_required")
     if request.method == 'POST':
         p = request.POST.copy()
         if p.has_key('username') and p.has_key('password'):
             user = authenticate(username=p['username'], password=p['password'])
             if user is not None:
                 login(request, user)
-                return HttpResponse(compose_reply(True, 'Logged in'))
+                resp = (True, 'Logged in')
             else:
-                return HttpResponse(compose_reply(False, 'Incorrect login credentials'))
+                resp = (False, 'Incorrect login credentials')
         else:
-            return HttpResponse(compose_reply(False, 'Insufficient login info'))
-    else:
-        return HttpResponse(compose_reply(False,'login_required'))
+            resp = (False, 'Insufficient login info')
+
+    return XQueueResponse(*resp)
 
 def log_out(request):
     logout(request)
-    return HttpResponse(compose_reply(success=True,content='Goodbye'))
+    return XQueueResponse(success=True, content='Goodbye')
 
 # Status check
 #--------------------------------------------------
 def status(request):
-    return HttpResponse(compose_reply(success=True, content='OK'))
+    return XQueueResponse(success=True, content='OK')
