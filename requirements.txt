@@ -1,7 +1,6 @@
 Django==1.4.5
-MySQL-python==1.2.4c1
+MySQL-python==1.2.5
 South==0.7.6
-argparse==1.2.1
 boto==2.6.0
 coverage==3.6b1
 django-nose==1.1
@@ -11,7 +10,7 @@ newrelic==2.4.0.4
 nose==1.2.1
 nosexcover==1.0.7
 path.py==2.4.1
--e git://github.com/pika/pika.git@a731347fc0#egg=pika
+git://github.com/pika/pika.git@a731347fc0#egg=pika
 python-termstyle==0.1.10
 rednose==0.3
 requests==0.14.2
