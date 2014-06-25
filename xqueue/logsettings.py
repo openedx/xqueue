@@ -40,8 +40,7 @@ def get_logger_config(log_dir,
                         service_variant=service_variant,
                         logging_env=logging_env, hostname=hostname)
 
-    handlers = ['console', 'local'] if debug else ['console',
-                                'syslogger-remote', 'local']
+    handlers = ['console', 'local'] if debug else ['local']
 
     logger_config = {
         'version': 1,
@@ -69,26 +68,16 @@ def get_logger_config(log_dir,
             },
         },
         'loggers': {
-            'django': {
-                'handlers': handlers,
-                'propagate': True,
-                'level': 'INFO'
-            },
             '': {
                 'handlers': handlers,
                 'level': 'DEBUG',
                 'propagate': False
             },
-            'mitx': {
+            'pika': {
                 'handlers': handlers,
-                'level': 'DEBUG',
-                'propagate': False
-            },
-            'keyedcache': {
-                'handlers': handlers,
-                'level': 'DEBUG',
-                'propagate': False
-            },
+                'level': 'WARNING',
+                'propogate': True,
+            }
         }
     }
 
