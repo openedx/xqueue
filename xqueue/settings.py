@@ -159,7 +159,7 @@ INSTALLED_APPS = (
     'south',
 )
 
-LOGIN_URL = '/xqueue/login'
+LOGIN_URL = '/xqueue/login/'
 
 LOGGING = get_logger_config(
     log_dir=ENV_ROOT / "log",
