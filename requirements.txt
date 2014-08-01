@@ -14,5 +14,5 @@ path.py==2.4.1
 -e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
 python-termstyle==0.1.10
 rednose==0.3
-requests==0.14.2
+requests==2.6.0
 wsgiref==0.1.2

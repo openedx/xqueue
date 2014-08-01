@@ -12,7 +12,7 @@ class XQueueClient(object):
     submission
     """
     def __init__(self, server, passwd, post_url):
-        self.s = requests.session()
+        self.s = requests.Session()
         self.server = server
         self.passwd = passwd
         self.post_url = post_url
