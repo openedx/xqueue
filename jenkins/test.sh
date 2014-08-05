@@ -24,8 +24,8 @@ github_status state:pending "is running"
 export PYTHONIOENCODING=UTF-8
 
 source /mnt/virtualenvs/"$JOB_NAME"/bin/activate
-pip install -q -r pre-requirements.txt
-pip install -q -r requirements.txt
+pip install -q -r pre-requirements.txt --exists-action w
+pip install -q -r requirements.txt --exists-action w
 
 rake clobber
 rake pep8 || echo "pep8 failed, continuing"
