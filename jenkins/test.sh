@@ -23,15 +23,9 @@ github_status state:pending "is running"
 # Set the IO encoding to UTF-8 so that askbot will start
 export PYTHONIOENCODING=UTF-8
 
-GIT_BRANCH=${GIT_BRANCH/HEAD/master}
-if [ ! -d /mnt/virtualenvs/"$JOB_NAME" ]; then
-    mkdir -p /mnt/virtualenvs/"$JOB_NAME"
-    virtualenv /mnt/virtualenvs/"$JOB_NAME"
-fi
-
 source /mnt/virtualenvs/"$JOB_NAME"/bin/activate
-pip install -q -r pre-requirements.txt
-pip install -q -r requirements.txt
+pip install -q -r pre-requirements.txt --exists-action w
+pip install -q -r requirements.txt --exists-action w
 
 rake clobber
 rake pep8 || echo "pep8 failed, continuing"
