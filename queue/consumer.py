@@ -75,6 +75,41 @@ def get_single_unretired_submission(queue_name, blocking=False):
             return (True, submission)
 
 
+def _initialize_blocking_consuming(channel, connection, queue_name):
+    calledback = {}
+    def _timeout():
+        channel.stop_consuming()
+
+    def _callback(channel, method, header, qitem):
+        calledback['item'] = qitem
+        calledback['method'] = method
+        channel.stop_consuming()
+
+    log.debug('starting blocking get')
+    connection.add_timeout(60, _timeout)
+    channel.basic_consume(_callback, queue=queue_name)
+    channel.start_consuming()
+    # _callback will cancel the consuming
+    if calledback:
+        channel.basic_ack(calledback['method'].delivery_tag)
+
+        result = (True, calledback['item'])
+    else:
+        result = (False, "timeout")
+    log.debug('finished blocking get -> %r', result)
+    return result
+
+def _initialize_nonblocking_consuming(channel, connection, queue_name):
+    # qitem is the item from the queue
+    method, header, qitem = channel.basic_get(queue=queue_name)
+
+    if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
+        result = (False, '')
+    else:
+        channel.basic_ack(method.delivery_tag)
+        result = (True, qitem)
+    return result
+
 def get_single_qitem(queue_name, blocking=False):
     '''
     Retrieve a single queued item, if one exists, from the named queue
@@ -99,38 +134,11 @@ def get_single_qitem(queue_name, blocking=False):
         channel = connection.channel()
         channel.queue_declare(queue=queue_name, durable=True)
 
-
         if blocking:
-            calledback = {}
-            def _timeout():
-                channel.stop_consuming()
-
-            def _callback(channel, method, header, qitem):
-                calledback['item'] = qitem
-                calledback['method'] = method
-                channel.stop_consuming()
-
-            log.debug('starting blocking get')
-            connection.add_timeout(60, _timeout)
-            channel.basic_consume(_callback, queue=queue_name)
-            channel.start_consuming()
-            # _callback will cancel the consuming
-            if calledback:
-                channel.basic_ack(calledback['method'].delivery_tag)
-
-                result = (True, calledback['item'])
-            else:
-                result = (False, "timeout")
-            log.debug('finished blocking get -> %r', result)
+            result = _initialize_blocking_consuming(channel, connection, queue_name)
         else:
-            # qitem is the item from the queue
-            method, header, qitem = channel.basic_get(queue=queue_name)
+            result = _initialize_nonblocking_consuming(channel, connection, queue_name)
 
-            if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
-                result = (False, '')
-            else:
-                channel.basic_ack(method.delivery_tag)
-                result = (True, qitem)
         if result[0]:
             statsd.increment('xqueue.consumer.get_single_qitem',
                      tags=['queue:{0}'.format(queue_name)])

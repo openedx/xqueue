@@ -5,10 +5,10 @@ argparse
 boto==2.32.1
 coverage==3.7.1
 django-nose==1.1
--e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
+pika==0.9.14
 dogstatsd-python==0.5.2
 gunicorn==19.1.0
-newrelic==2.4.0.4
+newrelic==2.22.1.20
 nose==1.2.1
 nosexcover==1.0.7
 path.py==5.2
