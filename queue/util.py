@@ -16,3 +16,12 @@ def get_request_ip(request):
     if not ip:
         ip = request.META.get('REMOTE_ADDR','None')
     return ip
+
+def can_block(request):
+    '''
+    Return whether the request supports blocking (if running with gevent)
+    '''
+    try:
+        return 'gevent' in str(request.META['gunicorn.socket'].__class__)
+    except (KeyError, AttributeError):
+        return False
