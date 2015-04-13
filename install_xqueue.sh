@@ -7,7 +7,8 @@
 apt-get update
 apt-get install nginx gunicorn rabbitmq-server
 apt-get install python-pip python-mysqldb
-pip install django requests pika boto path.py
+pip install -R pre-requirements.txt
+pip install -R requirements.txt
 
 # Set up nginx proxy, then restart
 cp nginx.conf /etc/nginx/nginx.conf
