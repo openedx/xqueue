@@ -2,11 +2,18 @@ language: python
 python:
   - "2.7"
 install:
+  - pip install coveralls pep8 rednose
   - pip install -r pre-requirements.txt
   - pip install -r requirements.txt
+services:
+  - rabbitmq
+env:
+  - DJANGO_SETTINGS_MODULE=xqueue.settings
 script:
-  - coverage run -m nose
+  - rake test
   - pep8 .
+after_success:
+  - coveralls
 branches:
   only:
     - master
