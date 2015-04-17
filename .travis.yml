@@ -11,7 +11,7 @@ env:
   - DJANGO_SETTINGS_MODULE=xqueue.settings
 script:
   - rake test
-  - pep8 .
+  - ./script/max_pep8_violations
 after_success:
   - coveralls
 branches:
