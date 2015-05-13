@@ -1,4 +1,4 @@
-Django==1.4.13
+django==1.4.20
 MySQL-python==1.2.5
 South==0.7.6
 argparse==1.2.1
