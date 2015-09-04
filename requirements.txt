@@ -4,7 +4,7 @@ South==0.7.6
 argparse==1.2.1
 boto==2.6.0
 coverage==3.6b1
-django-nose==1.1
+django-nose==1.4.1
 dogstatsd-python==0.2
 gunicorn==0.16.1
 newrelic==2.46.0.37
