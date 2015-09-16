@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.lms_interface.submit.time')
-@transaction.commit_manually # Needed to explicitly time the writes to DB and the queue
+@transaction.non_atomic_requests # Needed to explicitly time the writes to DB and the queue
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
@@ -88,7 +88,8 @@ def submit(request):
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))
 
-@transaction.commit_manually
+
+@transaction.atomic
 def _invalidate_prior_submissions(lms_callback_url):
     '''
     Check the Submission DB to invalidate prior submissions from the same
@@ -97,7 +98,6 @@ def _invalidate_prior_submissions(lms_callback_url):
     '''
     prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
     prior_submissions.update(retired=True)
-    transaction.commit()
 
 
 def _is_valid_request(xrequest):

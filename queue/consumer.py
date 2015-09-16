@@ -20,6 +20,7 @@ from requests.exceptions import ConnectionError, Timeout
 from queue.producer import get_queue_length
 from queue.models import Submission
 
+
 log = logging.getLogger(__name__)
 
 
@@ -316,30 +317,27 @@ class Worker(multiprocessing.Process):
         thread.daemon = True
         thread.start()
 
-    @transaction.commit_manually
+    @transaction.atomic
     def _process(self, submission_id, on_done):
         log.info("Processing submission from queue_name: {0}, submission_id: {1}".format(self.queue_name, submission_id))
         try:
-            submission = self._get_submission(submission_id)
+            with transaction.atomic():
+                submission = self._get_submission(submission_id)
 
-            if submission is None:
-                statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
-                                 tags=['queue:{0}'.format(self.queue_name)])
-                log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
-                    self.queue_name,
-                    submission_id
-                ))
+                if submission is None:
+                    statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
+                                     tags=['queue:{0}'.format(self.queue_name)])
+                    log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
+                        self.queue_name,
+                        submission_id
+                    ))
 
-            # if item has been retired, skip grading
-            if submission and not submission.retired:
-                self._deliver_submission(submission)
+                # if item has been retired, skip grading
+                if submission and not submission.retired:
+                    self._deliver_submission(submission)
 
-            # close transaction
-            transaction.commit()
         except Exception as e:
-            # We need a wide catch here to correctly rollback the
-            # transaction and acknowledge the message if something
-            # goes wrong
+            # catch and acknowledge the message if something goes wrong
             statsd.increment('xqueue.consumer.consumer_callback.unknown_error',
                              tags=['queue:{0}'.format(self.queue_name)])
             log.error("Error processing submission_id: {0} on queue_name: {1}, {2}" .format(
@@ -347,7 +345,6 @@ class Worker(multiprocessing.Process):
                 self.queue_name,
                 e,
             ))
-            transaction.rollback()
         finally:
             # acknowledge that the message was processed
             on_done()

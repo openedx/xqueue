@@ -1,6 +1,5 @@
-django==1.4.20
+django>=1.8,<1.9
 MySQL-python==1.2.5
-South==0.7.6
 argparse==1.2.1
 boto==2.6.0
 coverage==3.6b1
