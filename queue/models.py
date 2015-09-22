@@ -9,6 +9,7 @@ from django.db import models
 import json
 
 CHARFIELD_LEN_SMALL = 128
+CHARFIELD_LEN_MEDIUM = 255
 CHARFIELD_LEN_LARGE = 1024
 
 class Submission(models.Model):
@@ -17,7 +18,7 @@ class Submission(models.Model):
     '''
     # Submission 
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
-    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
+    lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_MEDIUM, db_index=True)
     queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
     xqueue_body      = models.TextField()
