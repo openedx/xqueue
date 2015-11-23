@@ -73,7 +73,7 @@ def submit(request):
 
                 # Track the submission in the Submission database
                 submission = Submission(requester_id=get_request_ip(request),
-                                        lms_callback_url=lms_callback_url,
+                                        lms_callback_url=lms_callback_url[:128],
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
