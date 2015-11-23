@@ -20,6 +20,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xqueue.settings")
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
+import django
 from django.core.wsgi import WSGIHandler
 
 
@@ -44,6 +45,9 @@ class ForceReadPostHandler(WSGIHandler):
     http://kudzia.eu/b/2012/01/switching-from-apache2-to-nginx-as-reverse-proxy
 
     """
+    def __init__(self):
+        django.setup()
+        super(ForceReadPostHandler, self).__init__()
 
     def get_response(self, request):
         data = request.POST.copy()  # read the POST data passing it
