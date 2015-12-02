@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -122,7 +123,8 @@ def put_result(request):
             return HttpResponse(compose_reply(False, 'Incorrect reply format'))
         else:
             try:
-                submission = Submission.objects.select_for_update().get(id=submission_id)
+                with transaction.atomic():
+                    submission = Submission.objects.select_for_update().get(id=submission_id)
             except Submission.DoesNotExist:
                 log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {0}, submission_id: {1}, submission_key: {2}, grader_reply: {3}".format(
                     get_request_ip(request), 
