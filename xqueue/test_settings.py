@@ -22,13 +22,18 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'test_xqueue',
 
-        # We need to use TEST_NAME here,
-        # otherwise Django tests will use an in-memory database
-        # In-memory databases do not support access from
-        # multiple threads, which the integration tests need.
-        # We also need to choose *unique* names to avoid
-        # conflicts in the Jenkins server
-        'TEST_NAME': 'test_xqueue_%s' % uuid4().hex,
+        'TEST': {
+            # We need to use TEST['NAME'] here,
+            # otherwise Django tests will use an in-memory database.
+            # In-memory databases do not support access from
+            # multiple threads, which the integration tests need.
+            # We also need to choose *unique* names to avoid
+            # conflicts in the Jenkins server
+            'NAME': 'test_xqueue_%s' % uuid4().hex,
+        },
+
+        # Wrap all view methods in an atomic transaction automatically.
+        'ATOMIC_REQUESTS': True
     }
 }
 

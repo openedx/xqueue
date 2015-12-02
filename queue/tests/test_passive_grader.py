@@ -3,7 +3,7 @@
 from test_framework.integration_framework import PassiveGraderStub, \
     GradeResponseListener, XQueueTestClient
 
-from django.utils import unittest
+from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from uuid import uuid4
 
@@ -32,7 +32,7 @@ class SimplePassiveGrader(PassiveGraderStub):
         return self._response_dict
 
 
-class PassiveGraderTest(unittest.TestCase):
+class PassiveGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response when using a "passive" external
     grader (one that expects xqueue to send it submissions)"""
