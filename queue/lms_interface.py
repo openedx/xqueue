@@ -20,10 +20,10 @@ import queue.producer
 
 log = logging.getLogger(__name__)
 
+@transaction.non_atomic_requests
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.lms_interface.submit.time')
-@transaction.non_atomic_requests # Needed to explicitly time the writes to DB and the queue
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
