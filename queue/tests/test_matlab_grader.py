@@ -154,7 +154,8 @@ class MatlabGraderTest(TransactionTestCase):
 
             # Poll the response listener until we get a response
             # or reach the timeout
-            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            def poll_func(listener):
+                return len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
                                                          sleep_time=0.5,
                                                          timeout=10.0)
