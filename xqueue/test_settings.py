@@ -19,16 +19,16 @@ LOGGING = get_logger_config(log_dir,
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_xqueue.sqlite',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_xqueue',
 
         # We need to use TEST_NAME here,
-        # otherwise Django tests will use an in-memory database 
+        # otherwise Django tests will use an in-memory database
         # In-memory databases do not support access from
         # multiple threads, which the integration tests need.
         # We also need to choose *unique* names to avoid
         # conflicts in the Jenkins server
-        'TEST_NAME': 'test_xqueue_%s.sqlite' % uuid4().hex,
+        'TEST_NAME': 'test_xqueue_%s' % uuid4().hex,
     }
 }
 
@@ -82,7 +82,7 @@ XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)
-NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage', 
+NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage',
              '--cover-html',
              '--cover-inclusive', '--cover-html-dir',
              os.environ.get('NOSE_COVER_HTML_DIR', 'cover_html'),
