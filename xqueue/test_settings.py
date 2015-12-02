@@ -19,8 +19,8 @@ LOGGING = get_logger_config(log_dir,
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_xqueue.sqlite',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_xqueue',
 
         # We need to use TEST_NAME here,
         # otherwise Django tests will use an in-memory database 
@@ -28,7 +28,7 @@ DATABASES = {
         # multiple threads, which the integration tests need.
         # We also need to choose *unique* names to avoid
         # conflicts in the Jenkins server
-        'TEST_NAME': 'test_xqueue_%s.sqlite' % uuid4().hex,
+        'TEST_NAME': 'test_xqueue_%s' % uuid4().hex,
     }
 }
 
