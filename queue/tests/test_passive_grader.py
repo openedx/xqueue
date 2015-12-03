@@ -3,7 +3,7 @@
 from test_framework.integration_framework import PassiveGraderStub, \
     GradeResponseListener, XQueueTestClient
 
-from django.utils import unittest
+from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from uuid import uuid4
 
@@ -32,7 +32,7 @@ class SimplePassiveGrader(PassiveGraderStub):
         return self._response_dict
 
 
-class PassiveGraderTest(unittest.TestCase):
+class PassiveGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response when using a "passive" external
     grader (one that expects xqueue to send it submissions)"""
@@ -96,7 +96,8 @@ class PassiveGraderTest(unittest.TestCase):
 
             # Poll the response listener until we get a response
             # or reach the timeout
-            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            def poll_func(listener):
+                return len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
                                                          sleep_time=0.5,
                                                          timeout=4.0)

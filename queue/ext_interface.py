@@ -18,11 +18,12 @@ import queue.consumer
 
 log = logging.getLogger(__name__)
 
+
 # External pull interface
 #    1) get_queuelen
 #    2) get_submission
 #    3) put_result
-#--------------------------------------------------
+# --------------------------------------------------
 @login_required
 @statsd.timed('xqueue.ext_interface.get_queuelen.time')
 def get_queuelen(request):
@@ -40,6 +41,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(True, job_count))
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
+
 
 @login_required
 @statsd.timed('xqueue.ext_interface.get_submission.time')
@@ -66,15 +68,15 @@ def get_submission(request):
             pull_time = timezone.now()
 
             pullkey = make_hashkey(str(pull_time)+str(submission.id))
-            
+
             submission.grader_id = grader_id
             submission.pull_time = pull_time
-            submission.pullkey   = pullkey 
-            
+            submission.pullkey = pullkey
+
             submission.save()
 
             # Prepare payload to external grader
-            ext_header = {'submission_id':submission.id, 'submission_key':pullkey}
+            ext_header = {'submission_id': submission.id, 'submission_key': pullkey}
             s3_urls = json.loads(submission.s3_urls) if submission.s3_urls else {}
 
             if "URL_FOR_EXTERNAL_DICTS" in submission.s3_urls:
@@ -86,11 +88,15 @@ def get_submission(request):
                 except (ConnectionError, Timeout):
                     success = False
                     log.error('Could not fetch uploaded files at %s in timeout=%f' % (url, timeout))
-                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+                    return HttpResponse(
+                        compose_reply(False, "Error fetching submission. Please try again." % queue_name)
+                    )
 
                 if (r.status_code not in [200]) or (not success):
                     log.error('Could not fetch uploaded files at %s. Status code: %d' % (url, r.status_code))
-                    return HttpResponse(compose_reply(False, "Error fetching submission. Please try again." % queue_name))
+                    return HttpResponse(
+                        compose_reply(False, "Error fetching submission. Please try again." % queue_name)
+                    )
 
                 xqueue_files = json.dumps(json.loads(r.text)["files"])
             else:
@@ -100,7 +106,8 @@ def get_submission(request):
                        'xqueue_body': submission.xqueue_body,
                        'xqueue_files': xqueue_files}
 
-            return HttpResponse(compose_reply(True,content=json.dumps(payload)))
+            return HttpResponse(compose_reply(True, content=json.dumps(payload)))
+
 
 @csrf_exempt
 @login_required
@@ -125,15 +132,15 @@ def put_result(request):
                 submission = Submission.objects.select_for_update().get(id=submission_id)
             except Submission.DoesNotExist:
                 log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {0}, submission_id: {1}, submission_key: {2}, grader_reply: {3}".format(
-                    get_request_ip(request), 
+                    get_request_ip(request),
                     submission_id,
                     submission_key,
                     grader_reply
                 ))
-                return HttpResponse(compose_reply(False,'Submission does not exist'))
+                return HttpResponse(compose_reply(False, 'Submission does not exist'))
 
             if not submission.pullkey or submission_key != submission.pullkey:
-                return HttpResponse(compose_reply(False,'Incorrect key for submission'))
+                return HttpResponse(compose_reply(False, 'Incorrect key for submission'))
 
             submission.return_time = timezone.now()
             submission.grader_reply = grader_reply
@@ -145,6 +152,7 @@ def put_result(request):
             submission.save()
 
             return HttpResponse(compose_reply(success=True, content=''))
+
 
 def _is_valid_reply(external_reply):
     '''
@@ -159,9 +167,9 @@ def _is_valid_reply(external_reply):
         submission_key: Secret key to match against Xqueue database (string)
         score_msg:      Grading result from external grader (string)
     '''
-    fail = (False,-1,'','')
+    fail = (False, -1, '', '')
     try:
-        header    = external_reply['xqueue_header']
+        header = external_reply['xqueue_header']
         score_msg = external_reply['xqueue_body']
     except KeyError:
         return fail
@@ -171,13 +179,13 @@ def _is_valid_reply(external_reply):
     except (TypeError, ValueError):
         return fail
 
-    if not isinstance(header_dict,dict):
+    if not isinstance(header_dict, dict):
         return fail
 
     for tag in ['submission_id', 'submission_key']:
-        if not header_dict.has_key(tag):
+        if tag not in header_dict:
             return fail
 
-    submission_id  = int(header_dict['submission_id'])
+    submission_id = int(header_dict['submission_id'])
     submission_key = header_dict['submission_key']
     return (True, submission_id, submission_key, score_msg)

@@ -23,10 +23,10 @@ MANAGERS = ADMINS
 
 REQUESTS_TIMEOUT = 5    # seconds
 GRADING_TIMEOUT = 30    # seconds
-ORPHANED_SUBMISSION_TIMEOUT = 30 # seconds
+ORPHANED_SUBMISSION_TIMEOUT = 30  # seconds
 
-DB_RETRIES = 3    # Max number of times to query the DB when queued ticket is not found
-DB_WAITTIME = 0.5 # seconds
+DB_RETRIES = 3     # Max number of times to query the DB when queued ticket is not found
+DB_WAITTIME = 0.5  # seconds
 
 XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
@@ -42,7 +42,7 @@ DATABASES = {
     }
 }
 RABBIT_HOST = 'localhost'
-RABBIT_VHOST = '/' # defaults to '/', otherwise a string
+RABBIT_VHOST = '/'  # defaults to '/', otherwise a string
 
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
@@ -111,7 +111,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -121,7 +121,7 @@ SECRET_KEY = 'uofqkujp@z#_vtwct+v716z+^3hijelj1^fkydwo2^pbkxghfq'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (

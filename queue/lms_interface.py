@@ -20,10 +20,11 @@ import queue.producer
 
 log = logging.getLogger(__name__)
 
+
+@transaction.non_atomic_requests
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.lms_interface.submit.time')
-@transaction.non_atomic_requests # Needed to explicitly time the writes to DB and the queue
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
@@ -52,8 +53,8 @@ def submit(request):
                 _invalidate_prior_submissions(lms_callback_url)
 
                 # Check for file uploads
-                s3_keys = dict() # For internal Xqueue use
-                s3_urls = dict() # For external grader use
+                s3_keys = dict()  # For internal Xqueue use
+                s3_urls = dict()  # For external grader use
                 for filename in request.FILES.keys():
                     s3_key = make_hashkey(xqueue_header + filename)
                     s3_url = _upload_to_s3(request.FILES[filename], queue_name, s3_key)
@@ -80,9 +81,9 @@ def submit(request):
                                         s3_urls=s3_urls_json,
                                         s3_keys=s3_keys_json)
                 submission.save()
-                transaction.commit() # Explicit commit to DB before inserting submission.id into queue
+                transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
-                qitem  = str(submission.id) # Submit the Submission pointer to queue
+                qitem = str(submission.id)  # Submit the Submission pointer to queue
                 qcount = queue.producer.push_to_queue(queue_name, qitem)
 
                 # For a successful submission, return the count of prior items
@@ -133,7 +134,7 @@ def _is_valid_request(xrequest):
         if tag not in header_dict:
             return fail
 
-    queue_name = str(header_dict['queue_name']) # Important: Queue name must be str!
+    queue_name = str(header_dict['queue_name'])  # Important: Queue name must be str!
     lms_callback_url = header_dict['lms_callback_url']
 
     return (True, lms_callback_url, queue_name, header, body)
@@ -166,6 +167,7 @@ def _upload_file_dict_to_s3(file_dict, key_dict, path, name):
     public_url = k.generate_url(60*60*24*365)  # URL timeout in seconds.
 
     return public_url
+
 
 @statsd.timed('xqueue.lms_interface.s3_upload.time')
 def _upload_to_s3(file_to_upload, path, name):

@@ -5,7 +5,7 @@ from test_framework.integration_framework \
     import GradeResponseListener, XQueueTestClient, ActiveGraderStub
 from django.test.utils import override_settings
 from django.conf import settings
-from django.utils import unittest
+from django.test import TransactionTestCase
 from uuid import uuid4
 
 
@@ -37,7 +37,7 @@ class SimpleActiveGrader(ActiveGraderStub):
                 'xqueue_body': self._response_dict}
 
 
-class ActiveGraderTest(unittest.TestCase):
+class ActiveGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response when using an "active" external
     grader (one that polls the XQueue and pushes responses using
@@ -105,7 +105,8 @@ class ActiveGraderTest(unittest.TestCase):
 
             # Poll the response listener until we get a response
             # or reach the timeout
-            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            def poll_func(listener):
+                return len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
                                                          sleep_time=0.5,
                                                          timeout=4.0)

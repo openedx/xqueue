@@ -2,7 +2,7 @@
 from test_framework.integration_framework import PassiveGraderStub, \
     GradeResponseListener, XQueueTestClient
 
-from django.utils import unittest
+from django.test import TransactionTestCase
 from django.conf import settings
 from django.test.utils import override_settings
 from uuid import uuid4
@@ -12,7 +12,7 @@ from nose.plugins.skip import SkipTest
 
 
 @attr('grader_integration')
-class MatlabGraderTest(unittest.TestCase):
+class MatlabGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response from a Mathworks server
 
@@ -154,7 +154,8 @@ class MatlabGraderTest(unittest.TestCase):
 
             # Poll the response listener until we get a response
             # or reach the timeout
-            poll_func = lambda listener: len(listener.get_grade_responses()) > 0
+            def poll_func(listener):
+                return len(listener.get_grade_responses()) > 0
             success = self.response_listener.block_until(poll_func,
                                                          sleep_time=0.5,
                                                          timeout=10.0)
