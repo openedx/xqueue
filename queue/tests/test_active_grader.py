@@ -1,8 +1,10 @@
 """Test that the XQueue responds to a client, using an Active Grader
 (one that polls the XQueue and pushes responses using a REST-like
 interface)"""
-from test_framework.integration_framework \
-    import GradeResponseListener, XQueueTestClient, ActiveGraderStub
+from test_framework.integration_framework import (
+    GradeResponseListener, XQueueTestClient,
+    ActiveGraderStub, ActiveGraderBase
+)
 from django.test.utils import override_settings
 from django.conf import settings
 from django.test import TransactionTestCase
@@ -58,8 +60,8 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
     def setUp(self):
         """Set up the client and stubs to be used across tests."""
         # Create the grader
-        self.grader = SimpleActiveGrader(ActiveGraderTest.QUEUE_NAME,
-                                         ActiveGraderTest.GRADER_RESPONSE)
+        self.grader = SimpleActiveGrader(LMSRoundTripActiveGraderTest.QUEUE_NAME,
+                                         LMSRoundTripActiveGraderTest.GRADER_RESPONSE)
 
         # Create the response listener
         # and configure it to receive messages on a local port
@@ -84,7 +86,7 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
         self.response_listener.stop()
 
         # Delete the queue we created
-        SimpleActiveGrader.delete_queue(ActiveGraderTest.QUEUE_NAME)
+        SimpleActiveGrader.delete_queue(LMSRoundTripActiveGraderTest.QUEUE_NAME)
 
     def test_submission(self):
         """Submit a single response to the XQueue and check that
@@ -98,11 +100,11 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
         # need to forward the messages; instead, our ActiveGrader
         # polls for them
         xqueue_settings = settings.XQUEUES
-        xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
+        xqueue_settings[LMSRoundTripActiveGraderTest.QUEUE_NAME] = None
         with override_settings(XQUEUES=xqueue_settings):
 
             # Send the XQueue a submission to be graded
-            submission = self.client.build_request(ActiveGraderTest.QUEUE_NAME,
+            submission = self.client.build_request(LMSRoundTripActiveGraderTest.QUEUE_NAME,
                                                    grader_payload=payload,
                                                    student_response=student_input)
 
@@ -122,7 +124,7 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
         # Check the response matches what we expect
         responses = self.response_listener.get_grade_responses()
         xqueue_body = responses[0]['response']['xqueue_body']
-        self.assertEqual(ActiveGraderTest.GRADER_RESPONSE, xqueue_body)
+        self.assertEqual(LMSRoundTripActiveGraderTest.GRADER_RESPONSE, xqueue_body)
 
 
 class ActiveGraderTest(TransactionTestCase):
