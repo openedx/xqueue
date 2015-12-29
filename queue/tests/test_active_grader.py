@@ -58,7 +58,9 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
     QUEUE_NAME = 'test_queue_%s' % uuid4().hex
 
     def setUp(self):
-        """Set up the client and stubs to be used across tests."""
+        """
+        Set up the client and stubs to be used across tests.
+        """
         # Create the grader
         self.grader = SimpleActiveGrader(LMSRoundTripActiveGraderTest.QUEUE_NAME,
                                          LMSRoundTripActiveGraderTest.GRADER_RESPONSE)
@@ -81,7 +83,9 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
         # that pull messages from the XQueue and pass them on
 
     def tearDown(self):
-        """Stop each of the listening services to free up the ports"""
+        """
+        Stop each of the listening services to free up the ports.
+        """
         self.grader.stop()
         self.response_listener.stop()
 
@@ -89,8 +93,10 @@ class LMSRoundTripActiveGraderTest(TransactionTestCase):
         SimpleActiveGrader.delete_queue(LMSRoundTripActiveGraderTest.QUEUE_NAME)
 
     def test_submission(self):
-        """Submit a single response to the XQueue and check that
-        we get the expected response."""
+        """
+        Submit a single response to the XQueue and check that
+        we get the expected response.
+        """
         payload = {'test': 'test'}
         student_input = 'test response'
 

@@ -395,7 +395,7 @@ class ActiveGraderBase(object):
         return self._client.post('/xqueue/put_result/', post_params)
 
 
-class ActiveGraderStub(GraderStubBase, ActiveGraderBase):
+class ActiveGraderStub(ActiveGraderBase, GraderStubBase):
     """
     Stub for an active grader, which polls the XQueue for new
     submissions, processes the submissions, then pushes
@@ -413,7 +413,7 @@ class ActiveGraderStub(GraderStubBase, ActiveGraderBase):
         """
         Start polling the Xqueue for new submissions.
         """
-        super(ActiveGraderStub, self).__init__(queue_name)
+        ActiveGraderBase.__init__(self, queue_name)
 
         # The polling thread will run until
         # this flag is set to False
