@@ -32,6 +32,9 @@ XQUEUES = {'test-pull': None}
 XQUEUE_WORKERS_PER_QUEUE = 4
 WORKER_COUNT = 4
 
+# Map of queue names to users that can read/write/push/pull the queue.
+XQUEUE_PERMISSIONS = {}
+
 MAX_NUMBER_OF_FAILURES = 3
 PULLED_SUBMISSION_TIMEOUT = 10    # seconds
 

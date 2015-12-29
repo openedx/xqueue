@@ -83,6 +83,16 @@ MATHWORKS_API_KEY = ENV_TOKENS.get('MATHWORKS_API_KEY', None)
 TEST_XQUEUE_NAME = 'test_queue_%s' % uuid4().hex
 XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 
+XQUEUE_USERS = {
+    'TestOrg1X': 'Password1X',
+    'TestOrg2X': 'Password2X',
+}
+
+XQUEUE_PERMISSIONS = {
+    TEST_XQUEUE_NAME: ['TestOrg1X', 'TestOrg2X'],
+}
+
+
 # Nose Test Runner
 INSTALLED_APPS += ('django_nose',)
 NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage',
