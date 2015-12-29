@@ -99,7 +99,8 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 
 
 class GraderStubBase(object):
-    """Abstract base class for external grader service stubs.  
+    """
+    Abstract base class for external grader service stubs.
 
     We make this abstract to accommodate the two kinds of grading servers:
 
@@ -108,19 +109,22 @@ class GraderStubBase(object):
 
 
     * Passive: Waits for XQueue to send it a message,
-        then responds synchronously."""
+        then responds synchronously.
+    """
 
     __metaclass__ = ABCMeta
 
     @staticmethod
     def build_response(submission_id, submission_key, score_msg):
-        """Construct a valid xqueue response
+        """
+        Construct a valid xqueue response
 
         `submission_id`: Graded submission's database ID in xqueue (int)
         `submission_key`: Secret key to match against XQueue database (string)
         `score_msg`: Grading result from external grader (string)
 
-        Returns: valid xqueue response (dict)"""
+        Returns: valid xqueue response (dict).
+        """
         return json.dumps({'xqueue_header':
                           {'submission_id': submission_id,
                            'submission_key': submission_key},
@@ -128,7 +132,8 @@ class GraderStubBase(object):
 
     @abstractmethod
     def response_for_submission(self, submission):
-        """Respond to an XQueue submission.
+        """
+        Respond to an XQueue submission.
 
         Subclasses implement this method, usually to either:
 
@@ -149,15 +154,18 @@ class GraderStubBase(object):
 
         XQueue expects the dict to be of the form used by
         `build_response()`, but you can provide invalid responses
-        to test error handling."""
+        to test error handling.
+        """
         pass
 
     @staticmethod
     def delete_queue(queue_name):
-        """Delete the queue named queue_name.
+        """
+        Delete the queue named queue_name.
 
         Use this to clean up queues created implicitly when
-        using XQueue."""
+        using XQueue.
+        """
 
         # Establish a connection to the broker
         creds = pika.PlainCredentials(settings.RABBITMQ_USER,
@@ -173,17 +181,20 @@ class GraderStubBase(object):
 
 
 class GradingRequestHandler(BaseHTTPRequestHandler):
-    """HTTP request handler for grading requests from xqueue
+    """
+    HTTP request handler for grading requests from xqueue
     to the passive external grader.
 
     Test cases shouldn't need to use this directly;
-    they can use PassiveGraderStub instead."""
+    they can use PassiveGraderStub instead.
+    """
 
     protocol = "HTTP/1.0"
 
     def do_POST(self):
-        """Parses the request, then
-        delegates to the server to construct the response."""
+        """
+        Parses the request, then delegates to the server to construct the response.
+        """
 
         # Get the length of the request
         length = int(self.headers.getheader('content-length'))
@@ -224,7 +235,8 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
 
 
 class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
-    """Stub for external grader service that responds to submissions
+    """
+    Stub for external grader service that responds to submissions
     it receives directly from the XQueue.
 
     It does so by establishing a simple HTTP server listening
@@ -232,12 +244,14 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
     to multiple (possibly simultaneous) submissions, it
     forks new processes to handle each request.
 
-    Concrete subclass need to implement `response_for_submission()`"""
+    Concrete subclass need to implement `response_for_submission()`.
+    """
 
     @classmethod
     def start_workers_for_grader_url(cls, queue_name,
                                      destination_url, num_workers=1):
-        """We need to start workers (consumers) to pull messages
+        """
+        We need to start workers (consumers) to pull messages
         from the queue and pass them to our passive grader.
 
         `queue_name`: The name of the queue to pull messages from (string)
@@ -247,7 +261,8 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         `num_workers`: The number of workers to start for this queue (int)
 
         Raises an `AssertionError` if trying to start workers before
-        stopping the current workers."""
+        stopping the current workers.
+        """
         if hasattr(cls, 'worker_list'):
             assert(len(cls.worker_list) > 0)
 
@@ -271,18 +286,21 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
     @classmethod
     def stop_workers(cls):
-        """Stop all workers we created earlier.
+        """
+        Stop all workers we created earlier.
 
         Raises an AssertionError if called without first calling
-        `start_workers()`"""
+        `start_workers()`.
+        """
         assert(hasattr(cls, 'worker_list'))
 
         for worker in cls.worker_list:
             worker.stop()
 
     def __init__(self):
-        """Create the stub and start listening on a local port"""
-
+        """
+        Create the stub and start listening on a local port.
+        """
         # Choose a local open port
         address = ('', 0)
 
@@ -291,13 +309,17 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         self.start()
 
     def start(self):
-        """Start the listener in a separate thread"""
+        """
+        Start the listener in a separate thread.
+        """
         server_thread = threading.Thread(target=self.serve_forever)
         server_thread.daemon = True
         server_thread.start()
 
     def stop(self):
-        """Stop listening on the local port and close the socket"""
+        """
+        Stop listening on the local port and close the socket.
+        """
         self.shutdown()
 
         # We also need to manually close the socket, so it can
@@ -305,57 +327,94 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         self.socket.close()
 
     def grader_url(self):
-        """Returns the URL for the local port we are listening on"""
+        """
+        Returns the URL for the local port we are listening on.
+        """
         port_num = self.socket.getsockname()[1]
         return "http://127.0.0.1:%d" % port_num
 
     def start_workers(self, queue_name, num_workers=1):
-        """Start workers that will forward submissions
-        to the port the grader stub is listening on
-        
+        """
+        Start workers that will forward submissions
+        to the port on which the grader stub is listening.
+
         `queue_name`: The name of the queue to pull messages from (string)
 
         `num_workers`: The number of workers to start for this queue (int)
 
         Raises an `AssertionError` if trying to start workers before
-        stopping the current workers."""
+        stopping the current workers.
+        """
         PassiveGraderStub.start_workers_for_grader_url(queue_name,
                                                        self.grader_url(),
                                                        num_workers=num_workers)
 
 
-class ActiveGraderStub(GraderStubBase):
-    """Stub for an active grader, which polls the XQueue for new
+class ActiveGraderBase(GraderStubBase):
+    """
+    Common code for a test active grader.
+    """
+    USERNAME = 'active_grader'
+    PASSWORD = 'password'
+
+    def __init__(self, queue_name):
+        """
+        Create test XQueue external user.
+        """
+        # Store the queue name, so we know which queue to poll.
+        self._queue_name = queue_name
+
+        # Create a logged-in Django test client
+        # to interact with the XQueue
+        XQueueTestClient.create_user(ActiveGraderStub.USERNAME,
+                                    ActiveGraderStub.USERNAME + '@edx.org',
+                                    ActiveGraderStub.PASSWORD)
+        self._client = XQueueTestClient(0)
+        self._client.login(username=ActiveGraderStub.USERNAME,
+                            password=ActiveGraderStub.PASSWORD)
+
+    def get_queuelen(self):
+        """
+        Queries the length of a queue.
+        """
+        return self._client.get('/xqueue/get_queuelen/',
+                                {'queue_name': self._queue_name})
+
+    def get_submission(self):
+        """
+        Retrieves a submission from a queue.
+        """
+        return self._client.get('/xqueue/get_queuelen/',
+                                {'queue_name': self._queue_name})
+
+    def put_result(self, post_params):
+        """
+        Posts a submission response back to a queue.
+        post_params is a dict with two keys - 'xqueue_header' and 'xqueue_body'.
+        """
+        return self._client.post('/xqueue/put_result/', post_params)
+
+
+class ActiveGraderStub(ActiveGraderBase):
+    """
+    Stub for an active grader, which polls the XQueue for new
     submissions, processes the submissions, then pushes
     responses back to the XQueue.  It uses XQueue's REST-like interface.
 
-    It runs a daemon thread to asynchronously poll the XQueue."""
-
+    It runs a daemon thread to asynchronously poll the XQueue.
+    """
     SLEEP_TIME = 0.5
-
-    USERNAME = 'active_grader'
-    PASSWORD = 'password'
 
     _poll_thread = None
     _is_polling = True
     _queue_name = None
 
     def __init__(self, queue_name):
-        """Start polling the Xqueue for new submissions"""
+        """
+        Start polling the Xqueue for new submissions.
+        """
+        super(ActiveGraderStub, self).__init__(queue_name)
 
-        # Store the queue name, so we know
-        # which queue to poll
-        self._queue_name = queue_name
-
-        # Create a logged-in Django test client
-        # to interact with the XQueue
-        XQueueTestClient.create_user(ActiveGraderStub.USERNAME, 
-                                    ActiveGraderStub.USERNAME + '@edx.org',
-                                    ActiveGraderStub.PASSWORD)
-        self._client = XQueueTestClient(0)
-        self._client.login(username=ActiveGraderStub.USERNAME,
-                            password=ActiveGraderStub.PASSWORD)
-        
         # The polling thread will run until
         # this flag is set to False
         self._is_polling = True
@@ -366,13 +425,16 @@ class ActiveGraderStub(GraderStubBase):
         self._poll_thread.start()
 
     def stop(self):
-        """Stop polling the XQueue"""
+        """
+        Stop polling the XQueue.
+        """
         self._is_polling = False
 
     def poll(self):
-        """Poll the XQueue for new submissions, delegating
-        to concrete subclasses to determine the response."""
-
+        """
+        Poll the XQueue for new submissions, delegating
+        to concrete subclasses to determine the response.
+        """
         # Check the running flag
         while self._is_polling:
 
@@ -395,21 +457,19 @@ class ActiveGraderStub(GraderStubBase):
                 self._push_response(response)
 
     def _pop_submission(self):
-        """Attempts to pop a submission from the XQueue.
+        """
+        Attempts to pop a submission from the XQueue.
         If it succeeds, it returns a `dict` of the submission info,
         which has keys `xqueue_header` and `xqueue_body`
         (and sometimes `xqueue_files` as well).
-        
+
         The `xqueue_header` is itself a JSON-decoded dict,
         but `xqueue_body` is a string.
 
         If no submission is available, or an error occurs,
-        returns None."""
-
-        # Use the Django test client to retrieve a submission
-        # from our queue
-        response = self._client.get('/xqueue/get_submission/',
-                                    {'queue_name': self._queue_name})
+        returns None.
+        """
+        response = self.get_submission()
 
         # If any kind of HTTP error occurred,
         # log it and return None
@@ -418,35 +478,35 @@ class ActiveGraderStub(GraderStubBase):
                             response.status_code)
             return None
 
-        # Otherwise the response was successful
-        else:
-            
-            # JSON-decode the response
-            response_dict = json.loads(response.content)
+        # Otherwise the response was successful.
 
-            # Check that we successfully retrieved a submission
-            if response_dict['return_code'] == 0:
+        # JSON-decode the response
+        response_dict = json.loads(response.content)
 
-                # If so, JSON-decode the submission and
-                # return the resulting dict
-                submission_dict = json.loads(response_dict['content'])
-                xqueue_header = json.loads(submission_dict['xqueue_header'])
-                xqueue_body = submission_dict['xqueue_body']
-                return {'xqueue_header': xqueue_header,
-                        'xqueue_body': xqueue_body}
+        # Check that we successfully retrieved a submission
+        if response_dict['return_code'] == 0:
 
-            # Otherwise, we could not retrieve the submission,
-            # usually because the queue is empty.
-            else:
-                return None
+            # If so, JSON-decode the submission and
+            # return the resulting dict
+            submission_dict = json.loads(response_dict['content'])
+            xqueue_header = json.loads(submission_dict['xqueue_header'])
+            xqueue_body = submission_dict['xqueue_body']
+            return {'xqueue_header': xqueue_header,
+                    'xqueue_body': xqueue_body}
+
+        # Otherwise, we could not retrieve the submission,
+        # usually because the queue is empty.
+        return None
 
     def _push_response(self, response_dict):
-        """Push a response back to the XQueue.
+        """
+        Push a response back to the XQueue.
         `response_dict` is a JSON-serializable dictionary
         with keys `xqueue_header` and `xqueue_body`,
         both JSON-serialized strings.
 
-        Returns `True` if successful, `False` otherwise."""
+        Returns `True` if successful, `False` otherwise.
+        """
 
         # Construct the response
         xqueue_header = response_dict['xqueue_header']
@@ -455,9 +515,7 @@ class ActiveGraderStub(GraderStubBase):
         post_params = {'xqueue_header': json.dumps(xqueue_header),
                         'xqueue_body': json.dumps(xqueue_body) }
 
-        # Use the Django test client to POST a response
-        # back to the XQueue
-        response = self._client.post('/xqueue/put_result/', post_params)
+        response = self.put_result(post_params)
 
         # Check the status code, and log a warning if we failed
         if response.status_code != 200:
@@ -465,29 +523,32 @@ class ActiveGraderStub(GraderStubBase):
                              response.status_code)
             return False
 
-        else:
-            # Check the response's return_code and log a warning if we failed
-            response_dict = json.loads(response.content)
-            if response_dict['return_code'] != 0:
-                logger.warning('Could not submit response to XQueue: %s',
-                                response_dict['content'])
-                return False
-            
-            # Otherwise, everything was successful
-            else:
-                return True
+        # Check the response's return_code and log a warning if we failed
+        response_dict = json.loads(response.content)
+        if response_dict['return_code'] != 0:
+            logger.warning('Could not submit response to XQueue: %s',
+                            response_dict['content'])
+            return False
+
+        # Otherwise, everything was successful
+        return True
+
 
 class LoggingRequestHandler(BaseHTTPRequestHandler):
-    """HTTPRequestHandler that logs requests from the XQueue server
+    """
+    HTTPRequestHandler that logs requests from the XQueue server
     for later retrieval.
 
     Test cases shouldn't need to use this directly; instead, they
-    can use GradeResponseListener."""
+    can use GradeResponseListener.
+    """
 
     protocol = "HTTP/1.0"
 
     def do_POST(self):
-        """Store the request and respond with success"""
+        """
+        Store the request and respond with success.
+        """
 
         # Send header information
         self.send_header('Content-type', 'text/plain')
@@ -523,7 +584,8 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
 
     def _parse_post_dict(self, post_dict):
-        """`post_dict`: a dict of the form
+        """
+        `post_dict`: a dict of the form
             `{ POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }`
 
         returns: dict of the form
@@ -531,8 +593,8 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
 
         raises `KeyError` if the post_dict did not contain expected keys
         raises `ValueError` if the post_dict values could not be parsed
-            as valid JSON. """
-
+            as valid JSON.
+        """
         # Retrieve the keys we need
         # If the value is one element, we return just that
         # element, not the list.
@@ -543,10 +605,14 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
 
 
 class GradeResponseListener(ThreadingMixIn, HTTPServer):
-    """Listens to a local callback port and records grade responses from the xqueue """
+    """
+    Listens to a local callback port and records grade responses from the xqueue.
+    """
 
     def __init__(self):
-        """Start listening on a local port for responses from the xqueue"""
+        """
+        Start listening on a local port for responses from the xqueue.
+        """
         # Create an empty list in which to store request records
         self._request_list = []
 
@@ -558,21 +624,25 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         self.start()
 
     def get_grade_responses(self):
-        """Retrieves record of grade responses received
+        """
+        Retrieves record of grade responses received
 
         Returns: list of dictionaries of the form
             `{'datetime_received': datetime, 'response': dict}`
 
         response is usually (but not necessarily) a dict of the form
-        `{'xqueue_header': dict, 'xqueue_body': dict }`"""
+        `{'xqueue_header': dict, 'xqueue_body': dict }`.
+        """
         return self._request_list
 
     def log_grade_response(self, response_dict):
-        """Store that a POST request was received.
+        """
+        Store that a POST request was received.
         Called by LoggingRequestHandler when it receives POST requests
         from the xqueue.
 
-        `response_dict` is any dictionary"""
+        `response_dict` is any dictionary.
+        """
 
         request_record = {'datetime_received': datetime.datetime.now(),
                           'response': response_dict}
@@ -583,13 +653,17 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         self._request_list.append(request_record)
 
     def start(self):
-        """Start the listener in a separate thread"""
+        """
+        Start the listener in a separate thread.
+        """
         server_thread = threading.Thread(target=self.serve_forever)
         server_thread.daemon = True
         server_thread.start()
 
     def stop(self):
-        """Stop listening on the local port and close the socket"""
+        """
+        Stop listening on the local port and close the socket.
+        """
         self.shutdown()
 
         # We also need to manually close the socket, so it can
@@ -597,7 +671,8 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         self.socket.close()
 
     def block_until(self, poll_func, sleep_time=0.1, timeout=10.0):
-        """Block until the grade response listener is in a certain state,
+        """
+        Block until the grade response listener is in a certain state,
         or we time out.
 
         For example, a test case might poll until the listener
@@ -616,7 +691,8 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         `timeout`: The maximum number of seconds to poll (float)
 
         returns: True if poll_func was successful
-                False if we timed out"""
+                False if we timed out
+        """
 
         last_time = datetime.datetime.now()
         total_time = 0.0
@@ -643,33 +719,41 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         return False
 
     def port_num(self):
-        """Return the local port we are listening on"""
+        """
+        Return the local port we are listening on.
+        """
         return self.socket.getsockname()[1]
 
 
 class XQueueTestClient(Client):
-    """Client that simulates input to the XQueue
+    """
+    Client that simulates input to the XQueue
 
     Since this is a subclass of Django's test client,
-    we can use it to login and send HTTP requests."""
+    we can use it to login and send HTTP requests.
+    """
 
     @staticmethod
     def create_user(username, email, password):
-        """Utility to create a user (if one does not already exist)
+        """
+        Utility to create a user (if one does not already exist)
 
         username: string
         email: string
-        password: string"""
+        password: string
+        """
         try:
             User.objects.get(username=username)
         except User.DoesNotExist:
             User.objects.create_user(username, email, password)
 
     def __init__(self, callback_port):
-        """Create a test client for interacting with the xqueue.
+        """
+        Create a test client for interacting with the xqueue.
 
         callback_port: The local port for the xqueue to POST callback
-            responses to."""
+            responses to.
+        """
         self._callback_port = callback_port
         super(XQueueTestClient, self).__init__()
 
@@ -677,7 +761,8 @@ class XQueueTestClient(Client):
                       grader_payload=None,
                       submission_time=None,
                       student_response=""):
-        """Create a valid xqueue request.
+        """
+        Create a valid xqueue request.
 
         `queuename`: The name of the queue to send the request to.
             This should be the same queue that workers are pulling messages
@@ -695,7 +780,8 @@ class XQueueTestClient(Client):
 
         `student_response`: The response the student submitted.
 
-        Returns a JSON-encoded string representing the request."""
+        Returns a JSON-encoded string representing the request.
+        """
         if grader_payload is None:
             grader_payload = {}
 
@@ -713,19 +799,23 @@ class XQueueTestClient(Client):
         return {'xqueue_header': header, 'xqueue_body': content}
 
     def send_request(self, request):
-        """Send a request to the xqueue.
+        """
+        Send a request to the xqueue.
 
         request: The request to send to the server (JSON-encoded string)
             Usually you would create this using build_request().
             In some cases, it may be useful to mutate the request before
             sending it, to test how xqueue responds.
 
-        Returns the status code of the request."""
+        Returns the status code of the request.
+        """
         submit_url = '/xqueue/submit/'
         response = self.post(submit_url, request)
         return response.status_code
 
     def _callback_url(self):
-        """Construct a callback url from the local port
-        returns: local url (string)"""
+        """
+        Construct a callback url from the local port
+        returns: local url (string)
+        """
         return 'http://127.0.0.1:%d' % self._callback_port

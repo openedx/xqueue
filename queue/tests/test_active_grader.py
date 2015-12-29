@@ -10,8 +10,10 @@ from uuid import uuid4
 
 
 class SimpleActiveGrader(ActiveGraderStub):
-    """Active external grader stub that always responds
-    with the same, pre-defined message."""
+    """
+    Active external grader stub that always responds
+    with the same, pre-defined message.
+    """
 
     def __init__(self, queue_name, response_dict):
         """Configure the stub to always respond with the same message
@@ -37,11 +39,14 @@ class SimpleActiveGrader(ActiveGraderStub):
                 'xqueue_body': self._response_dict}
 
 
-class ActiveGraderTest(TransactionTestCase):
-    """Test that we can send messages to the xqueue
+class LMSRoundTripActiveGraderTest(TransactionTestCase):
+    """
+    Test that the LMS can send messages to the xqueue
     and receive a response when using an "active" external
     grader (one that polls the XQueue and pushes responses using
-    a REST-like interface)
+    a REST-like interface).
+
+    This class tests from an LMS-side perspective only.
     """
 
     GRADER_RESPONSE = {'submission_data': 'test'}
@@ -118,3 +123,54 @@ class ActiveGraderTest(TransactionTestCase):
         responses = self.response_listener.get_grade_responses()
         xqueue_body = responses[0]['response']['xqueue_body']
         self.assertEqual(ActiveGraderTest.GRADER_RESPONSE, xqueue_body)
+
+
+class ActiveGraderTest(TransactionTestCase):
+    """
+    Test operations from the active grader side.
+    """
+    # Choose a unique queue name to prevent conflicts in Jenkins.
+    QUEUE_NAME = 'test_queue_%s' % uuid4().hex
+
+    def setUp(self):
+        """
+        Set up the client and stubs to be used across tests.
+        """
+        self.grader = ActiveGraderBase(ActiveGraderTest.QUEUE_NAME)
+
+    def tearDown(self):
+        """
+        Delete the created queue.
+        """
+        ActiveGraderBase.delete_queue(ActiveGraderTest.QUEUE_NAME)
+
+    def test_get_queuelen_no_permissions(self):
+        """
+        Query XQueue for the length of an existing queue for which the requestor
+        has no permission and check the response.
+        """
+        # Add our queue to the available queues
+        # Otherwise, XQueue will not process our messages
+        # We set the callback URL to None because XQueue does not
+        # need to forward the messages; instead, our ActiveGrader
+        # polls for them
+        xqueue_settings = settings.XQUEUES
+        xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
+        with override_settings(XQUEUES=xqueue_settings):
+            pass
+
+    def test_get_queuelen_non_existent_queue(self):
+        """
+        Query XQueue for the length of a queue that does not exist
+        and check the response.
+        """
+
+        # Add our queue to the available queues
+        # Otherwise, XQueue will not process our messages
+        # We set the callback URL to None because XQueue does not
+        # need to forward the messages; instead, our ActiveGrader
+        # polls for them
+        xqueue_settings = settings.XQUEUES
+        xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
+        with override_settings(XQUEUES=xqueue_settings):
+            pass

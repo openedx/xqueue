@@ -32,62 +32,62 @@ def submit(request):
     if request.method != 'POST':
         transaction.commit()
         return HttpResponse(compose_reply(False, 'Queue requests should use HTTP POST'))
-    else:
-        # queue_name, xqueue_header, xqueue_body are all serialized
-        (request_is_valid, lms_callback_url, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
-        if not request_is_valid:
-            log.error("Invalid queue submission from LMS: lms ip: {0}, request.POST: {1}".format(
-                get_request_ip(request),
-                request.POST,
-            ))
-            transaction.commit()
-            return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
-        else:
-            if queue_name not in settings.XQUEUES:
-                transaction.commit()
-                return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
-            else:
-                # Limit DOS attacks by invalidating prior submissions from the
-                #   same (user, module-id) pair as encoded in the lms_callback_url
-                _invalidate_prior_submissions(lms_callback_url)
+    # queue_name, xqueue_header, xqueue_body are all serialized
+    (request_is_valid, lms_callback_url, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
-                # Check for file uploads
-                s3_keys = dict()  # For internal Xqueue use
-                s3_urls = dict()  # For external grader use
-                for filename in request.FILES.keys():
-                    s3_key = make_hashkey(xqueue_header + filename)
-                    s3_url = _upload_to_s3(request.FILES[filename], queue_name, s3_key)
-                    s3_keys.update({filename: s3_key})
-                    s3_urls.update({filename: s3_url})
+    if not request_is_valid:
+        log.error("Invalid queue submission from LMS: lms ip: {0}, request.POST: {1}".format(
+            get_request_ip(request),
+            request.POST,
+        ))
+        transaction.commit()
+        return HttpResponse(compose_reply(False, 'Queue request has invalid format'))
 
-                s3_urls_json = json.dumps(s3_urls)
-                s3_keys_json = json.dumps(s3_keys)
+    if queue_name not in settings.XQUEUES:
+        transaction.commit()
+        return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
 
-                if len(s3_urls_json) > CHARFIELD_LEN_LARGE:
-                    s3_key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
-                    s3_url = _upload_file_dict_to_s3(s3_urls, s3_keys, queue_name, s3_key)
-                    s3_keys = {"KEY_FOR_EXTERNAL_DICTS": s3_key}
-                    s3_urls = {"URL_FOR_EXTERNAL_DICTS": s3_url}
-                    s3_urls_json = json.dumps(s3_urls)
-                    s3_keys_json = json.dumps(s3_keys)
+    # Limit DOS attacks by invalidating prior submissions from the
+    #   same (user, module-id) pair as encoded in the lms_callback_url
+    _invalidate_prior_submissions(lms_callback_url)
 
-                # Track the submission in the Submission database
-                submission = Submission(requester_id=get_request_ip(request),
-                                        lms_callback_url=lms_callback_url[:128],
-                                        queue_name=queue_name,
-                                        xqueue_header=xqueue_header,
-                                        xqueue_body=xqueue_body,
-                                        s3_urls=s3_urls_json,
-                                        s3_keys=s3_keys_json)
-                submission.save()
-                transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
+    # Check for file uploads
+    s3_keys = dict()  # For internal Xqueue use
+    s3_urls = dict()  # For external grader use
+    for filename in request.FILES.keys():
+        s3_key = make_hashkey(xqueue_header + filename)
+        s3_url = _upload_to_s3(request.FILES[filename], queue_name, s3_key)
+        s3_keys.update({filename: s3_key})
+        s3_urls.update({filename: s3_url})
 
-                qitem = str(submission.id)  # Submit the Submission pointer to queue
-                qcount = queue.producer.push_to_queue(queue_name, qitem)
+    s3_urls_json = json.dumps(s3_urls)
+    s3_keys_json = json.dumps(s3_keys)
 
-                # For a successful submission, return the count of prior items
-                return HttpResponse(compose_reply(success=True, content="%d" % qcount))
+    if len(s3_urls_json) > CHARFIELD_LEN_LARGE:
+        s3_key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
+        s3_url = _upload_file_dict_to_s3(s3_urls, s3_keys, queue_name, s3_key)
+        s3_keys = {"KEY_FOR_EXTERNAL_DICTS": s3_key}
+        s3_urls = {"URL_FOR_EXTERNAL_DICTS": s3_url}
+        s3_urls_json = json.dumps(s3_urls)
+        s3_keys_json = json.dumps(s3_keys)
+
+    # Track the submission in the Submission database
+    submission = Submission(requester_id=get_request_ip(request),
+                            lms_callback_url=lms_callback_url[:128],
+                            queue_name=queue_name,
+                            xqueue_header=xqueue_header,
+                            xqueue_body=xqueue_body,
+                            s3_urls=s3_urls_json,
+                            s3_keys=s3_keys_json)
+    submission.save()
+    transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
+
+    qitem = str(submission.id)  # Submit the Submission pointer to queue
+    qcount = queue.producer.push_to_queue(queue_name, qitem)
+
+    # For a successful submission, return the count of prior items
+    return HttpResponse(compose_reply(success=True, content="%d" % qcount))
 
 
 @transaction.atomic
