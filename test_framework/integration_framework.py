@@ -350,7 +350,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
                                                        num_workers=num_workers)
 
 
-class ActiveGraderBase(GraderStubBase):
+class ActiveGraderBase(object):
     """
     Common code for a test active grader.
     """
@@ -395,7 +395,7 @@ class ActiveGraderBase(GraderStubBase):
         return self._client.post('/xqueue/put_result/', post_params)
 
 
-class ActiveGraderStub(ActiveGraderBase):
+class ActiveGraderStub(ActiveGraderStub, ActiveGraderBase):
     """
     Stub for an active grader, which polls the XQueue for new
     submissions, processes the submissions, then pushes

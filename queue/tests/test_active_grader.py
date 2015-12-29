@@ -144,7 +144,7 @@ class ActiveGraderTest(TransactionTestCase):
         """
         Delete the created queue.
         """
-        ActiveGraderBase.delete_queue(ActiveGraderTest.QUEUE_NAME)
+        ActiveGraderStub.delete_queue(ActiveGraderTest.QUEUE_NAME)
 
     def test_get_queuelen_no_permissions(self):
         """
