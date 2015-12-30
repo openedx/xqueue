@@ -186,7 +186,9 @@ class ActiveGraderTest(TransactionTestCase):
                                                    grader_payload=payload,
                                                    student_response=student_input)
             self.client.send_request(submission)
-            self.grader.get_queuelen()
+            response = self.grader.get_queuelen()
+            self.assertEqual(response.status_code, 200)
+            print response
 
     def test_get_queuelen_non_existent_queue(self):
         """
@@ -194,3 +196,5 @@ class ActiveGraderTest(TransactionTestCase):
         and check the response.
         """
         self.grader.get_queuelen()
+        self.assertEqual(response.status_code, 200)
+        print response
