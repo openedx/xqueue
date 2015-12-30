@@ -195,6 +195,6 @@ class ActiveGraderTest(TransactionTestCase):
         Query XQueue for the length of a queue that does not exist
         and check the response.
         """
-        self.grader.get_queuelen()
+        response = self.grader.get_queuelen()
         self.assertEqual(response.status_code, 200)
         print response
