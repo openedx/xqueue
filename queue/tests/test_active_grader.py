@@ -146,6 +146,15 @@ class ActiveGraderTest(TransactionTestCase):
         """
         self.grader = ActiveGraderBase(ActiveGraderTest.QUEUE_NAME)
 
+        # Create the client (input submissions)
+        # and configure it to send messages
+        # that will be sent back to our response listener
+        self.client = XQueueTestClient(self.response_listener.port_num())
+
+        # Create the user and make sure we are logged in
+        XQueueTestClient.create_user('test', 'test@edx.org', 'password')
+        self.client.login(username='test', password='password')
+
     def tearDown(self):
         """
         Delete the created queue.
@@ -165,20 +174,19 @@ class ActiveGraderTest(TransactionTestCase):
         xqueue_settings = settings.XQUEUES
         xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
         with override_settings(XQUEUES=xqueue_settings):
-            pass
+            # Send the XQueue a submission to be graded
+            # This submission creates the queue itself.
+            payload = {'test': 'test'}
+            student_input = 'test response'
+            submission = self.client.build_request(ActiveGraderTest.QUEUE_NAME,
+                                                   grader_payload=payload,
+                                                   student_response=student_input)
+            self.client.send_request(submission)
+            self.grader.get_queuelen()
 
     def test_get_queuelen_non_existent_queue(self):
         """
         Query XQueue for the length of a queue that does not exist
         and check the response.
         """
-
-        # Add our queue to the available queues
-        # Otherwise, XQueue will not process our messages
-        # We set the callback URL to None because XQueue does not
-        # need to forward the messages; instead, our ActiveGrader
-        # polls for them
-        xqueue_settings = settings.XQUEUES
-        xqueue_settings[ActiveGraderTest.QUEUE_NAME] = None
-        with override_settings(XQUEUES=xqueue_settings):
-            pass
+        self.grader.get_queuelen()
