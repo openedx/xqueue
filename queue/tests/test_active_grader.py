@@ -146,6 +146,10 @@ class ActiveGraderTest(TransactionTestCase):
         """
         self.grader = ActiveGraderBase(ActiveGraderTest.QUEUE_NAME)
 
+        # Create the response listener
+        # and configure it to receive messages on a local port
+        self.response_listener = GradeResponseListener()
+
         # Create the client (input submissions)
         # and configure it to send messages
         # that will be sent back to our response listener
