@@ -38,9 +38,10 @@ class FailOnDisconnectError(Exception):
     monitor restart it.
     '''
 
+
 def clean_up_submission(submission):
     '''
-    TODO: Delete files on S3
+    TODO: Delete files on storage backend
     '''
     return
 
@@ -376,7 +377,6 @@ class Worker(multiprocessing.Process):
             # acknowledge that the message was processed
             on_done()
 
-
     def _get_submission(self, submission_id):
         submission = None
 
@@ -398,7 +398,7 @@ class Worker(multiprocessing.Process):
 
     def _deliver_submission(self, submission):
         payload = {'xqueue_body': submission.xqueue_body,
-                   'xqueue_files': submission.s3_urls}
+                   'xqueue_files': submission.urls}
 
         submission.grader_id = self.worker_url
         submission.push_time = timezone.now()
@@ -410,7 +410,7 @@ class Worker(multiprocessing.Process):
 
         if grading_time > settings.GRADING_TIMEOUT:
             log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
-                      grading_time, submission.xqueue_body, submission.s3_urls))
+                      grading_time, submission.xqueue_body, submission.urls))
 
         job_count = get_queue_length(self.queue_name)
         statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,

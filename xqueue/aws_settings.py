@@ -42,3 +42,9 @@ REQUESTS_BASIC_AUTH = AUTH_TOKENS["REQUESTS_BASIC_AUTH"]
 RABBITMQ_USER = AUTH_TOKENS.get('RABBITMQ_USER', 'guest').encode('ascii')
 RABBITMQ_PASS = AUTH_TOKENS.get('RABBITMQ_PASS', 'guest').encode('ascii')
 XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
+
+# Use S3 as the default storage backend
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_STORAGE_BUCKET_NAME = S3_BUCKET
+AWS_LOCATION = S3_PATH_PREFIX
+AWS_QUERYSTRING_EXPIRE = 60 * 60 * 24 * 365  # S3 url expiry (1 year)
