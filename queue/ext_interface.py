@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -109,6 +110,7 @@ def get_submission(request):
             return HttpResponse(compose_reply(True, content=json.dumps(payload)))
 
 
+@transaction.atomic
 @csrf_exempt
 @login_required
 @statsd.timed('xqueue.ext_interface.put_result.time')
