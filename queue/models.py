@@ -22,9 +22,10 @@ class Submission(models.Model):
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
     xqueue_body      = models.TextField()
 
-    # Uploaded files
-    keys = models.CharField(max_length=CHARFIELD_LEN_LARGE, db_column='s3_keys') # keys for internal Xqueue use
-    urls = models.CharField(max_length=CHARFIELD_LEN_LARGE, db_column='s3_urls') # urls for external access
+    # Uploaded files. These are prefixed with `s3_` for historical reasons, and
+    # aliased as `keys` and `urls` to avoid an expensive migration.
+    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # keys for internal Xqueue use
+    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE) # urls for external access
 
     # Timing
     arrival_time = models.DateTimeField(auto_now=True)         # Time of arrival from LMS
@@ -57,3 +58,17 @@ class Submission(models.Model):
         submission_info += "Original Xqueue header follows:\n"
         submission_info += json.dumps(json.loads(self.xqueue_header), indent=4)
         return submission_info
+
+    @property
+    def keys(self):
+        '''
+        Alias for `s3_keys` field.
+        '''
+        return self.s3_keys
+
+    @property
+    def urls(self):
+        '''
+        Alias for `s3_urls` field.
+        '''
+        return self.s3_urls
