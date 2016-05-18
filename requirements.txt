@@ -6,7 +6,7 @@ coverage==3.6b1
 django-nose==1.4.1
 dogstatsd-python==0.2
 gunicorn==0.16.1
-newrelic==2.46.0.37
+newrelic==2.64.0.48
 nose==1.2.1
 nosexcover==1.0.7
 path.py==2.4.1
