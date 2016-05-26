@@ -207,6 +207,7 @@ class Worker(multiprocessing.Process):
         # not get shared with the children threads.
         db_connection.close()
 
+        self.retries = 0
         self.id = next(self.counter)
         self.queue_name = queue_name
         self.worker_url = worker_url
@@ -229,6 +230,9 @@ class Worker(multiprocessing.Process):
         self.connection.add_on_close_callback(self.on_connection_closed)
 
         self.connection.channel(self.on_channel_open)
+
+        # Set the retires attempts to Zero
+        self.retries = 0
 
     def on_connection_closed(self, connection, reply_code, reply_text):
         """Invoked when the connection is closed unexpectedly."""
@@ -271,21 +275,44 @@ class Worker(multiprocessing.Process):
             queue=self.queue_name,
         ))
 
-        try:
-            self.connection = self.connect()
-            self.connection.ioloop.start()
-        except AMQPConnectionError as ex:
-            log.error("[{id}] Consumer for queue {queue} connection error: {err}".format(
-                id=self.id, queue=self.queue_name, err=ex))
-            raise
-        else:
-            # Log that the worker exited without an exception
-            log.info(" [{id}] Consumer for queue {queue} is exiting normally...".format(
-                id=self.id, queue=self.queue_name))
-        finally:
-            # Log that the worker stopped
-            log.info(" [{id}] Consumer for queue {queue} stopped".format(
-                id=self.id, queue=self.queue_name))
+        while True:
+            try:
+                log.info("[{id}] - Attempting to establish a connection for queue {queue}".format(
+                    id=self.id,
+                    queue=self.queue_name,
+                ))
+                self.connection = self.connect()
+                self.connection.ioloop.start()
+            except AMQPConnectionError as ex:
+                self.retries += 1
+                if self.retries >= settings.RETRY_MAX_ATTEMPTS:
+                    log.error("[{id}] Consumer for queue {queue} connection error: {err}".format(
+                        id=self.id,
+                        queue=self.queue_name,
+                        err=ex
+                    ))
+                    raise
+                log.info("[{id}] - Retrying connection, attempt # {attempt} of {max_attempts} of MAX".format(
+                    id=self.id,
+                    attempt=self.retries,
+                    max_attempts=settings.RETRY_MAX_ATTEMPTS
+                ))
+                if self.retries > 1:
+                    time.sleep(settings.RETRY_TIMEOUT)
+                continue
+            else:
+                # Log that the worker exited without an exception
+                log.info(" [{id}] Consumer for queue {queue} is exiting normally...".format(
+                    id=self.id,
+                    queue=self.queue_name
+                ))
+                break
+            finally:
+                # Log that the worker stopped
+                log.info(" [{id}] Consumer for queue {queue} stopped".format(
+                    id=self.id,
+                    queue=self.queue_name
+                ))
 
         # TODO [rocha] make to to finish all  submissions before exiting
 

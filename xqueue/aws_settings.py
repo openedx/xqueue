@@ -1,5 +1,6 @@
 from settings import *
 import json
+import os
 from logsettings import get_logger_config
 
 # Allow to specify a prefix for env/auth configuration files
@@ -42,3 +43,6 @@ REQUESTS_BASIC_AUTH = AUTH_TOKENS["REQUESTS_BASIC_AUTH"]
 RABBITMQ_USER = AUTH_TOKENS.get('RABBITMQ_USER', 'guest').encode('ascii')
 RABBITMQ_PASS = AUTH_TOKENS.get('RABBITMQ_PASS', 'guest').encode('ascii')
 XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
+
+RETRY_MAX_ATTEMPTS = os.environ.get('RETRY_MAX_ATTEMPTS', 10)
+RETRY_TIMEOUT = os.environ.get('RETRY_TIMEOUT', 10)
