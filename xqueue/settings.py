@@ -167,3 +167,6 @@ LOGGING = get_logger_config(
     logging_env="dev",
     dev_env=True,
     debug=True)
+
+RETRY_MAX_ATTEMPTS = os.environ.get('RETRY_MAX_ATTEMPTS', 10)
+RETRY_TIMEOUT = os.environ.get('RETRY_TIMEOUT', 10)
