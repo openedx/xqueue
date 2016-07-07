@@ -48,8 +48,9 @@ AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
 # Bucket where files will be uploaded
-S3_BUCKET = "s3_bucket"
-S3_PATH_PREFIX = "xqueue"
+UPLOAD_BUCKET = "s3_bucket"
+UPLOAD_PATH_PREFIX = "xqueue"
+UPLOAD_URL_EXPIRE = 60 * 60 * 24 * 365  # 1 year
 
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
@@ -157,6 +158,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'storages',
     'queue',
 )
 

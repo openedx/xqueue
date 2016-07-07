@@ -22,7 +22,6 @@ class Command(BaseCommand):
             orphaned_submissions = Submission.objects.filter(queue_name=queue_name, push_time=None, return_time=None, retired=False)
             self.push_orphaned_submissions(orphaned_submissions)
 
-    
     def push_orphaned_submissions(self, orphaned_submissions):
         for orphaned_submission in orphaned_submissions:
             current_time = timezone.now()
@@ -34,7 +33,7 @@ class Command(BaseCommand):
                 orphaned_submission.num_failures += 1
 
                 payload = {'xqueue_body': orphaned_submission.xqueue_body,
-                           'xqueue_files': orphaned_submission.s3_urls}
+                           'xqueue_files': orphaned_submission.urls}
 
                 orphaned_submission.grader_id = settings.XQUEUES[orphaned_submission.queue_name]
                 orphaned_submission.push_time = timezone.now()

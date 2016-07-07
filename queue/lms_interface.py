@@ -1,20 +1,20 @@
 import json
 import logging
+import os.path
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 from statsd import statsd
 
 from queue.models import Submission, CHARFIELD_LEN_LARGE
 from queue.views import compose_reply
-from util import *
+from queue.util import make_hashkey, get_request_ip
 
 import queue.producer
 
@@ -53,24 +53,24 @@ def submit(request):
                 _invalidate_prior_submissions(lms_callback_url)
 
                 # Check for file uploads
-                s3_keys = dict()  # For internal Xqueue use
-                s3_urls = dict()  # For external grader use
+                keys = dict()  # For internal Xqueue use
+                urls = dict()  # For external grader use
                 for filename in request.FILES.keys():
-                    s3_key = make_hashkey(xqueue_header + filename)
-                    s3_url = _upload_to_s3(request.FILES[filename], queue_name, s3_key)
-                    s3_keys.update({filename: s3_key})
-                    s3_urls.update({filename: s3_url})
+                    key = make_hashkey(xqueue_header + filename)
+                    url = _upload(request.FILES[filename], queue_name, key)
+                    keys.update({filename: key})
+                    urls.update({filename: url})
 
-                s3_urls_json = json.dumps(s3_urls)
-                s3_keys_json = json.dumps(s3_keys)
+                urls_json = json.dumps(urls)
+                keys_json = json.dumps(keys)
 
-                if len(s3_urls_json) > CHARFIELD_LEN_LARGE:
-                    s3_key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
-                    s3_url = _upload_file_dict_to_s3(s3_urls, s3_keys, queue_name, s3_key)
-                    s3_keys = {"KEY_FOR_EXTERNAL_DICTS": s3_key}
-                    s3_urls = {"URL_FOR_EXTERNAL_DICTS": s3_url}
-                    s3_urls_json = json.dumps(s3_urls)
-                    s3_keys_json = json.dumps(s3_keys)
+                if len(urls_json) > CHARFIELD_LEN_LARGE:
+                    key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
+                    url = _upload_file_dict(urls, keys, queue_name, key)
+                    keys = {"KEY_FOR_EXTERNAL_DICTS": key}
+                    urls = {"URL_FOR_EXTERNAL_DICTS": url}
+                    urls_json = json.dumps(urls)
+                    keys_json = json.dumps(keys)
 
                 # Track the submission in the Submission database
                 submission = Submission(requester_id=get_request_ip(request),
@@ -78,8 +78,8 @@ def submit(request):
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
-                                        s3_urls=s3_urls_json,
-                                        s3_keys=s3_keys_json)
+                                        urls=urls_json,
+                                        keys=keys_json)
                 submission.save()
                 transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
@@ -140,54 +140,34 @@ def _is_valid_request(xrequest):
     return (True, lms_callback_url, queue_name, header, body)
 
 
-def _upload_file_dict_to_s3(file_dict, key_dict, path, name):
+def _upload_file_dict(file_dict, key_dict, path, name):
     '''
-    Upload dictionaries of filenames to S3 urls (and filenames to S3 keys)
-    to S3 using provided keyname.
+    Upload dictionaries of filenames to urls (and filenames to keys) using the
+    provided keyname.
     This is useful because the s3_files column on submissions is currently too
     small.
 
     Returns:
-        public_url: URL to access uploaded list
+        URL to access uploaded list
     '''
-    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucketname = settings.S3_BUCKET
-    bucket = conn.create_bucket(bucketname)
-
     data = {}
     data['files'] = file_dict
     data['keys'] = key_dict
 
-    prefix = getattr(settings, 'S3_PATH_PREFIX')
-    path = '{0}/{1}'.format(prefix, path)
-
-    k = Key(bucket)
-    k.key = '{path}/{name}'.format(path=path, name=name)
-    k.set_contents_from_string(json.dumps(data))
-    public_url = k.generate_url(60*60*24*365)  # URL timeout in seconds.
-
-    return public_url
+    full_path = os.path.join(path, name)
+    buff = ContentFile(json.dumps(data))
+    default_storage.save(full_path, buff)
+    return default_storage.url(full_path)
 
 
-@statsd.timed('xqueue.lms_interface.s3_upload.time')
-def _upload_to_s3(file_to_upload, path, name):
+@statsd.timed('xqueue.lms_interface.upload.time')
+def _upload(file_to_upload, path, name):
     '''
-    Upload file to S3 using provided keyname.
+    Upload file using the provided keyname.
 
     Returns:
-        public_url: URL to access uploaded file
+        URL to access uploaded file
     '''
-    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    bucketname = settings.S3_BUCKET
-    bucket = conn.create_bucket(bucketname)
-
-    prefix = getattr(settings, 'S3_PATH_PREFIX')
-    path = '{0}/{1}'.format(prefix, path)
-
-    k = Key(bucket)
-    k.key = '{path}/{name}'.format(path=path, name=name)
-    k.set_metadata('filename', file_to_upload.name)
-    k.set_contents_from_file(file_to_upload)
-    public_url = k.generate_url(60*60*24*365)  # URL timeout in seconds.
-
-    return public_url
+    full_path = os.path.join(path, name)
+    default_storage.save(full_path, file_to_upload)
+    return default_storage.url(full_path)

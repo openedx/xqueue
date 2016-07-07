@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from statsd import statsd
+from requests.exceptions import ConnectionError, Timeout
 import requests
 
 import json
@@ -12,7 +13,7 @@ import logging
 
 from queue.models import Submission
 from queue.views import compose_reply
-from util import *
+from queue.util import make_hashkey, get_request_ip
 
 import queue.producer
 import queue.consumer
@@ -78,10 +79,10 @@ def get_submission(request):
 
             # Prepare payload to external grader
             ext_header = {'submission_id': submission.id, 'submission_key': pullkey}
-            s3_urls = json.loads(submission.s3_urls) if submission.s3_urls else {}
+            urls = json.loads(submission.urls) if submission.urls else {}
 
-            if "URL_FOR_EXTERNAL_DICTS" in submission.s3_urls:
-                url = s3_urls["URL_FOR_EXTERNAL_DICTS"]
+            if "URL_FOR_EXTERNAL_DICTS" in submission.urls:
+                url = urls["URL_FOR_EXTERNAL_DICTS"]
                 timeout = 2
                 try:
                     r = requests.get(url, timeout=timeout)
@@ -101,7 +102,7 @@ def get_submission(request):
 
                 xqueue_files = json.dumps(json.loads(r.text)["files"])
             else:
-                xqueue_files = submission.s3_urls
+                xqueue_files = submission.urls
 
             payload = {'xqueue_header': json.dumps(ext_header),
                        'xqueue_body': submission.xqueue_body,
