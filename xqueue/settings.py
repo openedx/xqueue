@@ -158,8 +158,9 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'storages',
     'queue',
+    'release_util',
+    'storages',
 )
 
 LOGIN_URL = '/xqueue/login/'
