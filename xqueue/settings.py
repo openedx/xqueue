@@ -42,7 +42,9 @@ DATABASES = {
     }
 }
 RABBIT_HOST = 'localhost'
+RABBIT_PORT = 5672
 RABBIT_VHOST = '/'  # defaults to '/', otherwise a string
+RABBIT_TLS = False
 
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"

@@ -99,7 +99,7 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 
 
 class GraderStubBase(object):
-    """Abstract base class for external grader service stubs.  
+    """Abstract base class for external grader service stubs.
 
     We make this abstract to accommodate the two kinds of grading servers:
 
@@ -165,7 +165,9 @@ class GraderStubBase(object):
 
         params = pika.ConnectionParameters(credentials=creds,
                                            host=settings.RABBIT_HOST,
-                                           virtual_host=settings.RABBIT_VHOST)
+                                           port=settings.RABBIT_PORT,
+                                           virtual_host=settings.RABBIT_VHOST,
+                                           ssl=settings.RABBIT_TLS)
 
         connection = pika.BlockingConnection(parameters=params)
         channel = connection.channel()
@@ -312,7 +314,7 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
     def start_workers(self, queue_name, num_workers=1):
         """Start workers that will forward submissions
         to the port the grader stub is listening on
-        
+
         `queue_name`: The name of the queue to pull messages from (string)
 
         `num_workers`: The number of workers to start for this queue (int)
@@ -349,13 +351,13 @@ class ActiveGraderStub(GraderStubBase):
 
         # Create a logged-in Django test client
         # to interact with the XQueue
-        XQueueTestClient.create_user(ActiveGraderStub.USERNAME, 
+        XQueueTestClient.create_user(ActiveGraderStub.USERNAME,
                                     ActiveGraderStub.USERNAME + '@edx.org',
                                     ActiveGraderStub.PASSWORD)
         self._client = XQueueTestClient(0)
         self._client.login(username=ActiveGraderStub.USERNAME,
                             password=ActiveGraderStub.PASSWORD)
-        
+
         # The polling thread will run until
         # this flag is set to False
         self._is_polling = True
@@ -399,7 +401,7 @@ class ActiveGraderStub(GraderStubBase):
         If it succeeds, it returns a `dict` of the submission info,
         which has keys `xqueue_header` and `xqueue_body`
         (and sometimes `xqueue_files` as well).
-        
+
         The `xqueue_header` is itself a JSON-decoded dict,
         but `xqueue_body` is a string.
 
@@ -420,7 +422,7 @@ class ActiveGraderStub(GraderStubBase):
 
         # Otherwise the response was successful
         else:
-            
+
             # JSON-decode the response
             response_dict = json.loads(response.content)
 
@@ -472,7 +474,7 @@ class ActiveGraderStub(GraderStubBase):
                 logger.warning('Could not submit response to XQueue: %s',
                                 response_dict['content'])
                 return False
-            
+
             # Otherwise, everything was successful
             else:
                 return True
