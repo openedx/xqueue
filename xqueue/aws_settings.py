@@ -35,7 +35,9 @@ LOGGING = get_logger_config(LOG_DIR,
                             debug=False)
 
 RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
+RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', RABBIT_PORT)
 RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', RABBIT_VHOST).encode('ascii')
+RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', RABBIT_TLS)
 with open(ENV_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
