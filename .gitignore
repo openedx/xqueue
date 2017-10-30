@@ -5,3 +5,7 @@ coverage.xml
 log
 nosetests.xml
 reports
+.idea/
+build/
+src/
+xqueue.sqlite
