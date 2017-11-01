@@ -21,6 +21,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'test_xqueue',
+        'USERNAME': os.environ.get('TEST_DB_USERNAME', 'vagrant'),
+        'PASSWORD': os.environ.get('TEST_DB_PASSWORD', 'password'),
 
         'TEST': {
             # We need to use TEST['NAME'] here,
@@ -91,5 +93,5 @@ NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage',
              '--cover-html',
              '--cover-inclusive', '--cover-html-dir',
              os.environ.get('NOSE_COVER_HTML_DIR', 'cover_html'),
-             '--cover-package', 'queue', 'queue']
+             '--cover-package', 'queue_app', 'queue_app']
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

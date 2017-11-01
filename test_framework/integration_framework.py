@@ -82,7 +82,7 @@ import datetime
 import time
 import json
 from abc import ABCMeta, abstractmethod
-from queue.consumer import Worker
+from queue_app.consumer import Worker
 import urlparse
 import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler

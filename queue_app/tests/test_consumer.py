@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from pika.exceptions import AMQPConnectionError
 
-from queue.consumer import Worker
+from queue_app.consumer import Worker
 
 
 class TestWorkerConnection(TestCase):
@@ -16,8 +16,8 @@ class TestWorkerConnection(TestCase):
         self.worker = Worker(queue_name=self.QUEUE_NAME, worker_url='some_test_url')
 
     @mock.patch('time.sleep', mock.Mock(return_value=None))
-    @mock.patch('queue.consumer.log')
-    @mock.patch('queue.consumer.Worker.connect')
+    @mock.patch('queue_app.consumer.log')
+    @mock.patch('queue_app.consumer.Worker.connect')
     def test_connection_retries_on_exception(self, mock_worker_connect, mock_log):
         """
         Tests worker's connection on 'AMQPConnectionError' exception.

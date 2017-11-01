@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.utils.six import StringIO
 from django.utils import timezone
 from django.test import TestCase
-from queue.models import Submission
+from queue_app.models import Submission
 
 
 class TestQueueUngradedSubmissions(TestCase):
@@ -17,7 +17,7 @@ class TestQueueUngradedSubmissions(TestCase):
 
     def setUp(self):
         self.mock_push_to_queue = mock.patch(
-            'queue.management.commands.queue_ungraded_submissions.push_to_queue'
+            'queue_app.management.commands.queue_ungraded_submissions.push_to_queue'
         ).start()
 
     def tearDown(self):

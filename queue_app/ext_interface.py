@@ -11,12 +11,12 @@ import requests
 import json
 import logging
 
-from queue.models import Submission
-from queue.views import compose_reply
-from queue.util import make_hashkey, get_request_ip
+from queue_app.models import Submission
+from queue_app.views import compose_reply
+from queue_app.util import make_hashkey, get_request_ip
 
-import queue.producer
-import queue.consumer
+import queue_app.producer
+import queue_app.consumer
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
 
     if queue_name in settings.XQUEUES:
-        job_count = queue.producer.get_queue_length(queue_name)
+        job_count = queue_app.producer.get_queue_length(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
@@ -60,7 +60,7 @@ def get_submission(request):
         return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
     else:
         # Try to pull a single item from named queue
-        (got_submission, submission) = queue.consumer.get_single_unretired_submission(queue_name)
+        (got_submission, submission) = queue_app.consumer.get_single_unretired_submission(queue_name)
 
         if not got_submission:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))
@@ -149,7 +149,7 @@ def put_result(request):
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
-            submission.lms_ack = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            submission.lms_ack = queue_app.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
             submission.retired = submission.lms_ack
 
             submission.save()

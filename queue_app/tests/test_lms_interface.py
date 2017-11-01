@@ -11,9 +11,9 @@ from django.core.files.storage import default_storage
 from django.test.client import Client
 from django.test import SimpleTestCase, override_settings
 
-from queue import lms_interface
-from queue.models import Submission
-from queue.util import make_hashkey
+from queue_app import lms_interface
+from queue_app.models import Submission
+from queue_app.util import make_hashkey
 
 
 def parse_xreply(xreply):

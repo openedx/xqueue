@@ -17,8 +17,8 @@ from pika.exceptions import AMQPConnectionError
 from statsd import statsd
 from requests.exceptions import ConnectionError, Timeout
 
-from queue.producer import get_queue_length
-from queue.models import Submission
+from queue_app.producer import get_queue_length
+from queue_app.models import Submission
 
 
 log = logging.getLogger(__name__)
