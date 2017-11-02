@@ -43,6 +43,9 @@ class Submission(models.Model):
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
     retired = models.BooleanField(default=False, db_index=True) # True/False on whether Submission is "finished"
 
+    class Meta:
+        db_table = 'queue_submission'
+
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
         submission_info += "    Callback URL: %s\n" % self.lms_callback_url

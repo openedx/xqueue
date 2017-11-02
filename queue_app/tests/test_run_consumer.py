@@ -1,7 +1,7 @@
 from nose.tools import assert_raises, assert_equals
 from itertools import combinations
 
-from queue.management.commands.run_consumer import assign_workers_to_queues, assign_queues_to_workers, NoAssignmentError
+from queue_app.management.commands.run_consumer import assign_workers_to_queues, assign_queues_to_workers, NoAssignmentError
 
 
 def min_disjoint_workers(queue_assignments):

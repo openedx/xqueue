@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 
 from django.conf import settings
 
-from queue.consumer import Worker
+from queue_app.consumer import Worker
 
 log = logging.getLogger(__name__)
 

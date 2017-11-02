@@ -5,8 +5,8 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 
-from queue.models import Submission
-from queue.consumer import post_failure_to_lms, post_grade_to_lms, _http_post # TODO: Wrap the _http_post which is used to deliver to grader
+from queue_app.models import Submission
+from queue_app.consumer import post_failure_to_lms, post_grade_to_lms, _http_post # TODO: Wrap the _http_post which is used to deliver to grader
 
 log = logging.getLogger(__name__)
 

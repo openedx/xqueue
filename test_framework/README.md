@@ -1,7 +1,7 @@
 # Integration Test Framework
 
 A framework for handling setup of XQueue for integration tests.  These
-are used by the tests in `queue/tests` to:
+are used by the tests in `queue_app/tests` to:
 
 * Abstract setup / teardown of the XQueue.  For example, there is a 
 `start_workers()` method that starts RabbitMQ workers (consumers)
@@ -11,7 +11,7 @@ running locally.
 grading service that listens and responds on a local port.
 
 The framework is defined in `integration_framework.py` and used
-by some of the tests in `queue/tests/`
+by some of the tests in `queue_app/tests/`
 
 # Running Tests
 
@@ -41,7 +41,7 @@ if provided
 
 Tests that require authentication to run should raise a SkipTest exception
 if the authentication information is not provided.  See the integration test 
-`queue/tests/test_matlab_grader.py` for an example.
+`queue_app/tests/test_matlab_grader.py` for an example.
 
 
 # RabbitMQ Dependency

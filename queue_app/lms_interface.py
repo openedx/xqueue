@@ -12,11 +12,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 from statsd import statsd
 
-from queue.models import Submission, CHARFIELD_LEN_LARGE
-from queue.views import compose_reply
-from queue.util import make_hashkey, get_request_ip
+from queue_app.models import Submission, CHARFIELD_LEN_LARGE
+from queue_app.views import compose_reply
+from queue_app.util import make_hashkey, get_request_ip
 
-import queue.producer
+import queue_app.producer
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ def submit(request):
                 transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
                 qitem = str(submission.id)  # Submit the Submission pointer to queue
-                qcount = queue.producer.push_to_queue(queue_name, qitem)
+                qcount = queue_app.producer.push_to_queue(queue_name, qitem)
 
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))

@@ -9,7 +9,7 @@ import cgi
 from BaseHTTPServer import BaseHTTPRequestHandler
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from queue.xqueue_client import XQueueClient
+from queue_app.xqueue_client import XQueueClient
 
 PORT = 8989
 logger = logging.getLogger(__name__)

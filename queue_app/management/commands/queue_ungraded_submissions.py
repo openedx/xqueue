@@ -6,8 +6,8 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import pprint
 
-from queue.models import Submission
-from queue.producer import push_to_queue
+from queue_app.models import Submission
+from queue_app.producer import push_to_queue
 
 log = logging.getLogger(__name__)
 

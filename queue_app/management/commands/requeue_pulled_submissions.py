@@ -4,8 +4,8 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 
-from queue.models import Submission
-from queue.producer import push_to_queue
+from queue_app.models import Submission
+from queue_app.producer import push_to_queue
 
 log = logging.getLogger(__name__)
 

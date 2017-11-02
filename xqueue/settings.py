@@ -45,6 +45,8 @@ RABBIT_HOST = 'localhost'
 RABBIT_PORT = 5672
 RABBIT_VHOST = '/'  # defaults to '/', otherwise a string
 RABBIT_TLS = False
+RABBITMQ_USER = os.environ.get('RABBITMQ_USER', 'guest')
+RABBITMQ_PASS = os.environ.get('RABBITMQ_PASS', 'guest')
 
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
@@ -160,7 +162,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'queue',
+    'queue_app',
     'release_util',
     'storages',
 )
