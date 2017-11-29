@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Run me with:
     python manage.py test --settings=xqueue.test_settings queue
@@ -89,8 +90,22 @@ class lms_interface_test(SimpleTestCase):
         '''
         Submitted files should be uploaded to the storage backend.
         '''
+        
+        # 0) filename contains ascii characters only
         payload = self.valid_payload.copy()
         upload = ContentFile('TESTING', name='test')
+        upload.seek(0)
+        payload['upload'] = upload
+        response = self._submit(payload)
+        self.assertEqual(response['return_code'], 0)  # success
+
+        # Check that the file was actually uploaded
+        _, files = default_storage.listdir('tmp/')
+        key = make_hashkey(payload['xqueue_header'] + 'upload')
+        self.assertIn(key, files)
+        
+        # 1) filename contains utf-8 characters
+        upload = ContentFile('测试', name='测试')
         upload.seek(0)
         payload['upload'] = upload
         response = self._submit(payload)
