@@ -105,7 +105,7 @@ class lms_interface_test(SimpleTestCase):
         self.assertIn(key, files)
         
         # 1) filename contains utf-8 characters
-        upload = ContentFile('测试', name='测试')
+        upload = ContentFile(u'测试', name=u'测试')
         upload.seek(0)
         payload['upload'] = upload
         response = self._submit(payload)
