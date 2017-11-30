@@ -92,29 +92,20 @@ class lms_interface_test(SimpleTestCase):
         '''
         
         # 0) filename contains ascii characters only
-        payload = self.valid_payload.copy()
-        upload = ContentFile('TESTING', name='test')
-        upload.seek(0)
-        payload['upload'] = upload
-        response = self._submit(payload)
-        self.assertEqual(response['return_code'], 0)  # success
-
-        # Check that the file was actually uploaded
-        _, files = default_storage.listdir('tmp/')
-        key = make_hashkey(payload['xqueue_header'] + 'upload')
-        self.assertIn(key, files)
-        
         # 1) filename contains utf-8 characters
-        upload = ContentFile(u'测试', name=u'测试')
-        upload.seek(0)
-        payload['upload'] = upload
-        response = self._submit(payload)
-        self.assertEqual(response['return_code'], 0)  # success
+        files = [ContentFile('TESTING', name='test'), ContentFile(u'测试', name=u'测试')]
+        
+        for file in files:
+            payload = self.valid_payload.copy()
+            file.seek(0)
+            payload['upload'] = file
+            response = self._submit(payload)
+            self.assertEqual(response['return_code'], 0)  # success
 
-        # Check that the file was actually uploaded
-        _, files = default_storage.listdir('tmp/')
-        key = make_hashkey(payload['xqueue_header'] + 'upload')
-        self.assertIn(key, files)
+            # Check that the file was actually uploaded
+            _, files = default_storage.listdir('tmp/')
+            key = make_hashkey(payload['xqueue_header'] + 'upload')
+            self.assertIn(key, files)
 
     def test_is_valid_request(self):
         '''
