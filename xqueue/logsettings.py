@@ -41,6 +41,8 @@ def get_logger_config(log_dir,
                         logging_env=logging_env, hostname=hostname)
 
     handlers = ['console', 'local'] if debug else ['local']
+    if syslog_addr:
+        handlers.append('syslogger-remote')
 
     logger_config = {
         'version': 1,
@@ -94,11 +96,14 @@ def get_logger_config(log_dir,
             },
         })
     else:
+
+        log_address = syslog_addr or '/dev/log'
+
         logger_config['handlers'].update({
             'local': {
                 'level': local_loglevel,
                 'class': 'logging.handlers.SysLogHandler',
-                'address': '/dev/log',
+                'address': log_address,
                 'formatter': 'syslog_format',
                 'facility': SysLogHandler.LOG_LOCAL0,
             },
