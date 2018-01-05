@@ -63,7 +63,7 @@ def get_logger_config(log_dir,
             'syslogger-remote': {
                 'level': 'INFO',
                 'class': 'logging.handlers.SysLogHandler',
-                'address': syslog_addr,
+                'address': syslog_addr or 'localhost',
                 'formatter': 'syslog_format',
             },
         },
