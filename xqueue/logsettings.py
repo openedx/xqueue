@@ -41,6 +41,8 @@ def get_logger_config(log_dir,
                         logging_env=logging_env, hostname=hostname)
 
     handlers = ['console', 'local'] if debug else ['local']
+    if syslog_addr:
+        handlers.append('syslogger-remote')
 
     logger_config = {
         'version': 1,
@@ -60,12 +62,6 @@ def get_logger_config(log_dir,
                 'formatter': 'standard',
                 'stream': sys.stdout,
             },
-            'syslogger-remote': {
-                'level': 'INFO',
-                'class': 'logging.handlers.SysLogHandler',
-                'address': syslog_addr,
-                'formatter': 'syslog_format',
-            },
         },
         'loggers': {
             '': {
@@ -80,6 +76,16 @@ def get_logger_config(log_dir,
             }
         }
     }
+
+    if syslog_addr:
+        logger_config['handlers'].update({
+            'syslogger-remote': {
+                'level': 'INFO',
+                'class': 'logging.handlers.SysLogHandler',
+                'address': syslog_addr,
+                'formatter': 'syslog_format',
+            },
+        })
 
     if dev_env:
         edx_file_loc = os.path.join(log_dir, edx_filename)
@@ -101,6 +107,13 @@ def get_logger_config(log_dir,
                 'address': '/dev/log',
                 'formatter': 'syslog_format',
                 'facility': SysLogHandler.LOG_LOCAL0,
+            },
+            'tracking': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.SysLogHandler',
+                'address': '/dev/log',
+                'facility': SysLogHandler.LOG_LOCAL1,
+                'formatter': 'raw',
             },
         })
 
