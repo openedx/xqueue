@@ -52,6 +52,7 @@ def push_to_queue(queue_name, qitem=None):
                               body=qitem,
                               properties=pika.BasicProperties(delivery_mode=2))
 
+    channel.close()
     connection.close()
     return queue.method.message_count
 
