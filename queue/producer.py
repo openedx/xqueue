@@ -3,6 +3,7 @@ import time
 from django.conf import settings
 
 import pika
+from contextlib import closing
 
 
 MAX_RETRIES = 5
@@ -42,18 +43,18 @@ def push_to_queue(queue_name, qitem=None):
         else:
             break
 
-    channel = connection.channel()
+    with closing(connection):
+        channel = connection.channel()
 
-    queue = channel.queue_declare(queue=queue_name, durable=True)
+        with closing(channel):
+            queue = channel.queue_declare(queue=queue_name, durable=True)
 
-    if qitem is not None:
-        channel.basic_publish(exchange='',
-                              routing_key=queue_name,
-                              body=qitem,
-                              properties=pika.BasicProperties(delivery_mode=2))
+            if qitem is not None:
+                channel.basic_publish(exchange='',
+                                      routing_key=queue_name,
+                                      body=qitem,
+                                      properties=pika.BasicProperties(delivery_mode=2))
 
-    channel.close()
-    connection.close()
     return queue.method.message_count
 
 
