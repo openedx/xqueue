@@ -1,6 +1,6 @@
 """
 Run me with:
-    python manage.py test --settings=xqueue.test_settings queue
+    pytest queue/tests/test_lms_interface.py
 """
 import json
 import shutil
@@ -21,7 +21,7 @@ def parse_xreply(xreply):
     return (xreply['return_code'], xreply['content'])
 
 
-@override_settings(XQUEUES=['tmp'])
+@override_settings(XQUEUES={'tmp': None})
 class lms_interface_test(SimpleTestCase):
 
     def setUp(self):
@@ -58,14 +58,41 @@ class lms_interface_test(SimpleTestCase):
         self.assertEqual(error, True)
 
         # 2) Attempt login with POST, incorrect auth
-        response = c.post(login_url,{'username':'LMS','password': 'PaloAltoCA'})
+        response = c.post(login_url, {'username': 'LMS', 'password': 'PaloAltoCA'})
         (error, _) = parse_xreply(response.content)
         self.assertEqual(error, True)
 
         # 3) Login correctly
-        response = c.post(login_url,{'username':'LMS','password':'CambridgeMA'})
+        response = c.post(login_url, {'username': 'LMS', 'password': 'CambridgeMA'})
         (error, _) = parse_xreply(response.content)
         self.assertEqual(error, False)
+
+    def test_queue_length(self):
+        client = Client()
+        client.login(**self.credentials)
+        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'tmp'})
+        assert response.status_code == 200
+        error, queue_length = parse_xreply(response.content)
+        assert not error
+        assert isinstance(queue_length, int)
+
+    def test_queue_length_invalid_queue_name(self):
+        client = Client()
+        client.login(**self.credentials)
+        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'MIA'})
+        assert response.status_code == 200
+        error, message = parse_xreply(response.content)
+        assert error
+        assert u'Valid queue names are: ' in message
+
+    def test_queue_length_missing_queue_name(self):
+        client = Client()
+        client.login(**self.credentials)
+        response = client.get(u'/xqueue/get_queuelen/')
+        assert response.status_code == 200
+        error, message = parse_xreply(response.content)
+        assert error
+        assert message == u"'get_queuelen' must provide parameter 'queue_name'"
 
     def test_submit(self):
         '''
