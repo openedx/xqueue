@@ -1,17 +1,16 @@
 """Test that the XQueue responds to a client."""
-from test_framework.integration_framework import PassiveGraderStub, \
-    GradeResponseListener, XQueueTestClient
-
+import pytest
 from django.test import TransactionTestCase
 from django.conf import settings
 from django.test.utils import override_settings
 from uuid import uuid4
 from textwrap import dedent
-from nose.plugins.attrib import attr
-from nose.plugins.skip import SkipTest
+
+from test_framework.integration_framework import PassiveGraderStub, \
+    GradeResponseListener, XQueueTestClient
 
 
-@attr('grader_integration')
+@pytest.mark.grader_integration
 class MatlabGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response from a Mathworks server
@@ -38,7 +37,7 @@ class MatlabGraderTest(TransactionTestCase):
 
         # Skip if the settings are missing
         if self.api_key is None or self.grader_url is None:
-            raise SkipTest('You must specify an API key and URL for Mathworks in test_env.json')
+            pytest.skip('You must specify an API key and URL for Mathworks in test_env.json')
 
         # Create the response listener
         # which listens for responses on an open port

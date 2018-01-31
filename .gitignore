@@ -1,4 +1,6 @@
 *.pyc
+.DS_Store
+.cache/
 .coverage
 cover_html
 coverage.xml

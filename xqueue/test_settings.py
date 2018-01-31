@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from settings import *
 from logsettings import get_logger_config
 import os
@@ -9,8 +11,8 @@ log_dir = REPO_PATH / "log"
 
 try:
     os.makedirs(log_dir)
-except:
-    pass
+except Exception as e:
+    print(e)
 
 LOGGING = get_logger_config(log_dir,
                             logging_env="test",
@@ -85,11 +87,6 @@ MATHWORKS_API_KEY = ENV_TOKENS.get('MATHWORKS_API_KEY', None)
 TEST_XQUEUE_NAME = 'test_queue_%s' % uuid4().hex
 XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 
-# Nose Test Runner
-INSTALLED_APPS += ('django_nose',)
-NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage',
-             '--cover-html',
-             '--cover-inclusive', '--cover-html-dir',
-             os.environ.get('NOSE_COVER_HTML_DIR', 'cover_html'),
-             '--cover-package', 'queue', 'queue']
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# Configuration for testing the update_users management command
+ENV_ROOT = ROOT_PATH
+CONFIG_PREFIX = 'test_'

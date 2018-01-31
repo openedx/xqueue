@@ -46,7 +46,9 @@ end
 
 desc "Run all tests"
 task :test => REPORT_DIR do
-    ENV['NOSE_XUNIT_FILE'] = File.join(REPORT_DIR, "nosetests.xml")
-    ENV['NOSE_COVER_HTML_DIR'] = File.join(REPORT_DIR, "cover")
-    sh("python manage.py test --settings xqueue.test_settings --noinput")
+    COVERAGERC = File.join(REPO_ROOT, ".coveragerc")
+    XUNIT_FILE = File.join(REPORT_DIR, "nosetests.xml")
+    sh("python -Wd -m pytest --cov --cov-report term-missing --ds=xqueue.test_settings --junitxml=#{XUNIT_FILE} queue")
+    sh("coverage html --rcfile=#{COVERAGERC}")
+    sh("coverage xml --rcfile=#{COVERAGERC}")
 end

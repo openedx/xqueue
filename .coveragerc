@@ -1,0 +1,21 @@
+[run]
+data_file = .coverage
+source =
+    queue
+omit =
+    queue/management/commands/tests/*
+    queue/migrations/*
+    queue/tests/*
+
+[report]
+exclude_lines =
+   pragma: no cover
+   raise NotImplementedError
+ignore_errors = True
+
+[html]
+directory = reports/cover
+title = XQueue Python Test Coverage Report
+
+[xml]
+output = coverage.xml
