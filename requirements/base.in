@@ -1,0 +1,15 @@
+# Core requirements for using this service
+
+MySQL-python==1.2.5
+boto==2.39.0
+django>=1.8,<1.9
+django-storages-redux==1.3.1
+dogstatsd-python==0.2
+edx-django-release-util==0.3.0
+gunicorn==0.16.1
+newrelic==2.98.0.81
+path.py==2.4.1
+-e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
+python-termstyle==0.1.10
+requests
+wsgiref==0.1.2

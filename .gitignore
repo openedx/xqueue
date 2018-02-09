@@ -2,6 +2,8 @@
 .DS_Store
 .cache/
 .coverage
+.pytest_cache
+.tox
 cover_html
 coverage.xml
 log

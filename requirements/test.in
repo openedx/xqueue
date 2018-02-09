@@ -1,0 +1,6 @@
+# Requirements for test runs.
+
+mock
+pytest
+pytest-cov
+pytest-django

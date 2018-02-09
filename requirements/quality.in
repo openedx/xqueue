@@ -1,0 +1,3 @@
+# Requirements for code quality checks
+
+pycodestyle               # PEP 8 compliance validation
