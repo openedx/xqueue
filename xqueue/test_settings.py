@@ -91,3 +91,6 @@ NOSE_ARGS = ['--cover-erase', '--with-xunit', '--with-xcoverage',
              os.environ.get('NOSE_COVER_HTML_DIR', 'cover_html'),
              '--cover-package', 'queue', 'queue']
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# Configuration for testing the update_users management command
+ENV_ROOT = ROOT_PATH
+AUTH_FILENAME = 'test_auth.json'
