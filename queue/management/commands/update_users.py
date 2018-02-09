@@ -22,7 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         log.info("root is : " + settings.ENV_ROOT)
-        auth_filename = '{0}auth.json'.format(settings.CONFIG_PREFIX)
+        auth_filename = getattr(settings,'AUTH_FILENAME','xqueue.auth.json')
         auth_path = os.path.join(settings.ENV_ROOT, auth_filename)
 
         log.info(' [*] reading {0}'.format(auth_path))
