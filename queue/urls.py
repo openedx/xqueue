@@ -1,23 +1,27 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+from queue.ext_interface import get_queuelen, get_submission, put_result
+from queue.lms_interface import submit
+from queue.views import log_in, log_out, status
 
 # General
-#------------------------------------------------------------
-urlpatterns = patterns('queue.views',
-    url(r'^login/$', 'log_in'),
-    url(r'^logout/$', 'log_out'),
-    url(r'^status/$', 'status'),
-)
+# ------------------------------------------------------------
+urlpatterns = [
+    url(r'^login/$', log_in),
+    url(r'^logout/$', log_out),
+    url(r'^status/$', status),
+]
 
 # LMS-facing interface for queue requests
-#------------------------------------------------------------
-urlpatterns += patterns('queue.lms_interface',
-    url(r'^submit/$', 'submit'),
-)
+# ------------------------------------------------------------
+urlpatterns += [
+    url(r'^submit/$', submit),
+]
 
 # External pulling interface
-#------------------------------------------------------------
-urlpatterns += patterns('queue.ext_interface',
-    url(r'^get_queuelen/$', 'get_queuelen'),
-    url(r'^get_submission/$', 'get_submission'),
-    url(r'^put_result/$', 'put_result'),
-)
+# ------------------------------------------------------------
+urlpatterns += [
+    url(r'^get_queuelen/$', get_queuelen),
+    url(r'^get_submission/$', get_submission),
+    url(r'^put_result/$', put_result),
+]

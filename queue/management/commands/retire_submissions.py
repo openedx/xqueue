@@ -10,15 +10,16 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = "<queue_name>"
     help = "Retire submissions that have more than settings.MAX_NUMBER_OF_FAILURES failures. Notify the LMS/student that the queue will no longer attempt to process the submission. Optional <queue_name>"
 
-    option_list = BaseCommand.option_list + (
-        make_option('-f','--force',
+    def add_arguments(self, parser):
+        parser.add_argument('queue_name', nargs='*')
+        parser.add_argument(
+            '-f', '--force',
             action='store_true',
             dest='force',
             default=False,
-            help='Force retire submissions'),
+            help='Force retire submissions',
         )
 
     def handle(self, *args, **options):
@@ -28,16 +29,16 @@ class Command(BaseCommand):
         if force:
             log.info(" [ ] Force retiring all failed submissions...")
 
-        if len(args) == 0:
+        queue_names = options['queue_name']
+        if len(queue_names) == 0:
             failed_submissions = Submission.objects.filter(retired=False)
             failed_submissions = failed_submissions.exclude(num_failures=0)
             self.retire_submissions(failed_submissions, force)
         else:
-            for queue_name in args:
+            for queue_name in queue_names:
                 failed_submissions = Submission.objects.filter(queue_name=queue_name, retired=False)
                 failed_submissions = failed_submissions.exclude(num_failures=0)
                 self.retire_submissions(failed_submissions, force)
-        
 
     def retire_submissions(self, failed_submissions, force):
         for failed_submission in failed_submissions:

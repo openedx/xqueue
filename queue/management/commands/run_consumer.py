@@ -63,10 +63,9 @@ def assign_queues_to_workers(num_workers, queue_assignments):
 
 
 class Command(BaseCommand):
-    args = "<worker count>"
     help = """
     Listens to all queues specified as being push-queues in the django
-    configuration with <worker count> processes
+    configuration
     """
 
     def handle(self, *args, **options):
@@ -92,7 +91,6 @@ class Command(BaseCommand):
             time.sleep(MONITOR_SLEEPTIME)
 
         log.info(' [*] All workers finished. Exiting')
-
 
     def monitor(self, workers):
         finished_workers = []

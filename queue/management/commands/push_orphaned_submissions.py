@@ -12,13 +12,15 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = "<queue_name>"
     help = "Push orphaned submissions to the external grader"
+
+    def add_arguments(self, parser):
+        parser.add_argument('queue_name', nargs='+')
 
     def handle(self, *args, **options):
         log.info(' [*] Pushing orphaned submission to the external grader...')
 
-        for queue_name in args:
+        for queue_name in options['queue_name']:
             orphaned_submissions = Submission.objects.filter(queue_name=queue_name, push_time=None, return_time=None, retired=False)
             self.push_orphaned_submissions(orphaned_submissions)
 
