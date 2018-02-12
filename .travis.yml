@@ -1,18 +1,17 @@
 language: python
-python:
-  - "2.7"
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27-django18
+    - python: 2.7
+      env: TOXENV=quality
 install:
-  - pip install coveralls pep8
-  - pip install -r pre-requirements.txt
-  - pip install -r requirements.txt
+  - pip install -r requirements/travis.txt
 services:
   - mysql
   - rabbitmq
-env:
-  - DJANGO_SETTINGS_MODULE=xqueue.settings
 script:
-  - rake test
-  - ./script/max_pep8_violations
+  - tox
 after_success:
   - coveralls
 branches:

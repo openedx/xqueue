@@ -1,7 +1,7 @@
 #!/bin/bash
 DEFAULT_MAX=216
 
-pep8 . | tee /tmp/pep8-xqueue.log
+pycodestyle . | tee /tmp/pep8-xqueue.log
 ERR=`grep -c ^ /tmp/pep8-xqueue.log `
 MAX=${1-$DEFAULT_MAX}
 if [ $ERR -g $MAX ]; then
