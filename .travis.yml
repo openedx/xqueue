@@ -4,6 +4,12 @@ matrix:
     - python: 2.7
       env: TOXENV=py27-django18
     - python: 2.7
+      env: TOXENV=py27-django19
+    - python: 2.7
+      env: TOXENV=py27-django110
+    - python: 2.7
+      env: TOXENV=py27-django111
+    - python: 2.7
       env: TOXENV=quality
 install:
   - pip install -r requirements/travis.txt

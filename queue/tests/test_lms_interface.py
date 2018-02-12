@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.test.client import Client
-from django.test import SimpleTestCase, override_settings
+from django.test import TransactionTestCase, override_settings
 
 from queue import lms_interface
 from queue.models import Submission
@@ -22,7 +22,7 @@ def parse_xreply(xreply):
 
 
 @override_settings(XQUEUES={'tmp': None})
-class lms_interface_test(SimpleTestCase):
+class TestLMSInterface(TransactionTestCase):
 
     def setUp(self):
         self.credentials = {'username': 'LMS', 'password': 'CambridgeMA'}

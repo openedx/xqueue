@@ -11,18 +11,21 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = "<queue_name>"
     help = "Process currently pulled submissions, and requeue if external grader has not replied in settings.PULLED_SUBMISSION_TIMEOUT seconds. Optional list of <queue_name>s"
+
+    def add_arguments(self, parser):
+        parser.add_argument('queue_name', nargs='*')
 
     def handle(self, *args, **options):
         log.info(' [*] Running requeue of pulled submissions...')
 
-        if len(args) == 0:
+        queue_names = options['queue_name']
+        if len(queue_names) == 0:
             open_submissions = Submission.objects.filter(retired=False)
             open_submissions = open_submissions.exclude(pull_time=None)
             self.requeue_submissions(open_submissions)
         else:
-            for queue_name in args:
+            for queue_name in queue_names:
                 open_submissions = Submission.objects.filter(queue_name=queue_name, retired=False)
                 open_submissions = open_submissions.exclude(pull_time=None)
                 self.requeue_submissions(open_submissions)

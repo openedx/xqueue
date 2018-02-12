@@ -78,8 +78,8 @@ def submit(request):
                                         queue_name=queue_name,
                                         xqueue_header=xqueue_header,
                                         xqueue_body=xqueue_body,
-                                        urls=urls_json,
-                                        keys=keys_json)
+                                        s3_urls=urls_json,
+                                        s3_keys=keys_json)
                 submission.save()
                 transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
