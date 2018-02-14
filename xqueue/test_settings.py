@@ -89,4 +89,4 @@ XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 
 # Configuration for testing the update_users management command
 ENV_ROOT = ROOT_PATH
-CONFIG_PREFIX = 'test_'
+AUTH_FILENAME = 'test_auth.json'
