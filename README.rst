@@ -61,7 +61,7 @@ Tests
 
 You can run the unit/integration test suite using:
 
-    rake test
+    make test
 
 from the base `xqueue` directory.
 

@@ -4,24 +4,16 @@
 #
 #    pip-compile --output-file requirements/travis.txt requirements/travis.in
 #
-asn1crypto==0.24.0        # via cryptography
-certifi==2018.1.18        # via requests, urllib3
-cffi==1.11.4              # via cryptography
+certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
-coverage==4.5.1           # via coveralls
-coveralls==1.2.0
-cryptography==2.1.4       # via pyopenssl, urllib3
-docopt==0.6.2             # via coveralls
-enum34==1.1.6             # via cryptography
-idna==2.6                 # via cryptography, requests, urllib3
-ipaddress==1.0.19         # via cryptography, urllib3
+codecov==2.0.15
+coverage==4.5.1           # via codecov
+idna==2.6                 # via requests
 pluggy==0.6.0             # via tox
 py==1.5.2                 # via tox
-pycparser==2.18           # via cffi
-pyopenssl==17.5.0         # via urllib3
-requests==2.18.4          # via coveralls
-six==1.11.0               # via cryptography, pyopenssl, tox
+requests==2.18.4          # via codecov
+six==1.11.0               # via tox
 tox-battery==0.5
 tox==2.9.1
-urllib3[secure]==1.22     # via coveralls, requests
+urllib3==1.22             # via requests
 virtualenv==15.1.0        # via tox
