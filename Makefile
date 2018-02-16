@@ -51,7 +51,7 @@ requirements: ## install development environment requirements
 	pip-sync requirements/dev.txt requirements/private.*
 
 test: clean ## run tests in the current virtualenv
-	rake test
+	tox
 
 test-all: ## run tests on every supported Python/Django combination
 	tox -e quality
