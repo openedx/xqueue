@@ -18,7 +18,7 @@ gunicorn==0.16.1
 idna==2.6                 # via requests
 mock==2.0.0
 mysql-python==1.2.5
-newrelic==2.98.0.81
+newrelic==2.102.0.85
 path.py==2.4.1
 pbr==3.1.1                # via mock
 pluggy==0.6.0             # via pytest
