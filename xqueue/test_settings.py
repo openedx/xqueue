@@ -19,26 +19,6 @@ LOGGING = get_logger_config(log_dir,
                             dev_env=True,
                             debug=True)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_xqueue',
-
-        'TEST': {
-            # We need to use TEST['NAME'] here,
-            # otherwise Django tests will use an in-memory database.
-            # In-memory databases do not support access from
-            # multiple threads, which the integration tests need.
-            # We also need to choose *unique* names to avoid
-            # conflicts in the Jenkins server
-            'NAME': 'test_xqueue_%s' % uuid4().hex,
-        },
-
-        # Wrap all view methods in an atomic transaction automatically.
-        'ATOMIC_REQUESTS': True
-    }
-}
-
 # If we are running on Jenkins, then expect that
 # an environment variable is set for
 # the config file directory
@@ -63,12 +43,33 @@ try:
 except (IOError, ValueError):
     ENV_TOKENS = {}
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_xqueue',
+        'HOST': os.environ.get('DB_HOST', ENV_TOKENS.get('DB_HOST','edx.devstack.mysql')),
+
+        'TEST': {
+            # We need to use TEST['NAME'] here,
+            # otherwise Django tests will use an in-memory database.
+            # In-memory databases do not support access from
+            # multiple threads, which the integration tests need.
+            # We also need to choose *unique* names to avoid
+            # conflicts in the Jenkins server
+            'NAME': 'test_xqueue_%s' % uuid4().hex,
+        },
+
+        # Wrap all view methods in an atomic transaction automatically.
+        'ATOMIC_REQUESTS': True
+    }
+}
+
 # RabbitMQ configuration
 # Default to local broker if no external
 # broker defined in test_env.json
 RABBITMQ_USER = ENV_TOKENS.get('RABBITMQ_USER', 'guest')
 RABBITMQ_PASS = ENV_TOKENS.get('RABBITMQ_PASS', 'guest')
-RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', 'localhost')
+RABBIT_HOST = os.environ.get('RABBIT_HOST',ENV_TOKENS.get('RABBIT_HOST', 'edx.devstack.rabbit'))
 RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', 5672)
 RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', '/')
 RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', False)

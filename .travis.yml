@@ -1,4 +1,8 @@
 language: python
+services:
+  - docker
+sudo: required
+
 matrix:
   include:
     - python: 2.7
@@ -11,15 +15,15 @@ matrix:
       env: TOXENV=py27-django111
     - python: 2.7
       env: TOXENV=quality
-install:
-  - pip install -r requirements/travis.txt
-services:
-  - mysql
-  - rabbitmq
+
+before_install:
+  - docker-compose -f .travis/docker-compose-travis.yml up -d
+  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
 script:
-  - tox
+  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; tox"
 after_success:
-  - coverage xml
+  - pip install -r requirements/travis.txt
+  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} coverage xml"
   - codecov
 branches:
   only:
