@@ -18,7 +18,7 @@ by some of the tests in `queue/tests/`
 Integration tests run as part of the test suite.  To run the suite,
 use:
 
-     rake test
+     make test
 
 in the base `xqueue` directory.
 

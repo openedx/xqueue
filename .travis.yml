@@ -19,7 +19,8 @@ services:
 script:
   - tox
 after_success:
-  - coveralls
+  - coverage xml
+  - codecov
 branches:
   only:
     - master
