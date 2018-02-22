@@ -2,12 +2,7 @@ from settings import *
 import json
 from logsettings import get_logger_config
 
-# Allow to specify a prefix for env/auth configuration files
-SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', '')
-if SERVICE_VARIANT:
-    CONFIG_PREFIX = SERVICE_VARIANT + "."
-
-with open(ENV_ROOT / CONFIG_PREFIX + "env.json") as env_file:
+with open(ENV_ROOT / "xqueue.env.json") as env_file:
     ENV_TOKENS = json.load(env_file)
 
 XQUEUES = ENV_TOKENS['XQUEUES']
@@ -17,10 +12,6 @@ WORKER_COUNT = ENV_TOKENS.get('WORKER_COUNT', XQUEUE_WORKERS_PER_QUEUE * 2)
 UPLOAD_BUCKET = ENV_TOKENS.get('UPLOAD_BUCKET', UPLOAD_BUCKET)
 UPLOAD_PATH_PREFIX = ENV_TOKENS.get('UPLOAD_PATH_PREFIX', UPLOAD_PATH_PREFIX)
 UPLOAD_URL_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
-
-# Deprecated, use UPLOAD_BUCKET and UPLOAD_PATH_PREFIX instead
-S3_BUCKET = ENV_TOKENS.get('S3_BUCKET', UPLOAD_BUCKET)
-S3_PATH_PREFIX = ENV_TOKENS.get('S3_PATH_PREFIX', UPLOAD_PATH_PREFIX)
 
 ALLOWED_HOSTS = ENV_TOKENS.get('ALLOWED_HOSTS', ALLOWED_HOSTS)
 
@@ -38,7 +29,7 @@ RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
 RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', RABBIT_PORT)
 RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', RABBIT_VHOST).encode('ascii')
 RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', RABBIT_TLS)
-with open(ENV_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
+with open(ENV_ROOT / "xqueue.auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
 DATABASES = AUTH_TOKENS['DATABASES']
@@ -65,6 +56,6 @@ XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
 
 # Use S3 as the default storage backend
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_STORAGE_BUCKET_NAME = S3_BUCKET
-AWS_LOCATION = S3_PATH_PREFIX
+AWS_STORAGE_BUCKET_NAME = UPLOAD_BUCKET
+AWS_LOCATION = UPLOAD_PATH_PREFIX
 AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
