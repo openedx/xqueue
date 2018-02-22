@@ -56,6 +56,18 @@ a REST-like interface.
 
 3. XQueue pushes the response back to the LMS.
 
+Local Testing
+-------------
+
+XQueue is now available as a docker image used as part of Docker Devstack.
+You can start and provision it by using xqueue specific commands configured in
+your `devstack` directory
+
+    make dev.provision.xqueue
+    make dev.up.xqueue
+
+XQueue will start a RabbitMQ and will use the shared MySQL image.  
+
 Tests
 -----
 
@@ -63,10 +75,10 @@ You can run the unit/integration test suite using:
 
     make test
 
-from the base `xqueue` directory.
+after connecting to your container on Docker Devstack
 
-**Note:** If you do not have RabbitMQ installed and running, some tests
-will produce errors.  See `test_framework/README.md` for more information.
+    make xqueue-shell
+    make test
 
 License
 -------
