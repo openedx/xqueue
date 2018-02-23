@@ -18,9 +18,10 @@ by some of the tests in `queue/tests/`
 Integration tests run as part of the test suite.  To run the suite,
 use:
 
+     make xqueue-shell
      make test
 
-in the base `xqueue` directory.
+in the base Docker Devstack directory and it will run from your xqueue checkout.
 
 # Authentication Information
 
@@ -46,17 +47,6 @@ if the authentication information is not provided.  See the integration test
 
 # RabbitMQ Dependency
 
-Integration tests require access to a RabbitMQ broker.  By default, the tests
-assume a RabbitMQ broker is running locally, and that it uses the default
-username ("guest") and password (also "guest").
-
-To start a local RabbitMQ broker, use:
-
-     rabbitmq-server
-     rabbitmqctl start_app
-
-See [the RabbitMQ docs](http://www.rabbitmq.com/admin-guide.html) for information
-on installing and running RabbitMQ.
-
-You can override these settings in `test_env.json` to use an external RabbitMQ broker.
-See `xqueue/test_settings.py` for details.
+A docker image for RabbitMQ is started when you bring up xqueue - it has users
+and permissions configured for both the web interface used by the LMS and external
+graders as well as for xqueue consumers.  These same images can be used for tests.
