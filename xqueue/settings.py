@@ -175,3 +175,6 @@ LOGGING = get_logger_config(
 
 RETRY_MAX_ATTEMPTS = os.environ.get('RETRY_MAX_ATTEMPTS', 10)
 RETRY_TIMEOUT = os.environ.get('RETRY_TIMEOUT', 10)
+
+# Keep using RabbitMQ
+WABBITS = True

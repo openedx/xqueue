@@ -55,6 +55,15 @@ def get_single_unretired_submission(queue_name):
                     If no unretired item in the queue, return False
         submission: A single submission from the queue, guaranteed to be unretired
     '''
+
+    if settings.WABBITS:
+        return _get_single_unretired_submission_from_rabbit(queue_name)
+    else:
+        return _get_single_unretired_submission_from_database(queue_name)
+
+
+def _get_single_unretired_submission_from_rabbit(queue_name):
+    """ Fetch a single unretired queue item from Rabbit """
     items_in_queue = True
     while items_in_queue:
         # Try to pull out a single submission from the queue, which may or may not be retired
@@ -74,6 +83,16 @@ def get_single_unretired_submission(queue_name):
 
         if not submission.retired:
             return (True, submission)
+
+
+def _get_single_unretired_submission_from_database(queue_name):
+    """ Fetch a single unretired queue item from the database"""
+    submission = Submission.objects.exclude(retired=1)[0]
+
+    if submission.id:
+        return (True, submission)
+    else:
+        return (False, '')
 
 
 def get_single_qitem(queue_name):
@@ -197,24 +216,72 @@ def _http_post(url, data, timeout):
     return (True, r.text)
 
 
-class Worker(multiprocessing.Process):
-    """Encapsulation of a single RabbitMQ listener that listens on a queue
+class WorkerBase(multiprocessing.Process):
+    """Encapsulation of a single consumer process that listens on a queue
     """
     counter = itertools.count()
 
     def __init__(self, queue_name, worker_url):
-        super(Worker, self).__init__()
+        super(WorkerBase, self).__init__()
+
+        self.retries = 0
+        self.queue_name = queue_name
+        self.worker_url = worker_url
+        self.id = next(self.counter)
+
+    def _deliver_submission(self, submission):
+        payload = {'xqueue_body': submission.xqueue_body,
+                   'xqueue_files': submission.urls}
+
+        submission.grader_id = self.worker_url
+        submission.push_time = timezone.now()
+        start = time.time()
+        (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
+        grading_time = time.time() - start
+        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', grading_time,
+                         tags=['queue:{0}'.format(self.queue_name)])
+
+        if grading_time > settings.GRADING_TIMEOUT:
+            log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
+                      grading_time, submission.xqueue_body, submission.urls))
+
+        job_count = get_queue_length(self.queue_name)
+        statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
+                     tags=['queue:{0}'.format(self.queue_name)])
+
+        submission.return_time = timezone.now()
+
+        # TODO: For the time being, a submission in a push interface gets one chance at grading,
+        #       with no requeuing logic
+        if grading_success:
+            submission.grader_reply = grader_reply
+            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
+        else:
+            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission.id, self.worker_url, grader_reply))
+            submission.num_failures += 1
+            submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
+
+        # NOTE: retiring pushed submissions after one shot regardless of grading_success
+        submission.retired = True
+
+        submission.save()
+
+    def __repr__(self):
+        return "Worker (%r, %r)" % (self.worker_url, self.queue_name)
+
+
+class WorkerRabbit(WorkerBase):
+    """Encapsulation of a single RabbitMQ listener that listens on a queue
+    """
+
+    def __init__(self, queue_name, worker_url):
+        super(WorkerRabbit, self).__init__(queue_name, worker_url)
 
         # there seems to be an issue with db connections and
         # multiprocessing. since we are not using the connection in
         # the main worker thread, lets close it hoping that it does
         # not get shared with the children threads.
         db_connection.close()
-
-        self.retries = 0
-        self.id = next(self.counter)
-        self.queue_name = queue_name
-        self.worker_url = worker_url
 
         credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                             settings.RABBITMQ_PASS)
@@ -401,42 +468,41 @@ class Worker(multiprocessing.Process):
 
         return submission
 
-    def _deliver_submission(self, submission):
-        payload = {'xqueue_body': submission.xqueue_body,
-                   'xqueue_files': submission.urls}
 
-        submission.grader_id = self.worker_url
-        submission.push_time = timezone.now()
-        start = time.time()
-        (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
-        grading_time = time.time() - start
-        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', grading_time,
-                         tags=['queue:{0}'.format(self.queue_name)])
+class WorkerDatabase(WorkerBase):
+    """Encapsulation of a single database montitor that listens on a queue
+    """
+    def __init__(self, queue_name, worker_url):
+        super(WorkerDatabase, self).__init__(queue_name, worker_url)
 
-        if grading_time > settings.GRADING_TIMEOUT:
-            log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
-                      grading_time, submission.xqueue_body, submission.urls))
+    def run(self):
+        log.info(" [{id}] Starting consumer for queue {queue}".format(
+            id=self.id,
+            queue=self.queue_name,
+        ))
 
-        job_count = get_queue_length(self.queue_name)
-        statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
-                     tags=['queue:{0}'.format(self.queue_name)])
+        while True:
+            submission = Submission.objects.filter(queue_name=self.queue_name).exclude(retired=1)
+            if submission:
+                self._deliver_submission(submission[0])
+            # Use a better name for this
+            time.sleep(settings.DB_WAITTIME)
 
-        submission.return_time = timezone.now()
+        log.info(" [{id}] Consumer for queue {queue} stopped".format(
+            id=self.id,
+            queue=self.queue_name
+        ))
 
-        # TODO: For the time being, a submission in a push interface gets one chance at grading,
-        #       with no requeuing logic
-        if grading_success:
-            submission.grader_reply = grader_reply
-            submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
-        else:
-            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission.id, self.worker_url, grader_reply))
-            submission.num_failures += 1
-            submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
+    def stop(self):
+        """Rabbit has to close a connection to tear down an ioloop, we don't need that"""
+        pass
 
-        # NOTE: retiring pushed submissions after one shot regardless of grading_success
-        submission.retired = True
 
-        submission.save()
-
-    def __repr__(self):
-        return "Worker (%r, %r)" % (self.worker_url, self.queue_name)
+class Worker(object):
+    """Shim class that loads the appropriate worker class and instantiates that
+    """
+    def __new__(cls, queue_name, worker_url):
+        subclass = WorkerRabbit
+        if not settings.WABBITS:
+            subclass = WorkerDatabase
+        return subclass(queue_name, worker_url)

@@ -25,6 +25,7 @@ LOGGING = get_logger_config(LOG_DIR,
                             local_loglevel=local_loglevel,
                             debug=False)
 
+WABBITS = ENV_TOKENS.get('WABBITS', WABBITS)
 RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
 RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', RABBIT_PORT)
 RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', RABBIT_VHOST).encode('ascii')
