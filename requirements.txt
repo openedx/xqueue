@@ -15,7 +15,7 @@ edx-django-release-util==0.3.0
 gunicorn==0.16.1
 idna==2.6                 # via requests
 mysql-python==1.2.5
-newrelic==2.104.0.86
+newrelic==2.106.0.87
 path.py==2.4.1
 python-termstyle==0.1.10
 pyyaml==3.12              # via edx-django-release-util
