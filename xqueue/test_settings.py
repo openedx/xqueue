@@ -91,3 +91,7 @@ XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 # Configuration for testing the update_users management command
 ENV_ROOT = ROOT_PATH
 AUTH_FILENAME = 'test_auth.json'
+
+# Default keep testing with RabbitMQ
+# We rerun the tests in `make test` and travis to test with only a database
+WABBITS = True
