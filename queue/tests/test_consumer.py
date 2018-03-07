@@ -1,5 +1,5 @@
 import mock
-from unittest import TestCase
+from django.test import TestCase, override_settings
 from django.conf import settings
 from uuid import uuid4
 
@@ -8,6 +8,8 @@ from pika.exceptions import AMQPConnectionError
 from queue.consumer import Worker
 
 
+# This test of AQMP connection errors only makes sense for rabbit tests
+@override_settings(WABBITS=True)
 class TestWorkerConnection(TestCase):
 
     QUEUE_NAME = 'test_queue_%s' % uuid4().hex
@@ -17,7 +19,7 @@ class TestWorkerConnection(TestCase):
 
     @mock.patch('time.sleep', mock.Mock(return_value=None))
     @mock.patch('queue.consumer.log')
-    @mock.patch('queue.consumer.Worker.connect')
+    @mock.patch('queue.consumer.WorkerRabbit.connect')
     def test_connection_retries_on_exception(self, mock_worker_connect, mock_log):
         """
         Tests worker's connection on 'AMQPConnectionError' exception.
