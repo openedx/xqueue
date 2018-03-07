@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         log.info(' [*] Scanning Submission database to retire failed submissions...')
-        
+
         force = options['force']
         if force:
             log.info(" [ ] Force retiring all failed submissions...")
@@ -43,8 +43,8 @@ class Command(BaseCommand):
     def retire_submissions(self, failed_submissions, force):
         for failed_submission in failed_submissions:
             if failed_submission.num_failures >= settings.MAX_NUMBER_OF_FAILURES:
-                log.info(" [ ] Retiring submission id=%d from queue '%s' with num_failures=%d" %\
-                            (failed_submission.id, failed_submission.queue_name, failed_submission.num_failures))
+                log.info(" [ ] Retiring submission id=%d from queue '%s' with num_failures=%d" %
+                         (failed_submission.id, failed_submission.queue_name, failed_submission.num_failures))
                 if force:
                     failed_submission.retired = True # Mark as done without contacting LMS
                 else:

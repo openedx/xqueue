@@ -48,7 +48,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         # pytest/django TestCase instances auto-prefix test_ onto the NAME
         'NAME': 'xqueue',
-        'HOST': os.environ.get('DB_HOST', ENV_TOKENS.get('DB_HOST','edx.devstack.mysql')),
+        'HOST': os.environ.get('DB_HOST', ENV_TOKENS.get('DB_HOST', 'edx.devstack.mysql')),
         # Wrap all view methods in an atomic transaction automatically.
         'ATOMIC_REQUESTS': True
     }
@@ -59,7 +59,7 @@ DATABASES = {
 # broker defined in test_env.json
 RABBITMQ_USER = ENV_TOKENS.get('RABBITMQ_USER', 'guest')
 RABBITMQ_PASS = ENV_TOKENS.get('RABBITMQ_PASS', 'guest')
-RABBIT_HOST = os.environ.get('RABBIT_HOST',ENV_TOKENS.get('RABBIT_HOST', 'edx.devstack.rabbit'))
+RABBIT_HOST = os.environ.get('RABBIT_HOST', ENV_TOKENS.get('RABBIT_HOST', 'edx.devstack.rabbit'))
 RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', 5672)
 RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', '/')
 RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', False)

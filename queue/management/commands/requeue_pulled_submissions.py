@@ -30,7 +30,6 @@ class Command(BaseCommand):
                 open_submissions = open_submissions.exclude(pull_time=None)
                 self.requeue_submissions(open_submissions)
 
-    
     def requeue_submissions(self, open_submissions):
         for open_submission in open_submissions:
             current_time = timezone.now()
@@ -38,13 +37,13 @@ class Command(BaseCommand):
             if time_difference > settings.PULLED_SUBMISSION_TIMEOUT:
                 open_submission.num_failures += 1
                 if open_submission.num_failures < settings.MAX_NUMBER_OF_FAILURES:
-                    log.info(" [ ] Requeuing submission.id=%d to queue '%s' which has been outstanding for %d seconds" %\
-                        (open_submission.id, open_submission.queue_name, time_difference))
+                    log.info(" [ ] Requeuing submission.id=%d to queue '%s' which has been outstanding for %d seconds" %
+                             (open_submission.id, open_submission.queue_name, time_difference))
                     qitem = str(open_submission.id)
                     open_submission.pull_time = None
                     open_submission.pullkey = ''
                     push_to_queue(open_submission.queue_name, qitem)
                 else:
-                    log.info(" [ ] NOT requeueing submission.id=%d to queue '%s' because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d" %\
-                                (open_submission.id, open_submission.queue_name, open_submission.num_failures, settings.MAX_NUMBER_OF_FAILURES))
+                    log.info(" [ ] NOT requeueing submission.id=%d to queue '%s' because num_failures=%d >= MAX_NUMBER_OF_FAILURES=%d" %
+                             (open_submission.id, open_submission.queue_name, open_submission.num_failures, settings.MAX_NUMBER_OF_FAILURES))
                 open_submission.save()

@@ -71,7 +71,7 @@ def _get_single_unretired_submission_from_rabbit(queue_name):
     while items_in_queue:
         # Try to pull out a single submission from the queue, which may or may not be retired
         (items_in_queue, qitem) = get_single_qitem(queue_name)
-        if not items_in_queue: # No more submissions to consider
+        if not items_in_queue:  # No more submissions to consider
             return (False, '')
 
         submission_id = int(qitem)
@@ -82,7 +82,7 @@ def _get_single_unretired_submission_from_rabbit(queue_name):
                 queue_name,
                 submission_id
             ))
-            continue # Just move on
+            continue  # Just move on
 
         if not submission.retired:
             return (True, submission)

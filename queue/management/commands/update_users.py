@@ -16,13 +16,14 @@ from django.contrib.auth.models import User
 
 log = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     help = "Create users that are specified in auth.json"
 
     def handle(self, *args, **options):
 
         log.info("root is : " + settings.ENV_ROOT)
-        auth_filename = getattr(settings,'AUTH_FILENAME','xqueue.auth.json')
+        auth_filename = getattr(settings, 'AUTH_FILENAME', 'xqueue.auth.json')
         auth_path = os.path.join(settings.ENV_ROOT, auth_filename)
 
         log.info(' [*] reading {0}'.format(auth_path))
