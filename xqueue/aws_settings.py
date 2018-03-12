@@ -33,8 +33,10 @@ RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', RABBIT_TLS)
 with open(ENV_ROOT / "xqueue.auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
-DATABASES = AUTH_TOKENS['DATABASES']
+SUBMISSION_PROCESSING_DELAY = ENV_TOKENS.get('SUBMISSION_PROCESSING_DELAY', SUBMISSION_PROCESSING_DELAY)
+CONSUMER_DELAY = ENV_TOKENS.get('CONSUMER_DELAY', CONSUMER_DELAY)
 
+DATABASES = AUTH_TOKENS['DATABASES']
 # The normal database user does not have enough permissions to run migrations.
 # Migrations are run with separate credentials, given as DB_MIGRATION_*
 # environment variables

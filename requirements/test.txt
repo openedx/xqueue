@@ -18,15 +18,16 @@ gunicorn==0.16.1
 idna==2.6                 # via requests
 mock==2.0.0
 mysql-python==1.2.5
-newrelic==2.104.0.86
+newrelic==2.106.1.88
 path.py==2.4.1
 pbr==3.1.1                # via mock
 pluggy==0.6.0             # via pytest
 py==1.5.2                 # via pytest
 pytest-cov==2.5.1
 pytest-django==3.1.2
-pytest==3.4.1
+pytest==3.4.2
 python-termstyle==0.1.10
+pytz==2018.3
 pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util, mock, pytest

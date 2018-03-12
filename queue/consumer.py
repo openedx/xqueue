@@ -6,11 +6,14 @@ import multiprocessing
 import threading
 import time
 import itertools
+import pytz
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from django.db import connection as db_connection
+from django.db.models import Q
 
 import pika
 from pika.exceptions import AMQPConnectionError
@@ -87,9 +90,12 @@ def _get_single_unretired_submission_from_rabbit(queue_name):
 
 def _get_single_unretired_submission_from_database(queue_name):
     """ Fetch a single unretired queue item from the database"""
-    submission = Submission.objects.exclude(retired=1)[0]
 
-    if submission.id:
+    # Look for submissions that haven't been pulled or were pulled more than 1 minute ago
+    pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
+    submission = Submission.objects.filter(queue_name=queue_name).filter(pull_time_filter).exclude(retired=True).order_by('arrival_time').first()
+
+    if submission:
         return (True, submission)
     else:
         return (False, '')
@@ -482,11 +488,13 @@ class WorkerDatabase(WorkerBase):
         ))
 
         while True:
-            submission = Submission.objects.filter(queue_name=self.queue_name).exclude(retired=1)
+            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
+            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
+            submission = Submission.objects.filter(queue_name=self.queue_name).filter(push_time_filter).exclude(retired=True).order_by('arrival_time').first()
             if submission:
-                self._deliver_submission(submission[0])
-            # Use a better name for this
-            time.sleep(settings.DB_WAITTIME)
+                self._deliver_submission(submission)
+            # Wait the given seconds between checking the database
+            time.sleep(settings.CONSUMER_DELAY)
 
         log.info(" [{id}] Consumer for queue {queue} stopped".format(
             id=self.id,

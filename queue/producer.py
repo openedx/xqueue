@@ -1,6 +1,9 @@
 import time
+import pytz
+from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.db.models import Q
 
 import pika
 from contextlib import closing
@@ -71,5 +74,5 @@ def get_queue_length(queue_name):
     if settings.WABBITS:
         return push_to_queue(queue_name)
     else:
-        # This should be a little fuzzier, but start by unretired count
-        return Submission.objects.filter(retired=False).count()
+        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
+        return Submission.objects.filter(queue_name=queue_name).filter(pull_time_filter).exclude(retired=True).count()

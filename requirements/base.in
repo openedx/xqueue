@@ -11,5 +11,6 @@ newrelic
 path.py==2.4.1
 -e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
 python-termstyle==0.1.10
+pytz
 requests
 wsgiref==0.1.2

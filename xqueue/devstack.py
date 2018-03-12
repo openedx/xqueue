@@ -51,3 +51,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_STORAGE_BUCKET_NAME = UPLOAD_BUCKET
 AWS_LOCATION = UPLOAD_PATH_PREFIX
 AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
+
+# It's probably ok to search your DB for push queues every minute (or even longer) on a
+# development instance, rather than the brief prod timespan.
+CONSUMER_DELAY = 60
