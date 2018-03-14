@@ -65,6 +65,6 @@ AWS_LOCATION = UPLOAD_PATH_PREFIX
 AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
 
 # Use session engine settings from env
-SESSION_ENGINE = ENV_TOKENS.get('SESSION_ENGINE', global_settings.SESSION_ENGINE)
+SESSION_ENGINE = ENV_TOKENS.get('SESSION_ENGINE') or global_settings.SESSION_ENGINE
 # Use a custom cache setting from env; useful if, for example, the session engine uses cache and requires Memcached
-CACHES = ENV_TOKENS.get('CACHES', global_settings.CACHES)
+CACHES = ENV_TOKENS.get('CACHES') or global_settings.CACHES
