@@ -1,14 +1,12 @@
 import time
-import pytz
+from contextlib import closing
 from datetime import datetime, timedelta
-
-from django.conf import settings
-from django.db.models import Q
+from queue.models import Submission
 
 import pika
-from contextlib import closing
-
-from queue.models import Submission
+import pytz
+from django.conf import settings
+from django.db.models import Q
 
 MAX_RETRIES = 5
 RETRY_TIMEOUT = 0.5

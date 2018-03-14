@@ -16,8 +16,10 @@ django==1.8.19
 dogstatsd-python==0.2
 edx-django-release-util==0.3.0
 funcsigs==1.0.2           # via mock, pytest
+futures==3.2.0            # via isort
 gunicorn==0.16.1
 idna==2.6                 # via requests
+isort==4.3.4
 mock==2.0.0
 mysql-python==1.2.5
 newrelic==2.106.1.88

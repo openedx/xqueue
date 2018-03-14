@@ -1,11 +1,12 @@
-import mock
 from datetime import timedelta
+from queue.models import Submission
+
+import mock
 from django.conf import settings
 from django.core.management import call_command
-from django.utils.six import StringIO
-from django.utils import timezone
 from django.test import TestCase
-from queue.models import Submission
+from django.utils import timezone
+from django.utils.six import StringIO
 
 
 class TestQueueUngradedSubmissions(TestCase):

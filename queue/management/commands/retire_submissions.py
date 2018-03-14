@@ -1,10 +1,10 @@
 import logging
-
-from django.core.management.base import BaseCommand
-from django.conf import settings
 from optparse import make_option
-from queue.models import Submission
 from queue.consumer import post_failure_to_lms
+from queue.models import Submission
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
 log = logging.getLogger(__name__)
 

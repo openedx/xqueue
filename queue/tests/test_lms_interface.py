@@ -4,16 +4,15 @@ Run me with:
 """
 import json
 import shutil
+from queue import lms_interface
+from queue.models import Submission
+from queue.util import make_hashkey
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.test.client import Client
 from django.test import TransactionTestCase, override_settings
-
-from queue import lms_interface
-from queue.models import Submission
-from queue.util import make_hashkey
+from django.test.client import Client
 
 
 def parse_xreply(xreply):

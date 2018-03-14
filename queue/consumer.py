@@ -1,28 +1,25 @@
 #!/usr/bin/env python
+import itertools
 import json
 import logging
-import requests
 import multiprocessing
 import threading
 import time
-import itertools
-import pytz
 from datetime import datetime, timedelta
-
-from django.conf import settings
-from django.db import transaction
-from django.utils import timezone
-from django.db import connection as db_connection
-from django.db.models import Q
+from queue.models import Submission
+from queue.producer import get_queue_length
 
 import pika
+import pytz
+import requests
+from django.conf import settings
+from django.db import connection as db_connection
+from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
 from pika.exceptions import AMQPConnectionError
-from statsd import statsd
 from requests.exceptions import ConnectionError, Timeout
-
-from queue.producer import get_queue_length
-from queue.models import Submission
-
+from statsd import statsd
 
 log = logging.getLogger(__name__)
 

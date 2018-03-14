@@ -1,8 +1,8 @@
-from django.conf.urls import url
-
 from queue.ext_interface import get_queuelen, get_submission, put_result
 from queue.lms_interface import submit
 from queue.views import log_in, log_out, status
+
+from django.conf.urls import url
 
 # General
 # ------------------------------------------------------------

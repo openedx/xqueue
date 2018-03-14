@@ -1,5 +1,6 @@
-from settings import *
 import json
+
+from settings import *
 
 with open(ENV_ROOT / "xqueue.env.json") as env_file:
     ENV_TOKENS = json.load(env_file)

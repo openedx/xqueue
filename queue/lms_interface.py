@@ -1,6 +1,10 @@
 import json
 import logging
 import os.path
+import queue.producer
+from queue.models import CHARFIELD_LEN_LARGE, Submission
+from queue.util import get_request_ip, make_hashkey
+from queue.views import compose_reply
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -9,14 +13,7 @@ from django.core.files.storage import default_storage
 from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
 from statsd import statsd
-
-from queue.models import Submission, CHARFIELD_LEN_LARGE
-from queue.views import compose_reply
-from queue.util import make_hashkey, get_request_ip
-
-import queue.producer
 
 log = logging.getLogger(__name__)
 

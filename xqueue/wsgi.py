@@ -23,7 +23,6 @@ from django.core.wsgi import WSGIHandler
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xqueue.settings")
 
-
 class ForceReadPostHandler(WSGIHandler):
     """WSGIHandler that forces reading POST data before forwarding to the
     application.

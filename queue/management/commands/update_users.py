@@ -10,9 +10,9 @@ import json
 import logging
 import os
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
 log = logging.getLogger(__name__)
 

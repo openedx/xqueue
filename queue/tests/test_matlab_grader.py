@@ -1,13 +1,15 @@
 """Test that the XQueue responds to a client."""
-import pytest
-from django.test import TransactionTestCase
-from django.conf import settings
-from django.test.utils import override_settings
-from uuid import uuid4
 from textwrap import dedent
+from uuid import uuid4
 
-from test_framework.integration_framework import PassiveGraderStub, \
-    GradeResponseListener, XQueueTestClient
+import pytest
+from django.conf import settings
+from django.test import TransactionTestCase
+from django.test.utils import override_settings
+
+from test_framework.integration_framework import (GradeResponseListener,
+                                                  PassiveGraderStub,
+                                                  XQueueTestClient)
 
 
 @pytest.mark.grader_integration

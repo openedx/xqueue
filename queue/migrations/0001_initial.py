@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import datetime
 
-from django.db import models, migrations, connection
+from django.db import connection, migrations, models
 
 
 class Migration(migrations.Migration):

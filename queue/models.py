@@ -4,9 +4,9 @@ To generate a migration, make changes to this model file and then run:
 django-admin.py schemamigration queue [migration_name] --auto --settings=xqueue.settings --pythonpath=.
 
 """
-from django.db import models
-
 import json
+
+from django.db import models
 
 CHARFIELD_LEN_SMALL = 128
 CHARFIELD_LEN_LARGE = 1024
