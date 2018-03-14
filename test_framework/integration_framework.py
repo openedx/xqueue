@@ -159,6 +159,10 @@ class GraderStubBase(object):
         Use this to clean up queues created implicitly when
         using XQueue."""
 
+        # We shouldn't try connecting and deleting if we don't have rabbit
+        if not settings.WABBITS:
+            return
+
         # Establish a connection to the broker
         creds = pika.PlainCredentials(settings.RABBITMQ_USER,
                                       settings.RABBITMQ_PASS)

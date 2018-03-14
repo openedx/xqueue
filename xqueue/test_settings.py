@@ -46,19 +46,9 @@ except (IOError, ValueError):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_xqueue',
+        # pytest/django TestCase instances auto-prefix test_ onto the NAME
+        'NAME': 'xqueue',
         'HOST': os.environ.get('DB_HOST', ENV_TOKENS.get('DB_HOST','edx.devstack.mysql')),
-
-        'TEST': {
-            # We need to use TEST['NAME'] here,
-            # otherwise Django tests will use an in-memory database.
-            # In-memory databases do not support access from
-            # multiple threads, which the integration tests need.
-            # We also need to choose *unique* names to avoid
-            # conflicts in the Jenkins server
-            'NAME': 'test_xqueue_%s' % uuid4().hex,
-        },
-
         # Wrap all view methods in an atomic transaction automatically.
         'ATOMIC_REQUESTS': True
     }
@@ -91,3 +81,7 @@ XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 # Configuration for testing the update_users management command
 ENV_ROOT = ROOT_PATH
 AUTH_FILENAME = 'test_auth.json'
+
+# Default keep testing with RabbitMQ
+# We rerun the tests in `make test` and travis to test with only a database
+WABBITS = True

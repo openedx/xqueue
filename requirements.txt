@@ -9,15 +9,16 @@ boto==2.39.0
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 django-storages-redux==1.3.1
-django==1.8.18
+django==1.8.19
 dogstatsd-python==0.2
 edx-django-release-util==0.3.0
 gunicorn==0.16.1
 idna==2.6                 # via requests
 mysql-python==1.2.5
-newrelic==2.104.0.86
+newrelic==2.106.1.88
 path.py==2.4.1
 python-termstyle==0.1.10
+pytz==2018.3
 pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util

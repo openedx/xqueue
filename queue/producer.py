@@ -1,10 +1,14 @@
 import time
+import pytz
+from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.db.models import Q
 
 import pika
 from contextlib import closing
 
+from queue.models import Submission
 
 MAX_RETRIES = 5
 RETRY_TIMEOUT = 0.5
@@ -19,6 +23,10 @@ def push_to_queue(queue_name, qitem=None):
 
     if queue_name == 'null':
         return 0
+
+    # This function is only for querying RabbitMQ
+    if not settings.WABBITS:
+        raise ValueError("push_to_queue should only be called if WABBITS is true and RabbitMQ is still being used")
 
     credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
                                         settings.RABBITMQ_PASS)
@@ -63,4 +71,8 @@ def get_queue_length(queue_name):
     push_to_queue is not a great name for a function
     that returns the queue length, so make an alias
     """
-    return push_to_queue(queue_name)
+    if settings.WABBITS:
+        return push_to_queue(queue_name)
+    else:
+        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
+        return Submission.objects.filter(queue_name=queue_name).filter(pull_time_filter).exclude(retired=True).count()
