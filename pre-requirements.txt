@@ -1,1 +1,1 @@
-setuptools==15.2
+setuptools==38.5.2
