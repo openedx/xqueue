@@ -28,7 +28,7 @@ class Submission(models.Model):
     s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE) # urls for external access
 
     # Timing
-    arrival_time = models.DateTimeField(auto_now=True)         # Time of arrival from LMS
+    arrival_time = models.DateTimeField(auto_now_add=True)     # Time of arrival from LMS
     pull_time    = models.DateTimeField(null=True, blank=True) # Time of pull request, if pulled from external grader
     push_time    = models.DateTimeField(null=True, blank=True) # Time of push, if xqueue pushed to external grader
     return_time  = models.DateTimeField(null=True, blank=True) # Time of return from external grader
