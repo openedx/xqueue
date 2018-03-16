@@ -1,22 +1,20 @@
+import json
+import logging
+import queue.consumer
+import queue.producer
+from queue.models import Submission
+from queue.util import get_request_ip, make_hashkey
+from queue.views import compose_reply
+
+import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from statsd import statsd
+from django.views.decorators.csrf import csrf_exempt
 from requests.exceptions import ConnectionError, Timeout
-import requests
-
-import json
-import logging
-
-from queue.models import Submission
-from queue.views import compose_reply
-from queue.util import make_hashkey, get_request_ip
-
-import queue.producer
-import queue.consumer
+from statsd import statsd
 
 log = logging.getLogger(__name__)
 

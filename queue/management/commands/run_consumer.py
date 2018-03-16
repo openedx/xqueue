@@ -1,12 +1,10 @@
 import logging
 import time
 from itertools import combinations
-
-from django.core.management.base import BaseCommand
+from queue.consumer import Worker
 
 from django.conf import settings
-
-from queue.consumer import Worker
+from django.core.management.base import BaseCommand
 
 log = logging.getLogger(__name__)
 

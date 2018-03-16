@@ -1,11 +1,13 @@
 """Test that the XQueue responds to a client, using a Passive Grader
 (one that the XQueue pushes submissions to)"""
-from test_framework.integration_framework import PassiveGraderStub, \
-    GradeResponseListener, XQueueTestClient
+from uuid import uuid4
 
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
-from uuid import uuid4
+
+from test_framework.integration_framework import (GradeResponseListener,
+                                                  PassiveGraderStub,
+                                                  XQueueTestClient)
 
 
 class SimplePassiveGrader(PassiveGraderStub):

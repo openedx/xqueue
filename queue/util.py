@@ -1,5 +1,6 @@
 import hashlib
 
+
 def make_hashkey(seed):
     '''
     Generate a hashkey (string)

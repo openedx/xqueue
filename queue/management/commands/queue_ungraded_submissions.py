@@ -1,13 +1,12 @@
 import logging
-
-from django.core.management.base import BaseCommand
-from django.conf import settings
-from django.utils import timezone
-from datetime import datetime, timedelta
 import pprint
-
+from datetime import datetime, timedelta
 from queue.models import Submission
 from queue.producer import push_to_queue
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 log = logging.getLogger(__name__)
 

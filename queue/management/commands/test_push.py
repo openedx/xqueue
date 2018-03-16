@@ -2,14 +2,15 @@
   Tests all push queues to ensure that we see a sucessful
   round trip submission
 """
+import cgi
 import json
 import logging
 import SocketServer
-import cgi
 from BaseHTTPServer import BaseHTTPRequestHandler
-from django.core.management.base import BaseCommand
-from django.conf import settings
 from queue.xqueue_client import XQueueClient
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
 PORT = 8989
 logger = logging.getLogger(__name__)

@@ -1,7 +1,9 @@
-from settings import *
 import json
-from logsettings import get_logger_config
+
 from django.conf import global_settings
+
+from logsettings import get_logger_config
+from settings import *
 
 with open(ENV_ROOT / "xqueue.env.json") as env_file:
     ENV_TOKENS = json.load(env_file)

@@ -1,11 +1,10 @@
-import mock
-from django.test import TestCase, override_settings
-from django.conf import settings
+from queue.consumer import Worker
 from uuid import uuid4
 
+import mock
+from django.conf import settings
+from django.test import TestCase, override_settings
 from pika.exceptions import AMQPConnectionError
-
-from queue.consumer import Worker
 
 
 # This test of AQMP connection errors only makes sense for rabbit tests

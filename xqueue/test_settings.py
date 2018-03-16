@@ -1,11 +1,12 @@
 from __future__ import print_function
 
-from settings import *
-from logsettings import get_logger_config
+import json
 import os
 import os.path
-import json
 from uuid import uuid4
+
+from logsettings import get_logger_config
+from settings import *
 
 log_dir = REPO_PATH / "log"
 

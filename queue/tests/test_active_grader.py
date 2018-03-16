@@ -1,12 +1,15 @@
 """Test that the XQueue responds to a client, using an Active Grader
 (one that polls the XQueue and pushes responses using a REST-like
 interface)"""
-from test_framework.integration_framework \
-    import GradeResponseListener, XQueueTestClient, ActiveGraderStub
-from django.test.utils import override_settings
+from uuid import uuid4
+
 from django.conf import settings
 from django.test import TransactionTestCase
-from uuid import uuid4
+from django.test.utils import override_settings
+
+from test_framework.integration_framework import (ActiveGraderStub,
+                                                  GradeResponseListener,
+                                                  XQueueTestClient)
 
 
 class SimpleActiveGrader(ActiveGraderStub):

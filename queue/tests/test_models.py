@@ -3,9 +3,9 @@ Tests of the database models in the ``queue`` application.
 """
 from __future__ import absolute_import
 
-from django.test import TestCase
-
 from queue.models import Submission
+
+from django.test import TestCase
 
 
 class TestSubmission(TestCase):

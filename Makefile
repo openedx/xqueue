@@ -45,6 +45,7 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	mv requirements/test.tmp requirements/test.txt
 
 quality: ## check coding style with pycodestyle and pylint
+	isort --recursive --check-only queue/ xqueue/
 	tox -e quality
 
 requirements: ## install development environment requirements
