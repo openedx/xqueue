@@ -11,11 +11,12 @@ import json
 CHARFIELD_LEN_SMALL = 128
 CHARFIELD_LEN_LARGE = 1024
 
+
 class Submission(models.Model):
     '''
     Representation of submission request, including metadata information
     '''
-    # Submission 
+    # Submission
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)

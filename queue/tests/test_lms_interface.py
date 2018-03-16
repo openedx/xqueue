@@ -133,7 +133,7 @@ class TestLMSInterface(TransactionTestCase):
         Test Xqueue's ability to evaluate valid request format from LMS
             and its ability to gracefully reject
         '''
-        (is_valid,_,_,_, _) = lms_interface._is_valid_request(self.valid_payload)
+        (is_valid, _, _, _, _) = lms_interface._is_valid_request(self.valid_payload)
         self.assertEqual(is_valid, True)
 
         # 1) Header is missing
@@ -159,7 +159,7 @@ class TestLMSInterface(TransactionTestCase):
 
         bad_requests = [bad_request1, bad_request2, bad_request3, bad_request4, bad_request5, bad_request6]
         for bad_request in bad_requests:
-            (is_valid,_,_,_, _) = lms_interface._is_valid_request(bad_request)
+            (is_valid, _, _, _, _) = lms_interface._is_valid_request(bad_request)
             self.assertEqual(is_valid, False)
 
     def _submit(self, *args, **kwargs):

@@ -356,11 +356,11 @@ class ActiveGraderStub(GraderStubBase):
         # Create a logged-in Django test client
         # to interact with the XQueue
         XQueueTestClient.create_user(ActiveGraderStub.USERNAME,
-                                    ActiveGraderStub.USERNAME + '@edx.org',
-                                    ActiveGraderStub.PASSWORD)
+                                     ActiveGraderStub.USERNAME + '@edx.org',
+                                     ActiveGraderStub.PASSWORD)
         self._client = XQueueTestClient(0)
         self._client.login(username=ActiveGraderStub.USERNAME,
-                            password=ActiveGraderStub.PASSWORD)
+                           password=ActiveGraderStub.PASSWORD)
 
         # The polling thread will run until
         # this flag is set to False
@@ -421,7 +421,7 @@ class ActiveGraderStub(GraderStubBase):
         # log it and return None
         if response.status_code != 200:
             logger.warning('Could not get submission from XQueue: status = %d',
-                            response.status_code)
+                           response.status_code)
             return None
 
         # Otherwise the response was successful
@@ -459,7 +459,7 @@ class ActiveGraderStub(GraderStubBase):
         xqueue_body = response_dict['xqueue_body']
 
         post_params = {'xqueue_header': json.dumps(xqueue_header),
-                        'xqueue_body': json.dumps(xqueue_body) }
+                       'xqueue_body':   json.dumps(xqueue_body)}
 
         # Use the Django test client to POST a response
         # back to the XQueue
@@ -468,7 +468,7 @@ class ActiveGraderStub(GraderStubBase):
         # Check the status code, and log a warning if we failed
         if response.status_code != 200:
             logger.warning('Could not push response to XQueue: status=%d',
-                             response.status_code)
+                           response.status_code)
             return False
 
         else:
@@ -476,12 +476,13 @@ class ActiveGraderStub(GraderStubBase):
             response_dict = json.loads(response.content)
             if response_dict['return_code'] != 0:
                 logger.warning('Could not submit response to XQueue: %s',
-                                response_dict['content'])
+                               response_dict['content'])
                 return False
 
             # Otherwise, everything was successful
             else:
                 return True
+
 
 class LoggingRequestHandler(BaseHTTPRequestHandler):
     """HTTPRequestHandler that logs requests from the XQueue server
@@ -709,12 +710,12 @@ class XQueueTestClient(Client):
             submission_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
         header = json.dumps({'lms_callback_url': self._callback_url(),
-                            'lms_key': 'not used',
-                            'queue_name': queuename})
+                             'lms_key': 'not used',
+                             'queue_name': queuename})
 
         content = json.dumps({'grader_payload': grader_payload,
-                             'submission_time': submission_time,
-                             'student_response': student_response})
+                              'submission_time': submission_time,
+                              'student_response': student_response})
 
         return {'xqueue_header': header, 'xqueue_body': content}
 

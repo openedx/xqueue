@@ -16,7 +16,7 @@ TIME_ZONE = ENV_TOKENS.get('TIME_ZONE', TIME_ZONE)
 # We use the default development logging from settings.py
 # but override this to force a console log for docker.
 # Stolen from the LMS.
-LOGGING['handlers']['local'] =  {
+LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
 }
 
