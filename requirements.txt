@@ -17,6 +17,7 @@ idna==2.6                 # via requests
 mysql-python==1.2.5
 newrelic==2.106.1.88
 path.py==2.4.1
+python-memcached==1.48
 python-termstyle==0.1.10
 pytz==2018.3
 pyyaml==3.12              # via edx-django-release-util

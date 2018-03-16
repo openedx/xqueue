@@ -10,6 +10,7 @@ gunicorn==0.16.1
 newrelic
 path.py==2.4.1
 -e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
+python-memcached==1.48
 python-termstyle==0.1.10
 pytz
 requests
