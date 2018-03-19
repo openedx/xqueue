@@ -12,7 +12,7 @@ chardet==3.0.4            # via requests
 codecov==2.0.15
 coverage==4.5.1           # via codecov, pytest-cov
 django-storages-redux==1.3.1
-django==1.8.19
+django==2.0.3
 dogstatsd-python==0.2
 edx-django-release-util==0.3.1
 funcsigs==1.0.2           # via mock, pytest
