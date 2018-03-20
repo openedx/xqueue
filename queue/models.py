@@ -16,6 +16,14 @@ class Submission(models.Model):
     '''
     Representation of submission request, including metadata information
     '''
+
+    class Meta(object):
+        # Once we get to Django 1.11 use indexes, it would have allowed a better index name
+        # https://docs.djangoproject.com/en/1.11/ref/models/options/#django.db.models.Options.indexes
+        index_together = [('queue_name', 'retired', 'push_time', 'arrival_time'),
+                          ('queue_name', 'retired', 'pull_time', 'arrival_time'),
+                          ('lms_callback_url', 'retired')]
+
     # Submission
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
