@@ -72,12 +72,6 @@ class PassiveGraderTest(TransactionTestCase):
         self.grader.stop()
         self.response_listener.stop()
 
-        # Stop the workers we started earlier
-        SimplePassiveGrader.stop_workers()
-
-        # Delete the queue we created
-        SimplePassiveGrader.delete_queue(PassiveGraderTest.QUEUE_NAME)
-
     def test_submission(self):
         """Submit a single response to the XQueue and check that
         we get the expected response."""

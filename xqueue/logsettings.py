@@ -66,11 +66,6 @@ def get_logger_config(log_dir,
                 'level': 'DEBUG',
                 'propagate': False
             },
-            'pika': {
-                'handlers': handlers,
-                'level': 'WARNING',
-                'propogate': True,
-            }
         }
     }
 

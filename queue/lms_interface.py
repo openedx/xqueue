@@ -80,11 +80,7 @@ def submit(request):
                 submission.save()
                 transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
-                if settings.WABBITS: # Continue to put this entry in RabbitMQ
-                    qitem = str(submission.id)  # Submit the Submission pointer to queue
-                    qcount = queue.producer.push_to_queue(queue_name, qitem)
-                else:
-                    qcount = queue.producer.get_queue_length(queue_name)
+                qcount = queue.producer.get_queue_length(queue_name)
 
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))

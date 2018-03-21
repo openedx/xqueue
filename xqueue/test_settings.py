@@ -55,15 +55,6 @@ DATABASES = {
     }
 }
 
-# RabbitMQ configuration
-# Default to local broker if no external
-# broker defined in test_env.json
-RABBITMQ_USER = ENV_TOKENS.get('RABBITMQ_USER', 'guest')
-RABBITMQ_PASS = ENV_TOKENS.get('RABBITMQ_PASS', 'guest')
-RABBIT_HOST = os.environ.get('RABBIT_HOST', ENV_TOKENS.get('RABBIT_HOST', 'edx.devstack.rabbit'))
-RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', 5672)
-RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', '/')
-RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', False)
 # Mathworks setup
 # We load the Mathworks settings from envs.json
 # to avoid storing auth information in the repository
@@ -83,6 +74,7 @@ XQUEUES[TEST_XQUEUE_NAME] = 'http://127.0.0.1:12348'
 ENV_ROOT = ROOT_PATH
 AUTH_FILENAME = 'test_auth.json'
 
-# Default keep testing with RabbitMQ
-# We rerun the tests in `make test` and travis to test with only a database
-WABBITS = True
+# Number of seconds to wait between checks for new submissions that need to be
+# sent to an external grader.  Tests only delay for ~4 seconds, so we need to
+# poll faster.
+CONSUMER_DELAY = 1

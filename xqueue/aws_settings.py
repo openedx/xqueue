@@ -28,11 +28,6 @@ LOGGING = get_logger_config(LOG_DIR,
                             local_loglevel=local_loglevel,
                             debug=False)
 
-WABBITS = ENV_TOKENS.get('WABBITS', WABBITS)
-RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
-RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', RABBIT_PORT)
-RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', RABBIT_VHOST).encode('ascii')
-RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', RABBIT_TLS)
 with open(ENV_ROOT / "xqueue.auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
@@ -56,8 +51,6 @@ AWS_ACCESS_KEY_ID = AUTH_TOKENS["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS["AWS_SECRET_ACCESS_KEY"]
 
 REQUESTS_BASIC_AUTH = AUTH_TOKENS["REQUESTS_BASIC_AUTH"]
-RABBITMQ_USER = AUTH_TOKENS.get('RABBITMQ_USER', 'guest').encode('ascii')
-RABBITMQ_PASS = AUTH_TOKENS.get('RABBITMQ_PASS', 'guest').encode('ascii')
 XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
 
 # Use S3 as the default storage backend

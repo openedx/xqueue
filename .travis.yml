@@ -23,7 +23,7 @@ script:
   - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
 after_success:
   - pip install -r requirements/travis.txt
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; coverage combine .coverage-rabbit .coverage-no-rabbit; coverage xml"
+  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
   - codecov
 branches:
   only:

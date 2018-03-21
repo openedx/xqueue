@@ -66,9 +66,6 @@ class MatlabGraderTest(TransactionTestCase):
         # Stop the workers we started earlier
         PassiveGraderStub.stop_workers()
 
-        # Delete the queue we created
-        PassiveGraderStub.delete_queue(MatlabGraderTest.QUEUE_NAME)
-
     def test_matlab_check_correct(self):
         response = self._submit_to_mathworks("assert(isequal(x,1))", "x=1")
 

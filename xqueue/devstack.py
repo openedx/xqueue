@@ -21,19 +21,12 @@ LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
 }
 
-
-RABBIT_HOST = ENV_TOKENS.get('RABBIT_HOST', RABBIT_HOST).encode('ascii')
-RABBIT_PORT = ENV_TOKENS.get('RABBIT_PORT', RABBIT_PORT)
-RABBIT_VHOST = ENV_TOKENS.get('RABBIT_VHOST', RABBIT_VHOST).encode('ascii')
-RABBIT_TLS = ENV_TOKENS.get('RABBIT_TLS', RABBIT_TLS)
 with open(ENV_ROOT / "xqueue.auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
 DATABASES = AUTH_TOKENS['DATABASES']
 
 REQUESTS_BASIC_AUTH = AUTH_TOKENS["REQUESTS_BASIC_AUTH"]
-RABBITMQ_USER = AUTH_TOKENS.get('RABBITMQ_USER', 'guest').encode('ascii')
-RABBITMQ_PASS = AUTH_TOKENS.get('RABBITMQ_PASS', 'guest').encode('ascii')
 XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
 
 # This is all used for file uploads, but some of these uploads are done by the LMS and are

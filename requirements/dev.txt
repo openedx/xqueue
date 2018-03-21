@@ -4,7 +4,6 @@
 #
 #    pip-compile --output-file requirements/dev.txt requirements/base.in requirements/quality.in requirements/test.in requirements/travis.in
 #
--e git+https://github.com/pika/pika.git@a731347fc0#egg=pika
 attrs==17.4.0             # via pytest
 boto==2.39.0
 certifi==2018.1.18        # via requests

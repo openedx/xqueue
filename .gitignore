@@ -2,6 +2,7 @@
 .DS_Store
 .cache/
 .coverage
+.coverage.*
 .pytest_cache
 .tox
 cover_html

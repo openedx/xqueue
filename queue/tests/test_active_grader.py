@@ -81,9 +81,6 @@ class ActiveGraderTest(TransactionTestCase):
         self.grader.stop()
         self.response_listener.stop()
 
-        # Delete the queue we created
-        SimpleActiveGrader.delete_queue(ActiveGraderTest.QUEUE_NAME)
-
     def test_submission(self):
         """Submit a single response to the XQueue and check that
         we get the expected response."""
