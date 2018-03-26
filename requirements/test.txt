@@ -5,7 +5,7 @@
 #    pip-compile --output-file requirements/test.txt requirements/base.in requirements/test.in
 #
 attrs==17.4.0             # via pytest
-boto==2.39.0
+boto==2.48.0
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 coverage==4.5.1           # via pytest-cov
