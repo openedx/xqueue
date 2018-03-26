@@ -93,7 +93,7 @@ def _invalidate_prior_submissions(lms_callback_url):
         (user, module-id). This function relies on the fact that lms_callback_url
         takes the form: /path/to/callback/<user>/<id>/...
     '''
-    prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url, retired=False)
+    prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url[:128], retired=False)
     prior_submissions.update(retired=True)
 
 
