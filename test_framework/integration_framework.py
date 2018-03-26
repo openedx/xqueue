@@ -28,7 +28,6 @@ the callback_url provided by the test client.
 How messages get routed (ActiveGraderStub):
 
 The test client sends messages to a particular queue.
-XQueue puts the messages in a RabbitMQ queue.
 
 The ActiveGraderStub polls the XQueue using a REST-like interface.
 When it receives a submission, it pushes a response back to XQueue
@@ -43,36 +42,6 @@ This framework also makes it easy to inject failure into the system:
 for example, by configuring ExternalGraderStub to stop responding
 to messages, or to send invalid responses.
 
-
-RabbitMQ Requirement:
-
-Integration tests currently require that rabbitmq is running.
-You can start rabbitmq using the commands:
-
-    rabbitmq-server
-    rabbitmqctl start_app
-
-See the installation guides at http://www.rabbitmq.com/download.html
-for platform-specific instructions.
-
-
-Jenkins:
-
-XQueue's current design makes it difficult to test in a
-continuous integration environment.
-Here are some of the conflicts that can occur:
-
-    1) Because workers run in separate threads and each access
-        the database, we cannot use an in-memory database.
-        File-based databases need unique names in order
-        to avoid conflicts.
-
-    2) Because workers pull messages from rabbitmq queues,
-        the queue names need to be unique.  Otherwise,
-        a test might pull a message created by another test.
-
-The integration tests use open local ports and free the ports
-for re-use when finished to avoid TCP port conflicts.
 """
 
 from django.test.client import Client
@@ -87,14 +56,11 @@ import urlparse
 import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn, ForkingMixIn
-import pika
 
 import logging
 logger = logging.getLogger(__name__)
 
 # Suppress low-level network messages
-# from rabbitmq (pika) and requests
-logging.getLogger('pika').setLevel(logging.WARNING)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
 
@@ -151,31 +117,6 @@ class GraderStubBase(object):
         `build_response()`, but you can provide invalid responses
         to test error handling."""
         pass
-
-    @staticmethod
-    def delete_queue(queue_name):
-        """Delete the queue named queue_name.
-
-        Use this to clean up queues created implicitly when
-        using XQueue."""
-
-        # We shouldn't try connecting and deleting if we don't have rabbit
-        if not settings.WABBITS:
-            return
-
-        # Establish a connection to the broker
-        creds = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                      settings.RABBITMQ_PASS)
-
-        params = pika.ConnectionParameters(credentials=creds,
-                                           host=settings.RABBIT_HOST,
-                                           port=settings.RABBIT_PORT,
-                                           virtual_host=settings.RABBIT_VHOST,
-                                           ssl=settings.RABBIT_TLS)
-
-        connection = pika.BlockingConnection(parameters=params)
-        channel = connection.channel()
-        channel.queue_delete(queue=queue_name)
 
 
 class GradingRequestHandler(BaseHTTPRequestHandler):
@@ -262,29 +203,8 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
         for i in range(num_workers):
             worker = Worker(queue_name=queue_name, worker_url=destination_url)
-
-            # There is a bug in pika on Mac OS X
-            # in which using multithreading.Process with
-            # pika's ioloop causes an IncompatibleProtocolError
-            # to be raised.
-            # The workaround for now is to run each worker
-            # as a separate thread.
-            worker_thread = threading.Thread(target=worker.run)
-            worker_thread.daemon = True
-            worker_thread.start()
-
+            worker.start()
             cls.worker_list.append(worker)
-
-    @classmethod
-    def stop_workers(cls):
-        """Stop all workers we created earlier.
-
-        Raises an AssertionError if called without first calling
-        `start_workers()`"""
-        assert(hasattr(cls, 'worker_list'))
-
-        for worker in cls.worker_list:
-            worker.stop()
 
     def __init__(self):
         """Create the stub and start listening on a local port"""

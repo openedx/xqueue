@@ -2,7 +2,6 @@ import logging
 import pprint
 from datetime import datetime, timedelta
 from queue.models import Submission
-from queue.producer import push_to_queue
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -115,3 +114,12 @@ class Command(BaseCommand):
                 submission.save()
             push_to_queue(submission.queue_name, str(submission.id))
         self.stdout.write("Queueing finished")
+
+def push_to_queue(queue_name, submission_id):
+    """
+    This used to use a consumer push_to_queue function and send data to RabbitMQ
+    Now that we don't use RabbitMQ, this is less useful, but it's heavily leveraged
+    in the tests, so stub this to test things until it can be cleaned up.
+    https://openedx.atlassian.net/browse/OPS-2973
+    """
+    pass

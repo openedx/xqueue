@@ -1,6 +1,5 @@
 import logging
 import time
-from itertools import combinations
 from queue.consumer import Worker
 
 from django.conf import settings
@@ -32,7 +31,7 @@ class Command(BaseCommand):
 
         # Start workers
         for worker in workers:
-            log.info(' [{}] Starting worker'.format(worker.id))
+            log.info(' [{}] Starting worker'.format(worker.queue_name))
             worker.start()
 
         # Monitor workers

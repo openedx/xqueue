@@ -6,7 +6,10 @@ omit =
     queue/management/commands/tests/*
     queue/migrations/*
     queue/tests/*
-
+concurrency =
+    multiprocessing
+    thread
+parallel = on
 [report]
 exclude_lines =
    pragma: no cover

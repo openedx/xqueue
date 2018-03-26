@@ -54,6 +54,9 @@ Active graders pull messages off the XQueue and push responses back to the XQueu
 receives a submission, it pushes a response back to the XQueue, also using
 a REST-like interface.
 
+If a submission is retrieved but not graded, it will be available in the queue
+later following the SUBMISSION_PROCESSING_DELAY when it is requeued.
+
 3. XQueue pushes the response back to the LMS.
 
 Local Testing
@@ -66,7 +69,7 @@ your `devstack` directory
     make dev.provision.xqueue
     make dev.up.xqueue
 
-XQueue will start a RabbitMQ and will use the shared MySQL image.  
+XQueue will use the shared MySQL image.
 
 Tests
 -----
@@ -100,10 +103,7 @@ Reporting Security Issues
 
 Please do not report security issues in public. Please email security@edx.org
 
-Mailing List and IRC Channel
-----------------------------
+Mailing List and other support options
+--------------------------------------
 
-You can discuss this code on the `edx-code Google Group`__ or in the
-``edx-code`` IRC channel on Freenode.
-
-__ https://groups.google.com/forum/#!forum/edx-code
+https://open.edx.org/getting-help

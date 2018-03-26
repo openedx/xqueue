@@ -42,11 +42,6 @@ DATABASES = {
         'NAME': 'xqueue.sqlite',
     }
 }
-RABBIT_HOST = 'localhost'
-RABBIT_PORT = 5672
-RABBIT_VHOST = '/'  # defaults to '/', otherwise a string
-RABBIT_TLS = False
-
 AWS_ACCESS_KEY_ID = "access_key_id"
 AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
@@ -180,13 +175,8 @@ RETRY_TIMEOUT = os.environ.get('RETRY_TIMEOUT', 10)
 # How many minutes to ignore pulled or pushed submissions when a client connects
 # for a given queue, since another client/worker may have pulled the submission
 # and be processing it.
-# Mostly relevant once switched to using only a database, since the rabbitmq
-# implementation only made a submission available once.
 SUBMISSION_PROCESSING_DELAY = 1
 
 # Number of seconds to wait between checks for new submissions that need to be
 # sent to an external grader
 CONSUMER_DELAY = 10
-
-# Keep using RabbitMQ
-WABBITS = True

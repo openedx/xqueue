@@ -1,54 +1,26 @@
 #!/usr/bin/env python
-import itertools
 import json
 import logging
 import multiprocessing
-import threading
 import time
 from datetime import datetime, timedelta
 from queue.models import Submission
 from queue.producer import get_queue_length
 
-import pika
 import pytz
 import requests
 from django.conf import settings
-from django.db import connection as db_connection
-from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from pika.exceptions import AMQPConnectionError
 from requests.exceptions import ConnectionError, Timeout
 from statsd import statsd
 
 log = logging.getLogger(__name__)
 
 
-class FailOnDisconnectError(Exception):
-    '''
-    An error we intentionally throw when a disconnect happens, to force the
-    worker to die and be respawned. Trying to manually reconnect the same
-    process is somewhat strange according to Pika docs:
-
-    https://pika.readthedocs.org/en/0.9.13/examples/asynchronous_consumer_example.html
-
-    (Note the ioloop.start() inside other ioloop.start()).
-
-    Instead of dealing with that, we let the worker die, and then let the
-    monitor restart it.
-    '''
-
-
-def clean_up_submission(submission):
-    '''
-    TODO: Delete files on storage backend
-    '''
-    return
-
-
 def get_single_unretired_submission(queue_name):
     '''
-    Retrieve a single unretired queued item, if one exists, from the named queue
+    Retrieve a single unretired queued item, if one exists, for the named queue
 
     Returns (success, submission):
         success:    Flag whether retrieval is successful (Boolean)
@@ -56,85 +28,14 @@ def get_single_unretired_submission(queue_name):
         submission: A single submission from the queue, guaranteed to be unretired
     '''
 
-    if settings.WABBITS:
-        return _get_single_unretired_submission_from_rabbit(queue_name)
-    else:
-        return _get_single_unretired_submission_from_database(queue_name)
-
-
-def _get_single_unretired_submission_from_rabbit(queue_name):
-    """ Fetch a single unretired queue item from Rabbit """
-    items_in_queue = True
-    while items_in_queue:
-        # Try to pull out a single submission from the queue, which may or may not be retired
-        (items_in_queue, qitem) = get_single_qitem(queue_name)
-        if not items_in_queue:  # No more submissions to consider
-            return (False, '')
-
-        submission_id = int(qitem)
-        try:
-            submission = Submission.objects.get(id=submission_id)
-        except Submission.DoesNotExist:
-            log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
-                queue_name,
-                submission_id
-            ))
-            continue  # Just move on
-
-        if not submission.retired:
-            return (True, submission)
-
-
-def _get_single_unretired_submission_from_database(queue_name):
-    """ Fetch a single unretired queue item from the database"""
-
-    # Look for submissions that haven't been pulled or were pulled more than 1 minute ago
+    # Look for submissions that haven't been pulled or were pulled more than SUBMISSION_PROCESSING_DELAY ago
     pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
-    submission = Submission.objects.filter(queue_name=queue_name).filter(pull_time_filter).exclude(retired=True).order_by('arrival_time').first()
+    submission = Submission.objects.filter(pull_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
 
     if submission:
         return (True, submission)
     else:
         return (False, '')
-
-
-def get_single_qitem(queue_name):
-    '''
-    Retrieve a single queued item, if one exists, from the named queue
-
-    Returns (success, qitem):
-        success: Flag whether retrieval is successful (Boolean)
-                 If no items in the queue, then return False
-        qitem:   Retrieved item
-    '''
-    queue_name = str(queue_name)
-
-    # Pull a single submission (if one exists) from the named queue
-    credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                        settings.RABBITMQ_PASS)
-
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        heartbeat_interval=5,
-        credentials=credentials,
-        host=settings.RABBIT_HOST,
-        port=settings.RABBIT_PORT,
-        virtual_host=settings.RABBIT_VHOST,
-        ssl=settings.RABBIT_TLS))
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
-
-    # qitem is the item from the queue
-    method, header, qitem = channel.basic_get(queue=queue_name)
-
-    if method is None or method.NAME == 'Basic.GetEmpty':  # Got nothing
-        connection.close()
-        return (False, '')
-    else:
-        channel.basic_ack(method.delivery_tag)
-        connection.close()
-        statsd.increment('xqueue.consumer.get_single_qitem',
-                         tags=['queue:{0}'.format(queue_name)])
-        return (True, qitem)
 
 
 def post_failure_to_lms(header):
@@ -219,18 +120,28 @@ def _http_post(url, data, timeout):
     return (True, r.text)
 
 
-class WorkerBase(multiprocessing.Process):
-    """Encapsulation of a single consumer process that listens on a queue
+class Worker(multiprocessing.Process):
+    """Encapsulation of a single database montitor that listens on a queue
     """
-    counter = itertools.count()
-
     def __init__(self, queue_name, worker_url):
-        super(WorkerBase, self).__init__()
+        super(Worker, self).__init__()
 
-        self.retries = 0
         self.queue_name = queue_name
         self.worker_url = worker_url
-        self.id = next(self.counter)
+
+    def run(self):
+        log.info("Starting consumer for queue {queue}".format(queue=self.queue_name))
+
+        while True:
+            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
+            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
+            submission = Submission.objects.filter(push_time_filter, queue_name=self.queue_name, retired=False).order_by('arrival_time').first()
+            if submission:
+                self._deliver_submission(submission)
+            # Wait the given seconds between checking the database
+            time.sleep(settings.CONSUMER_DELAY)
+
+        log.info("Consumer for queue {queue} stopped".format(queue=self.queue_name))
 
     def _deliver_submission(self, submission):
         payload = {'xqueue_body': submission.xqueue_body,
@@ -271,243 +182,3 @@ class WorkerBase(multiprocessing.Process):
 
     def __repr__(self):
         return "Worker (%r, %r)" % (self.worker_url, self.queue_name)
-
-
-class WorkerRabbit(WorkerBase):
-    """Encapsulation of a single RabbitMQ listener that listens on a queue
-    """
-
-    def __init__(self, queue_name, worker_url):
-        super(WorkerRabbit, self).__init__(queue_name, worker_url)
-
-        # there seems to be an issue with db connections and
-        # multiprocessing. since we are not using the connection in
-        # the main worker thread, lets close it hoping that it does
-        # not get shared with the children threads.
-        db_connection.close()
-
-        credentials = pika.PlainCredentials(settings.RABBITMQ_USER,
-                                            settings.RABBITMQ_PASS)
-
-        self.parameters = pika.ConnectionParameters(heartbeat_interval=5,
-                                                    credentials=credentials,
-                                                    host=settings.RABBIT_HOST,
-                                                    port=settings.RABBIT_PORT,
-                                                    virtual_host=settings.RABBIT_VHOST,
-                                                    ssl=settings.RABBIT_TLS)
-        self.channel = None
-        self.connection = None
-
-    def connect(self):
-        return pika.SelectConnection(self.parameters, self.on_connected)
-
-    def on_connected(self, connection):
-        # Register callback invoked when the connection is lost unexpectedly
-        self.connection.add_on_close_callback(self.on_connection_closed)
-
-        self.connection.channel(self.on_channel_open)
-
-        # Set the retires attempts to Zero
-        self.retries = 0
-
-    def on_connection_closed(self, connection, reply_code, reply_text):
-        """Invoked when the connection is closed unexpectedly."""
-
-        log.warning('Connection closed, trying to reconnect: ({0}) {1}'.format(
-            reply_code,
-            reply_text,
-        ))
-
-        # Reconnect logic is odd with pika, and a simple self.connect() doesn't
-        # seem to work here. So instead of that, we'll just throw an exception,
-        # causing this worker process to end and the monitor will then spawn a
-        # new process.
-        raise FailOnDisconnectError(
-            "Reply code: {}; Reply text: {}".format(reply_code, reply_text)
-        )
-
-    def on_channel_open(self, channel):
-        self.channel = channel
-
-        # The prefetch count determines how many messages will be
-        # fetched by pika for processing. New messages will only be
-        # fetched after the ones that are being processed have been
-        # acknowledged. Because we are using a thread to process each
-        # message, the prefecth count also determines the maximum
-        # number of processing threads running at the same time.
-        prefetch_count = settings.XQUEUE_WORKERS_PER_QUEUE
-        channel.basic_qos(prefetch_count=prefetch_count)
-
-        channel.queue_declare(queue=self.queue_name,
-                              durable=True,
-                              callback=self.on_queue_declared)
-
-    def on_queue_declared(self, frame):
-        self.channel.basic_consume(self._callback, queue=self.queue_name)
-
-    def run(self):
-        log.info(" [{id}] Starting consumer for queue {queue}".format(
-            id=self.id,
-            queue=self.queue_name,
-        ))
-
-        while True:
-            try:
-                log.info("[{id}] - Attempting to establish a connection for queue {queue}".format(
-                    id=self.id,
-                    queue=self.queue_name,
-                ))
-                self.connection = self.connect()
-                self.connection.ioloop.start()
-            except AMQPConnectionError as ex:
-                self.retries += 1
-                if self.retries >= settings.RETRY_MAX_ATTEMPTS:
-                    log.error("[{id}] Consumer for queue {queue} connection error: {err}".format(
-                        id=self.id,
-                        queue=self.queue_name,
-                        err=ex
-                    ))
-                    raise
-                log.info("[{id}] - Retrying connection, attempt # {attempt} of {max_attempts} of MAX".format(
-                    id=self.id,
-                    attempt=self.retries,
-                    max_attempts=settings.RETRY_MAX_ATTEMPTS
-                ))
-                if self.retries > 1:
-                    time.sleep(settings.RETRY_TIMEOUT)
-                continue
-            else:
-                # Log that the worker exited without an exception
-                log.info(" [{id}] Consumer for queue {queue} is exiting normally...".format(
-                    id=self.id,
-                    queue=self.queue_name
-                ))
-                break
-            finally:
-                # Log that the worker stopped
-                log.info(" [{id}] Consumer for queue {queue} stopped".format(
-                    id=self.id,
-                    queue=self.queue_name
-                ))
-
-        # TODO [rocha] make to to finish all  submissions before exiting
-
-    def stop(self):
-        '''
-        Stop the worker from processing messages
-        '''
-        self.connection.close()
-
-    def _callback(self, channel, method, properties, qitem):
-        def on_done():
-            # Acknowledge the delivery of the message in the ioloop of
-            # the current connection. basic_ack is not thread safe,
-            # and calling it outside of the ioloop thread will cause
-            # an error, and the message will never be acknowledged.
-            acknowledge = lambda: channel.basic_ack(delivery_tag=method.delivery_tag)
-            self.connection.add_timeout(0, acknowledge)
-
-            # close the db connection manually.
-            db_connection.close()
-
-        submission_id = int(qitem)
-
-        # process the submission in a different thread to avoid
-        # blocking pika's ioloop, which can cause disconnects and
-        # other errors
-        thread = threading.Thread(target=self._process, args=(submission_id,
-                                                              on_done))
-        thread.daemon = True
-        thread.start()
-
-    @transaction.atomic
-    def _process(self, submission_id, on_done):
-        log.info("Processing submission from queue_name: {0}, submission_id: {1}".format(self.queue_name, submission_id))
-        try:
-            with transaction.atomic():
-                submission = self._get_submission(submission_id)
-
-                if submission is None:
-                    statsd.increment('xqueue.consumer.consumer_callback.submission_does_not_exist',
-                                     tags=['queue:{0}'.format(self.queue_name)])
-                    log.error("Queued pointer refers to nonexistent entry in Submission DB: queue_name: {0}, submission_id: {1}".format(
-                        self.queue_name,
-                        submission_id
-                    ))
-
-                # if item has been retired, skip grading
-                if submission and not submission.retired:
-                    self._deliver_submission(submission)
-
-        except Exception as e:
-            # catch and acknowledge the message if something goes wrong
-            statsd.increment('xqueue.consumer.consumer_callback.unknown_error',
-                             tags=['queue:{0}'.format(self.queue_name)])
-            log.error("Error processing submission_id: {0} on queue_name: {1}, {2}" .format(
-                submission_id,
-                self.queue_name,
-                e,
-            ))
-        finally:
-            # acknowledge that the message was processed
-            on_done()
-
-    def _get_submission(self, submission_id):
-        submission = None
-
-        for i in range(settings.DB_RETRIES):
-            try:
-                submission = Submission.objects.get(id=submission_id)
-            except Submission.DoesNotExist:
-                # Need to terminate current transaction, allows next queryset to view fresh version of DB
-                transaction.commit()
-                log.info("Queued pointer refers to nonexistent entry in Submission DB on {0}-th lookup: queue_name: {1}, submission_id: {2}".format(
-                    i, self.queue_name, submission_id))
-                # Wait in case the DB hasn't been updated yet
-                time.sleep(settings.DB_WAITTIME)
-                continue
-            else:
-                break
-
-        return submission
-
-
-class WorkerDatabase(WorkerBase):
-    """Encapsulation of a single database montitor that listens on a queue
-    """
-    def __init__(self, queue_name, worker_url):
-        super(WorkerDatabase, self).__init__(queue_name, worker_url)
-
-    def run(self):
-        log.info(" [{id}] Starting consumer for queue {queue}".format(
-            id=self.id,
-            queue=self.queue_name,
-        ))
-
-        while True:
-            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
-            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
-            submission = Submission.objects.filter(queue_name=self.queue_name).filter(push_time_filter).exclude(retired=True).order_by('arrival_time').first()
-            if submission:
-                self._deliver_submission(submission)
-            # Wait the given seconds between checking the database
-            time.sleep(settings.CONSUMER_DELAY)
-
-        log.info(" [{id}] Consumer for queue {queue} stopped".format(
-            id=self.id,
-            queue=self.queue_name
-        ))
-
-    def stop(self):
-        """Rabbit has to close a connection to tear down an ioloop, we don't need that"""
-        pass
-
-
-class Worker(object):
-    """Shim class that loads the appropriate worker class and instantiates that
-    """
-    def __new__(cls, queue_name, worker_url):
-        subclass = WorkerRabbit
-        if not settings.WABBITS:
-            subclass = WorkerDatabase
-        return subclass(queue_name, worker_url)
