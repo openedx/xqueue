@@ -5,7 +5,7 @@
 #    pip-compile --output-file requirements/test.txt requirements/base.in requirements/test.in
 #
 attrs==17.4.0             # via pytest
-boto==2.39.0
+boto==2.48.0
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 coverage==4.5.1           # via pytest-cov
@@ -18,20 +18,21 @@ gunicorn==0.16.1
 idna==2.6                 # via requests
 isort==4.3.4
 mock==2.0.0
+more-itertools==4.1.0     # via pytest
 mysql-python==1.2.5
 newrelic==3.0.0.89
-path.py==2.4.1
-pbr==3.1.1                # via mock
+path.py==11.0.1
+pbr==4.0.0                # via mock
 pluggy==0.6.0             # via pytest
-py==1.5.2                 # via pytest
+py==1.5.3                 # via pytest
 pytest-cov==2.5.1
 pytest-django==3.1.2
-pytest==3.4.2
+pytest==3.5.0
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz==2018.3
 pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
-six==1.11.0               # via edx-django-release-util, mock, pytest
+six==1.11.0               # via edx-django-release-util, mock, more-itertools, pytest
 urllib3==1.22             # via requests
 wsgiref==0.1.2

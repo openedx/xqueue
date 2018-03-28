@@ -1,6 +1,6 @@
 import os
 
-from path import path
+from path import Path as path
 
 from xqueue.logsettings import get_logger_config
 
