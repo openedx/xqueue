@@ -13,7 +13,6 @@ from django.core.files.storage import default_storage
 from django.db import transaction
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from statsd import statsd
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +20,6 @@ log = logging.getLogger(__name__)
 @transaction.non_atomic_requests
 @csrf_exempt
 @login_required
-@statsd.timed('xqueue.lms_interface.submit.time')
 def submit(request):
     '''
     Handle submissions to Xqueue from the LMS
@@ -156,7 +154,6 @@ def _upload_file_dict(file_dict, key_dict, path, name):
     return default_storage.url(full_path)
 
 
-@statsd.timed('xqueue.lms_interface.upload.time')
 def _upload(file_to_upload, path, name):
     '''
     Upload file using the provided keyname.

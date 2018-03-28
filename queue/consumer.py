@@ -13,7 +13,6 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
-from statsd import statsd
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +54,6 @@ def post_failure_to_lms(header):
     failure_msg = {'correct': None,
                    'score': 0,
                    'msg': msg}
-    statsd.increment('xqueue.consumer.post_failure_to_lms')
     return post_grade_to_lms(header, json.dumps(failure_msg))
 
 
@@ -85,11 +83,8 @@ def post_grade_to_lms(header, body):
                                           settings.REQUESTS_TIMEOUT)
         attempts += 1
 
-    if success:
-        statsd.increment('xqueue.consumer.post_grade_to_lms.success')
-    else:
+    if not success:
         log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply))
-        statsd.increment('xqueue.consumer.post_grade_to_lms.failure')
 
     return success
 
@@ -152,16 +147,12 @@ class Worker(multiprocessing.Process):
         start = time.time()
         (grading_success, grader_reply) = _http_post(self.worker_url, json.dumps(payload), settings.GRADING_TIMEOUT)
         grading_time = time.time() - start
-        statsd.histogram('xqueue.consumer.consumer_callback.grading_time', grading_time,
-                         tags=['queue:{0}'.format(self.queue_name)])
 
         if grading_time > settings.GRADING_TIMEOUT:
             log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
                       grading_time, submission.xqueue_body, submission.urls))
 
         job_count = get_queue_length(self.queue_name)
-        statsd.gauge('xqueue.consumer.consumer_callback.queue_length', job_count,
-                     tags=['queue:{0}'.format(self.queue_name)])
 
         submission.return_time = timezone.now()
 
