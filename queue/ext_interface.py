@@ -14,7 +14,6 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from requests.exceptions import ConnectionError, Timeout
-from statsd import statsd
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +24,6 @@ log = logging.getLogger(__name__)
 #    3) put_result
 # --------------------------------------------------
 @login_required
-@statsd.timed('xqueue.ext_interface.get_queuelen.time')
 def get_queuelen(request):
     '''
     Retrieves the length of queue named by GET['queue_name'].
@@ -44,7 +42,6 @@ def get_queuelen(request):
 
 
 @login_required
-@statsd.timed('xqueue.ext_interface.get_submission.time')
 def get_submission(request):
     '''
     Retrieve a single submission from queue named by GET['queue_name'].
@@ -112,7 +109,6 @@ def get_submission(request):
 @transaction.atomic
 @csrf_exempt
 @login_required
-@statsd.timed('xqueue.ext_interface.put_result.time')
 def put_result(request):
     '''
     Graders post their results here.
