@@ -1,14 +1,14 @@
 # Core requirements for using this service
 
 MySQL-python==1.2.5
-boto==2.39.0
+boto==2.48.0
 django>=1.8,<1.9
 django-storages-redux==1.3.1
 edx-django-release-util==0.3.1
 gunicorn==0.16.1
 isort
 newrelic
-path.py==2.4.1
+path.py==11.0.1
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz
