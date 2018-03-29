@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.conf import global_settings
 
@@ -63,3 +64,10 @@ AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
 SESSION_ENGINE = ENV_TOKENS.get('SESSION_ENGINE') or global_settings.SESSION_ENGINE
 # Use a custom cache setting from env; useful if, for example, the session engine uses cache and requires Memcached
 CACHES = ENV_TOKENS.get('CACHES') or global_settings.CACHES
+
+# To use newrelic agent from a management command, we need the app name and the license key
+# In order to register the agent with the license key it needs to be in the environment (or an otherwise
+# unused config file) before the later import of the agent by the command.
+NEWRELIC_APPNAME = ENV_TOKENS.get('NEWRELIC_APPNAME', NEWRELIC_APPNAME)
+if not os.environ.get('NEW_RELIC_LICENSE_KEY', '') and AUTH_TOKENS.get('NEWRELIC_LICENSE_KEY', ''):
+    os.environ['NEW_RELIC_LICENSE_KEY'] = AUTH_TOKENS.get('NEWRELIC_LICENSE_KEY')
