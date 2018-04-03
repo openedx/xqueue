@@ -1,1 +1,2 @@
 setuptools==15.2
+pip==9.0.3
