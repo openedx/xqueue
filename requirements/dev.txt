@@ -37,7 +37,7 @@ pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util, mock, more-itertools, pytest, tox
 tox-battery==0.5
-tox==2.9.1
+tox==3.0.0
 urllib3==1.22             # via requests
 virtualenv==15.2.0        # via tox
 wsgiref==0.1.2
