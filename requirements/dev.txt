@@ -23,7 +23,7 @@ more-itertools==4.1.0     # via pytest
 mysql-python==1.2.5
 newrelic==3.0.0.89
 path.py==11.0.1
-pbr==4.0.0                # via mock
+pbr==4.0.1                # via mock
 pluggy==0.6.0             # via pytest, tox
 py==1.5.3                 # via pytest, tox
 pycodestyle==2.3.1
@@ -37,7 +37,7 @@ pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util, mock, more-itertools, pytest, tox
 tox-battery==0.5
-tox==2.9.1
+tox==3.0.0
 urllib3==1.22             # via requests
 virtualenv==15.2.0        # via tox
 wsgiref==0.1.2
