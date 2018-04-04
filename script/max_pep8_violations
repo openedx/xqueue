@@ -1,5 +1,5 @@
 #!/bin/bash
-DEFAULT_MAX=80
+DEFAULT_MAX=71
 
 pycodestyle . | tee /tmp/pep8-xqueue.log
 ERR=`grep -c ^ /tmp/pep8-xqueue.log `
