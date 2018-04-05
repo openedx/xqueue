@@ -15,7 +15,7 @@ gunicorn==0.16.1
 idna==2.6                 # via requests
 isort==4.3.4
 mysql-python==1.2.5
-newrelic==3.0.0.89
+newrelic==3.2.0.91
 path.py==11.0.1
 python-memcached==1.48
 python-termstyle==0.1.10
