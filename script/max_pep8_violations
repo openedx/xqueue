@@ -4,7 +4,7 @@ DEFAULT_MAX=71
 pycodestyle . | tee /tmp/pep8-xqueue.log
 ERR=`grep -c ^ /tmp/pep8-xqueue.log `
 MAX=${1-$DEFAULT_MAX}
-if [ $ERR -g $MAX ]; then
+if [ $ERR -gt $MAX ]; then
     echo "too many pep8 violations: $ERR (max is $MAX)"
     exit 1
 else
