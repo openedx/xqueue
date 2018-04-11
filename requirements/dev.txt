@@ -26,7 +26,7 @@ path.py==11.0.1
 pbr==4.0.1                # via mock
 pluggy==0.6.0             # via pytest, tox
 py==1.5.3                 # via pytest, tox
-pycodestyle==2.3.1
+pycodestyle==2.4.0
 pytest-cov==2.5.1
 pytest-django==3.1.2
 pytest==3.5.0
