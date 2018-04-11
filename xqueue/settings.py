@@ -180,3 +180,8 @@ SUBMISSION_PROCESSING_DELAY = 1
 # Number of seconds to wait between checks for new submissions that need to be
 # sent to an external grader
 CONSUMER_DELAY = 10
+
+# This is normally used in the supervisor configuration but if you have a
+# standalone script, you need to report to the correct app (and aren't
+# already running inside NR)
+NEWRELIC_APPNAME = 'xqueue'
