@@ -29,7 +29,7 @@ pytest-django==3.1.2
 pytest==3.5.0
 python-memcached==1.48
 python-termstyle==0.1.10
-pytz==2018.3
+pytz==2018.4
 pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util, mock, more-itertools, pytest
