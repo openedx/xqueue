@@ -21,7 +21,7 @@ more-itertools==4.1.0     # via pytest
 mysql-python==1.2.5
 newrelic==3.0.0.89
 path.py==11.0.1
-pbr==4.0.1                # via mock
+pbr==4.0.2                # via mock
 pluggy==0.6.0             # via pytest
 py==1.5.3                 # via pytest
 pytest-cov==2.5.1
