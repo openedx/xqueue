@@ -30,8 +30,6 @@ DB_RETRIES = 3     # Max number of times to query the DB when queued ticket is n
 DB_WAITTIME = 0.5  # seconds
 
 XQUEUES = {'test-pull': None}
-XQUEUE_WORKERS_PER_QUEUE = 4
-WORKER_COUNT = 4
 
 MAX_NUMBER_OF_FAILURES = 3
 PULLED_SUBMISSION_TIMEOUT = 10    # seconds
