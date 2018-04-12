@@ -15,11 +15,11 @@ gunicorn==0.16.1
 idna==2.6                 # via requests
 isort==4.3.4
 mysql-python==1.2.5
-newrelic==3.0.0.89
+newrelic==3.2.0.91
 path.py==11.0.1
 python-memcached==1.48
 python-termstyle==0.1.10
-pytz==2018.3
+pytz==2018.4
 pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 six==1.11.0               # via edx-django-release-util
