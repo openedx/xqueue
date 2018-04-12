@@ -32,7 +32,8 @@ def get_logger_config(log_dir,
         local_loglevel = 'INFO'
 
     hostname = platform.node().split(".")[0]
-    syslog_format = ("[%(name)s][env:{logging_env}] %(levelname)s "
+    syslog_format = ("[service_variant=xqueue]"
+                     "[%(name)s][env:{logging_env}] %(levelname)s "
                      "[{hostname}  %(process)d] [%(filename)s:%(lineno)d] "
                      "- %(message)s").format(
                         logging_env=logging_env, hostname=hostname)
