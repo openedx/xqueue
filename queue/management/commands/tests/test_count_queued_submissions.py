@@ -34,7 +34,7 @@ class CountQueuedSubmissionsTest(TestCase):
         self._create_submission(queue_name="test1")
         self._create_submission(queue_name="test3")
         call_command('count_queued_submissions', stdout=self.stdout)
-        self.assertRegexpMatches(self.stdout.getvalue(), 'test1\s*2\s*\ntest3\s*1')
+        self.assertRegexpMatches(self.stdout.getvalue(), r'test1\s*2\s*\ntest3\s*1')
 
     @patch('newrelic.agent')
     def test_push_to_new_relic(self, mock_newrelic_agent):
@@ -42,7 +42,7 @@ class CountQueuedSubmissionsTest(TestCase):
         self._create_submission(queue_name="test2")
         self._create_submission(queue_name="test2")
         call_command('count_queued_submissions', '--newrelic', stdout=self.stdout)
-        self.assertRegexpMatches(self.stdout.getvalue(), 'test2\s*2\s*\ntest1\s*1')
+        self.assertRegexpMatches(self.stdout.getvalue(), r'test2\s*2\s*\ntest1\s*1')
 
         expected_nr_calls = [
             call('test1', 1),
