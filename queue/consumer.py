@@ -14,6 +14,12 @@ from django.db.models import Q
 from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
 
+try:
+    import newrelic.agent
+except ImportError:  # pragma: no cover
+    newrelic = None  # pylint: disable=invalid-name
+
+
 log = logging.getLogger(__name__)
 
 
@@ -127,12 +133,18 @@ class Worker(multiprocessing.Process):
     def run(self):
         log.info("Starting consumer for queue {queue}".format(queue=self.queue_name))
 
+        if newrelic:
+            deliver_submission_task = newrelic.agent.BackgroundTaskWrapper(self._deliver_submission)
+
         while True:
             # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
             push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
             submission = Submission.objects.filter(push_time_filter, queue_name=self.queue_name, retired=False).order_by('arrival_time').first()
             if submission:
-                self._deliver_submission(submission)
+                if newrelic:
+                    deliver_submission_task(submission)
+                else:
+                    self._deliver_submission(submission)
             # Wait the given seconds between checking the database
             time.sleep(settings.CONSUMER_DELAY)
 
