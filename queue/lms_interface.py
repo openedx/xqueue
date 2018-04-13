@@ -1,7 +1,6 @@
 import json
 import logging
 import os.path
-import queue.producer
 from queue.models import CHARFIELD_LEN_LARGE, Submission
 from queue.util import get_request_ip, make_hashkey
 from queue.views import compose_reply
@@ -78,7 +77,7 @@ def submit(request):
                 submission.save()
                 transaction.commit()  # Explicit commit to DB before inserting submission.id into queue
 
-                qcount = queue.producer.get_queue_length(queue_name)
+                qcount = Submission.objects.get_queue_length(queue_name)
 
                 # For a successful submission, return the count of prior items
                 return HttpResponse(compose_reply(success=True, content="%d" % qcount))

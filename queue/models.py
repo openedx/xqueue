@@ -5,11 +5,29 @@ django-admin.py schemamigration queue [migration_name] --auto --settings=xqueue.
 
 """
 import json
+from datetime import datetime, timedelta
 
+import pytz
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 CHARFIELD_LEN_SMALL = 128
 CHARFIELD_LEN_LARGE = 1024
+
+
+class SubmissionManager(models.Manager):
+    """
+    Table filter methods for Submissions
+    """
+
+    def get_queue_length(self, queue_name):
+        """
+        How many unretired submissions are available for a queue
+        """
+        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
+        return super(SubmissionManager, self).get_queryset().filter(pull_time_filter, queue_name=queue_name, retired=False).count()
+
 
 
 class Submission(models.Model):
@@ -52,6 +70,8 @@ class Submission(models.Model):
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
     retired = models.BooleanField(default=False, db_index=True) # True/False on whether Submission is "finished"
 
+    objects = SubmissionManager()
+
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
         submission_info += "    Callback URL: %s\n" % self.lms_callback_url
@@ -81,3 +101,4 @@ class Submission(models.Model):
         Alias for `s3_urls` field.
         '''
         return self.s3_urls
+

@@ -1,7 +1,6 @@
 import json
 import logging
 import queue.consumer
-import queue.producer
 from queue.models import Submission
 from queue.util import get_request_ip, make_hashkey
 from queue.views import compose_reply
@@ -35,7 +34,7 @@ def get_queuelen(request):
         return HttpResponse(compose_reply(False, "'get_queuelen' must provide parameter 'queue_name'"))
 
     if queue_name in settings.XQUEUES:
-        job_count = queue.producer.get_queue_length(queue_name)
+        job_count = Submission.objects.get_queue_length(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
         return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))

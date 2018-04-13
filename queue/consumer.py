@@ -5,7 +5,6 @@ import multiprocessing
 import time
 from datetime import datetime, timedelta
 from queue.models import Submission
-from queue.producer import get_queue_length
 
 import pytz
 import requests
@@ -164,7 +163,7 @@ class Worker(multiprocessing.Process):
             log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
                       grading_time, submission.xqueue_body, submission.urls))
 
-        job_count = get_queue_length(self.queue_name)
+        job_count = Submission.objects.get_queue_length(self.queue_name)
 
         submission.return_time = timezone.now()
 
