@@ -25,8 +25,7 @@ class SubmissionManager(models.Manager):
         """
         How many unretired submissions are available for a queue
         """
-        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
-        return super(SubmissionManager, self).get_queryset().filter(pull_time_filter, queue_name=queue_name, retired=False).count()
+        return self.time_filter('pull_time').filter(queue_name=queue_name, retired=False).count()
 
     def get_single_unretired_submission(self, queue_name):
         '''
@@ -38,8 +37,11 @@ class SubmissionManager(models.Manager):
             submission: A single submission from the queue, guaranteed to be unretired
         '''
 
-        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
-        submission = super(SubmissionManager, self).get_queryset().filter(pull_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
+        submission = self.time_filter('pull_time').filter(
+                            queue_name=queue_name, retired=False
+                        ).order_by(
+                            'arrival_time'
+                        ).first()
 
         if submission:
             return (True, submission)
@@ -47,9 +49,33 @@ class SubmissionManager(models.Manager):
             return (False, '')
 
     def get_single_unpushed_submission(self, queue_name):
-            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
-            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
-            return super(SubmissionManager, self).get_queryset().filter(push_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
+        """
+        Finds a single submission that hasn't been pushed for SUBMISSION_PROCESSING_DELAY
+        """
+        return self.time_filter('push_time').filter(
+            queue_name=queue_name, retired=False
+        ).order_by(
+            'arrival_time'
+        ).first()
+
+    def time_filter(self, time_field=None):
+        """
+        filters on push_time or pull_time to limit to submissions that haven't been pushed/pulled
+        or were pushed/pulled SUBMISSION_PROCESSING_DELAY ago
+
+        return a queryset that has been filtered on the specified time column
+        """
+
+        if time_field not in ['push_time', 'pull_time']:
+            raise ValueError('time_field must be pull_time or push_time not ({})'.format(time_field))
+
+        previous_update = datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY)
+        if time_field == "push_time":
+            time_filter = Q(push_time__lte=(previous_update)) | Q(push_time__isnull=True)
+        elif time_field == "pull_time":
+            time_filter = Q(pull_time__lte=(previous_update)) | Q(pull_time__isnull=True)
+
+        return super(SubmissionManager, self).get_queryset().filter(time_filter)
 
 
 class Submission(models.Model):
@@ -123,4 +149,3 @@ class Submission(models.Model):
         Alias for `s3_urls` field.
         '''
         return self.s3_urls
-
