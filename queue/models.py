@@ -91,7 +91,7 @@ class Submission(models.Model):
                           ('lms_callback_url', 'retired')]
 
     # Submission
-    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
+    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
@@ -99,24 +99,24 @@ class Submission(models.Model):
 
     # Uploaded files. These are prefixed with `s3_` for historical reasons, and
     # aliased as `keys` and `urls` to avoid an expensive migration.
-    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # keys for internal Xqueue use
-    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE) # urls for external access
+    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE)  # keys for internal Xqueue use
+    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE)  # urls for external access
 
     # Timing
-    arrival_time = models.DateTimeField(auto_now_add=True)     # Time of arrival from LMS
-    pull_time    = models.DateTimeField(null=True, blank=True) # Time of pull request, if pulled from external grader
-    push_time    = models.DateTimeField(null=True, blank=True) # Time of push, if xqueue pushed to external grader
-    return_time  = models.DateTimeField(null=True, blank=True) # Time of return from external grader
+    arrival_time = models.DateTimeField(auto_now_add=True)      # Time of arrival from LMS
+    pull_time    = models.DateTimeField(null=True, blank=True)  # Time of pull request, if pulled from external grader
+    push_time    = models.DateTimeField(null=True, blank=True)  # Time of push, if xqueue pushed to external grader
+    return_time  = models.DateTimeField(null=True, blank=True)  # Time of return from external grader
 
     # External pull interface
-    grader_id = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of external grader
-    pullkey   = models.CharField(max_length=CHARFIELD_LEN_SMALL) # Secret key for external pulling interface
-    grader_reply = models.TextField()                            # Reply from external grader
+    grader_id = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of external grader
+    pullkey   = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # Secret key for external pulling interface
+    grader_reply = models.TextField()                             # Reply from external grader
 
     # Status
-    num_failures = models.IntegerField(default=0) # Number of failures in exchange with external grader
+    num_failures = models.IntegerField(default=0)  # Number of failures in exchange with external grader
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
-    retired = models.BooleanField(default=False, db_index=True) # True/False on whether Submission is "finished"
+    retired = models.BooleanField(default=False, db_index=True)  # True/False on whether Submission is "finished"
 
     objects = SubmissionManager()
 
