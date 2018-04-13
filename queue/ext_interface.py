@@ -54,7 +54,7 @@ def get_submission(request):
         return HttpResponse(compose_reply(False, "Queue '%s' not found" % queue_name))
     else:
         # Try to pull a single item from named queue
-        (got_submission, submission) = queue.consumer.get_single_unretired_submission(queue_name)
+        (got_submission, submission) = Submission.objects.get_single_unretired_submission(queue_name)
 
         if not got_submission:
             return HttpResponse(compose_reply(False, "Queue '%s' is empty" % queue_name))

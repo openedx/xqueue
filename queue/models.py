@@ -28,6 +28,25 @@ class SubmissionManager(models.Manager):
         pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
         return super(SubmissionManager, self).get_queryset().filter(pull_time_filter, queue_name=queue_name, retired=False).count()
 
+    def get_single_unretired_submission(self, queue_name):
+        '''
+        Retrieve a single unretired queued item, if one exists, for the named queue
+
+        Returns (success, submission):
+            success:    Flag whether retrieval is successful (Boolean)
+                        If no unretired item in the queue, return False
+            submission: A single submission from the queue, guaranteed to be unretired
+        '''
+
+        pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
+        submission = super(SubmissionManager, self).get_queryset().filter(pull_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
+
+        if submission:
+            return (True, submission)
+        else:
+            return (False, '')
+
+
 
 
 class Submission(models.Model):

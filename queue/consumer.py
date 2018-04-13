@@ -22,26 +22,6 @@ except ImportError:  # pragma: no cover
 log = logging.getLogger(__name__)
 
 
-def get_single_unretired_submission(queue_name):
-    '''
-    Retrieve a single unretired queued item, if one exists, for the named queue
-
-    Returns (success, submission):
-        success:    Flag whether retrieval is successful (Boolean)
-                    If no unretired item in the queue, return False
-        submission: A single submission from the queue, guaranteed to be unretired
-    '''
-
-    # Look for submissions that haven't been pulled or were pulled more than SUBMISSION_PROCESSING_DELAY ago
-    pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
-    submission = Submission.objects.filter(pull_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
-
-    if submission:
-        return (True, submission)
-    else:
-        return (False, '')
-
-
 def post_failure_to_lms(header):
     '''
     Send notification to the LMS (and the student) that the submission has failed,
