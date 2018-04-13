@@ -113,18 +113,24 @@ class Worker(multiprocessing.Process):
             deliver_submission_task = newrelic.agent.BackgroundTaskWrapper(self._deliver_submission)
 
         while True:
-            submission = Submission.objects.get_single_unpushed_submission(self.queue_name)
-            if submission:
-                if newrelic:
-                    deliver_submission_task(submission)
-                else:
-                    self._deliver_submission(submission)
+            if newrelic:
+                deliver_submission_task()
+            else:
+                self._deliver_submission()
             # Wait the given seconds between checking the database
             time.sleep(settings.CONSUMER_DELAY)
 
         log.info("Consumer for queue {queue} stopped".format(queue=self.queue_name))
 
-    def _deliver_submission(self, submission):
+    def _deliver_submission(self):
+        """
+        Find and deliver a submission to the external grader.
+        Report results to the LMS
+        """
+        submission = Submission.objects.get_single_unpushed_submission(self.queue_name)
+        if not submission:
+            return
+
         payload = {'xqueue_body': submission.xqueue_body,
                    'xqueue_files': submission.urls}
 
