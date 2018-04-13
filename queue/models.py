@@ -46,7 +46,10 @@ class SubmissionManager(models.Manager):
         else:
             return (False, '')
 
-
+    def get_single_unpushed_submission(self, queue_name):
+            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
+            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
+            return super(SubmissionManager, self).get_queryset().filter(push_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
 
 
 class Submission(models.Model):

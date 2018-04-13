@@ -3,13 +3,10 @@ import json
 import logging
 import multiprocessing
 import time
-from datetime import datetime, timedelta
 from queue.models import Submission
 
-import pytz
 import requests
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
 
@@ -116,9 +113,7 @@ class Worker(multiprocessing.Process):
             deliver_submission_task = newrelic.agent.BackgroundTaskWrapper(self._deliver_submission)
 
         while True:
-            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
-            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
-            submission = Submission.objects.filter(push_time_filter, queue_name=self.queue_name, retired=False).order_by('arrival_time').first()
+            submission = Submission.objects.get_single_unpushed_submission(self.queue_name)
             if submission:
                 if newrelic:
                     deliver_submission_task(submission)
