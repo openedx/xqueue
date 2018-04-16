@@ -25,7 +25,7 @@ pbr==4.0.2                # via mock
 pluggy==0.6.0             # via pytest
 py==1.5.3                 # via pytest
 pytest-cov==2.5.1
-pytest-django==3.1.2
+pytest-django==3.2.1
 pytest==3.5.0
 python-memcached==1.48
 python-termstyle==0.1.10
