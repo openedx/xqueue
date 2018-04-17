@@ -6,7 +6,7 @@
 #
 attrs==17.4.0             # via pytest
 boto==2.48.0
-certifi==2018.1.18        # via requests
+certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 coverage==4.5.1           # via pytest-cov
 django-storages-redux==1.3.1
