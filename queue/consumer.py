@@ -3,14 +3,10 @@ import json
 import logging
 import multiprocessing
 import time
-from datetime import datetime, timedelta
 from queue.models import Submission
-from queue.producer import get_queue_length
 
-import pytz
 import requests
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from requests.exceptions import ConnectionError, Timeout
 
@@ -21,26 +17,6 @@ except ImportError:  # pragma: no cover
 
 
 log = logging.getLogger(__name__)
-
-
-def get_single_unretired_submission(queue_name):
-    '''
-    Retrieve a single unretired queued item, if one exists, for the named queue
-
-    Returns (success, submission):
-        success:    Flag whether retrieval is successful (Boolean)
-                    If no unretired item in the queue, return False
-        submission: A single submission from the queue, guaranteed to be unretired
-    '''
-
-    # Look for submissions that haven't been pulled or were pulled more than SUBMISSION_PROCESSING_DELAY ago
-    pull_time_filter = Q(pull_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(pull_time__isnull=True)
-    submission = Submission.objects.filter(pull_time_filter, queue_name=queue_name, retired=False).order_by('arrival_time').first()
-
-    if submission:
-        return (True, submission)
-    else:
-        return (False, '')
 
 
 def post_failure_to_lms(header):
@@ -137,20 +113,24 @@ class Worker(multiprocessing.Process):
             deliver_submission_task = newrelic.agent.BackgroundTaskWrapper(self._deliver_submission)
 
         while True:
-            # Look for submissions that haven't been pushed or were pushed more than 1 minute ago
-            push_time_filter = Q(push_time__lte=(datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY))) | Q(push_time__isnull=True)
-            submission = Submission.objects.filter(push_time_filter, queue_name=self.queue_name, retired=False).order_by('arrival_time').first()
-            if submission:
-                if newrelic:
-                    deliver_submission_task(submission)
-                else:
-                    self._deliver_submission(submission)
+            if newrelic:
+                deliver_submission_task()
+            else:
+                self._deliver_submission()
             # Wait the given seconds between checking the database
             time.sleep(settings.CONSUMER_DELAY)
 
         log.info("Consumer for queue {queue} stopped".format(queue=self.queue_name))
 
-    def _deliver_submission(self, submission):
+    def _deliver_submission(self):
+        """
+        Find and deliver a submission to the external grader.
+        Report results to the LMS
+        """
+        submission = Submission.objects.get_single_unpushed_submission(self.queue_name)
+        if not submission:
+            return
+
         payload = {'xqueue_body': submission.xqueue_body,
                    'xqueue_files': submission.urls}
 
@@ -164,7 +144,7 @@ class Worker(multiprocessing.Process):
             log.error("Grading time above {} for submission. grading_time: {}s body: {} files: {}".format(settings.GRADING_TIMEOUT,
                       grading_time, submission.xqueue_body, submission.urls))
 
-        job_count = get_queue_length(self.queue_name)
+        job_count = Submission.objects.get_queue_length(self.queue_name)
 
         submission.return_time = timezone.now()
 

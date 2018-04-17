@@ -5,11 +5,77 @@ django-admin.py schemamigration queue [migration_name] --auto --settings=xqueue.
 
 """
 import json
+from datetime import datetime, timedelta
 
+import pytz
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 CHARFIELD_LEN_SMALL = 128
 CHARFIELD_LEN_LARGE = 1024
+
+
+class SubmissionManager(models.Manager):
+    """
+    Table filter methods for Submissions
+    """
+
+    def get_queue_length(self, queue_name):
+        """
+        How many unretired submissions are available for a queue
+        """
+        return self.time_filter('pull_time').filter(queue_name=queue_name, retired=False).count()
+
+    def get_single_unretired_submission(self, queue_name):
+        '''
+        Retrieve a single unretired queued item, if one exists, for the named queue
+
+        Returns (success, submission):
+            success:    Flag whether retrieval is successful (Boolean)
+                        If no unretired item in the queue, return False
+            submission: A single submission from the queue, guaranteed to be unretired
+        '''
+
+        submission = self.time_filter('pull_time').filter(
+                            queue_name=queue_name, retired=False
+                        ).order_by(
+                            'arrival_time'
+                        ).first()
+
+        if submission:
+            return (True, submission)
+        else:
+            return (False, '')
+
+    def get_single_unpushed_submission(self, queue_name):
+        """
+        Finds a single submission that hasn't been pushed for SUBMISSION_PROCESSING_DELAY
+        """
+        return self.time_filter('push_time').filter(
+            queue_name=queue_name, retired=False
+        ).order_by(
+            'arrival_time'
+        ).first()
+
+    def time_filter(self, time_field=None):
+        """
+        filters on push_time or pull_time to limit to submissions that haven't been pushed/pulled
+        or were pushed/pulled SUBMISSION_PROCESSING_DELAY ago
+
+        return a queryset that has been filtered on the specified time column
+        """
+
+        if time_field not in ['push_time', 'pull_time']:
+            raise ValueError('time_field must be pull_time or push_time not ({})'.format(time_field))
+
+        previous_update = datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY)
+        if time_field == "push_time":
+            time_filter = Q(push_time__lte=(previous_update)) | Q(push_time__isnull=True)
+        elif time_field == "pull_time":
+            time_filter = Q(pull_time__lte=(previous_update)) | Q(pull_time__isnull=True)
+
+        return super(SubmissionManager, self).get_queryset().filter(time_filter)
 
 
 class Submission(models.Model):
@@ -25,7 +91,7 @@ class Submission(models.Model):
                           ('lms_callback_url', 'retired')]
 
     # Submission
-    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of LMS
+    requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
@@ -33,24 +99,26 @@ class Submission(models.Model):
 
     # Uploaded files. These are prefixed with `s3_` for historical reasons, and
     # aliased as `keys` and `urls` to avoid an expensive migration.
-    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE) # keys for internal Xqueue use
-    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE) # urls for external access
+    s3_keys = models.CharField(max_length=CHARFIELD_LEN_LARGE)  # keys for internal Xqueue use
+    s3_urls = models.CharField(max_length=CHARFIELD_LEN_LARGE)  # urls for external access
 
     # Timing
-    arrival_time = models.DateTimeField(auto_now_add=True)     # Time of arrival from LMS
-    pull_time    = models.DateTimeField(null=True, blank=True) # Time of pull request, if pulled from external grader
-    push_time    = models.DateTimeField(null=True, blank=True) # Time of push, if xqueue pushed to external grader
-    return_time  = models.DateTimeField(null=True, blank=True) # Time of return from external grader
+    arrival_time = models.DateTimeField(auto_now_add=True)      # Time of arrival from LMS
+    pull_time    = models.DateTimeField(null=True, blank=True)  # Time of pull request, if pulled from external grader
+    push_time    = models.DateTimeField(null=True, blank=True)  # Time of push, if xqueue pushed to external grader
+    return_time  = models.DateTimeField(null=True, blank=True)  # Time of return from external grader
 
     # External pull interface
-    grader_id = models.CharField(max_length=CHARFIELD_LEN_SMALL) # ID of external grader
-    pullkey   = models.CharField(max_length=CHARFIELD_LEN_SMALL) # Secret key for external pulling interface
-    grader_reply = models.TextField()                            # Reply from external grader
+    grader_id = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of external grader
+    pullkey   = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # Secret key for external pulling interface
+    grader_reply = models.TextField()                             # Reply from external grader
 
     # Status
-    num_failures = models.IntegerField(default=0) # Number of failures in exchange with external grader
+    num_failures = models.IntegerField(default=0)  # Number of failures in exchange with external grader
     lms_ack = models.BooleanField(default=False)  # True/False on whether LMS acknowledged receipt
-    retired = models.BooleanField(default=False, db_index=True) # True/False on whether Submission is "finished"
+    retired = models.BooleanField(default=False, db_index=True)  # True/False on whether Submission is "finished"
+
+    objects = SubmissionManager()
 
     def __unicode__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
