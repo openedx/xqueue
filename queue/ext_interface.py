@@ -75,6 +75,10 @@ def get_submission(request):
             ext_header = {'submission_id': submission.id, 'submission_key': pullkey}
             urls = json.loads(submission.urls) if submission.urls else {}
 
+            # Because this code assumes there is a URL to fetch (traditionally out of S3)
+            # it doesn't play well for ContentFile users in tests or local use.
+            # ContentFile handles uploads well, but hands along file paths in /tmp rather than
+            # URLs, see lms_interface.
             if "URL_FOR_EXTERNAL_DICTS" in submission.urls:
                 url = urls["URL_FOR_EXTERNAL_DICTS"]
                 timeout = 2
@@ -179,6 +183,10 @@ def _is_valid_reply(external_reply):
         score_msg:      Grading result from external grader (string)
     '''
     fail = (False, -1, '', '')
+
+    if not isinstance(external_reply, dict):
+        return fail
+
     try:
         header = external_reply['xqueue_header']
         score_msg = external_reply['xqueue_body']
