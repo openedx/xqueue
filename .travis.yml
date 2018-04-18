@@ -13,7 +13,6 @@ matrix:
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
   - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; pip install --upgrade pip==9.0.3" # tox-battery doesn't work with pip 10
 script:
   - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
 after_success:
