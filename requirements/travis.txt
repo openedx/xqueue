@@ -13,7 +13,7 @@ pluggy==0.6.0             # via tox
 py==1.5.3                 # via tox
 requests==2.18.4          # via codecov
 six==1.11.0               # via tox
-tox-battery==0.5
+tox-battery==0.5.1
 tox==3.0.0
 urllib3==1.22             # via requests
 virtualenv==15.2.0        # via tox
