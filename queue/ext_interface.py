@@ -142,8 +142,23 @@ def put_result(request):
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
-            submission.lms_ack = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
-            submission.retired = submission.lms_ack
+            success = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            submission.lms_ack = success
+
+            # Keep track of how many times we've failed to return a grade for this submission
+            # to the LMS.
+            if not success:
+                submission.num_failures += 1
+
+            # Auto-retire a submission if it fails to make it back to the LMS enough times.
+            # This can be because it's an old submission and the course changed structure (causing a 404)
+            # or because the LMS is throwing errors.  The combination of MAX_NUMBER_OF_FAILURES and
+            # SUBMISSION_PROCESSING_DELAY tells you how long a period of time a submission can be graded over
+            # before it's auto-retired.
+            if submission.num_failures > settings.MAX_NUMBER_OF_FAILURES:
+                submission.retired = True
+            else:
+                submission.retired = submission.lms_ack
 
             submission.save()
 
