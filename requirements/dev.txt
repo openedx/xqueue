@@ -15,7 +15,7 @@ django==1.11.12
 edx-django-release-util==0.3.1
 funcsigs==1.0.2           # via mock, pytest
 futures==3.2.0            # via isort
-gunicorn==0.16.1
+gunicorn==19.7.1
 idna==2.6                 # via requests
 isort==4.3.4
 mock==2.0.0
