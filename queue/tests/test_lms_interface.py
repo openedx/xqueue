@@ -13,6 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
+from mock import patch
 
 
 def parse_xreply(xreply):
@@ -66,32 +67,18 @@ class TestLMSInterface(TransactionTestCase):
         (error, _) = parse_xreply(response.content)
         self.assertEqual(error, False)
 
-    def test_queue_length(self):
+    def test_submit_get(self):
+        '''
+        submitting as a get should fail because we require POSTs
+        '''
         client = Client()
         client.login(**self.credentials)
-        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'tmp'})
-        assert response.status_code == 200
-        error, queue_length = parse_xreply(response.content)
-        assert not error
-        assert isinstance(queue_length, int)
-
-    def test_queue_length_invalid_queue_name(self):
-        client = Client()
-        client.login(**self.credentials)
-        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'MIA'})
-        assert response.status_code == 200
-        error, message = parse_xreply(response.content)
-        assert error
-        assert u'Valid queue names are: ' in message
-
-    def test_queue_length_missing_queue_name(self):
-        client = Client()
-        client.login(**self.credentials)
-        response = client.get(u'/xqueue/get_queuelen/')
-        assert response.status_code == 200
-        error, message = parse_xreply(response.content)
-        assert error
-        assert message == u"'get_queuelen' must provide parameter 'queue_name'"
+        submit_url = '/xqueue/submit/'
+        response = client.get(submit_url)
+        self.assertEqual(response.status_code, 200)
+        (error, msg) = parse_xreply(response.content)
+        self.assertEqual(error, True)
+        self.assertEqual(msg, 'Queue requests should use HTTP POST')
 
     def test_submit(self):
         '''
@@ -112,6 +99,25 @@ class TestLMSInterface(TransactionTestCase):
         self.assertEqual(response['return_code'], 1)  # failure
 
     def test_submit_files(self):
+        '''
+        Submitted files should be uploaded to the storage backend.
+        '''
+        payload = self.valid_payload.copy()
+        upload = ContentFile('TESTING', name='test')
+        upload.seek(0)
+        payload['upload'] = upload
+        response = self._submit(payload)
+        self.assertEqual(response['return_code'], 0)  # success
+
+        # Check that the file was actually uploaded
+        _, files = default_storage.listdir('tmp/')
+        key = make_hashkey(payload['xqueue_header'] + 'upload')
+        self.assertIn(key, files)
+
+    # By forcing CHARFIELD_LEN_LARGE to be smaller, we'll test
+    # the KEY_FOR_EXTERNAL_DICTS,URL_FOR_EXTERNAL_DICTS code
+    @patch('queue.lms_interface.CHARFIELD_LEN_LARGE', 10)
+    def test_submit_many_files(self):
         '''
         Submitted files should be uploaded to the storage backend.
         '''
@@ -160,6 +166,10 @@ class TestLMSInterface(TransactionTestCase):
         for bad_request in bad_requests:
             (is_valid, _, _, _, _) = lms_interface._is_valid_request(bad_request)
             self.assertEqual(is_valid, False)
+
+        response = self._submit(bad_request1)
+        self.assertEqual(response['return_code'], 1)  # failure
+        self.assertEqual(response['content'], 'Queue request has invalid format')
 
     def _submit(self, *args, **kwargs):
         client = Client()

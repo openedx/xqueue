@@ -57,16 +57,16 @@ class Command(BaseCommand):
 
         # remove finished workers
         for worker in finished_workers:
-            log.info(' [{}] Worker stopped'.format(worker.id))
+            log.info(' [{}] Worker stopped'.format(worker.queue_name))
             workers.remove(worker)
 
         # restart failed workers
         for worker in failed_workers:
-            log.info(' [{}] Worker failed'.format(worker.id))
+            log.info(' [{}] Worker failed'.format(worker.queue_name))
             workers.remove(worker)
 
             new_worker = Worker(queue_name=worker.queue_name, worker_url=worker.worker_url)
             workers.append(new_worker)
 
-            log.info(' [{}] Starting worker'.format(new_worker.id))
+            log.info(' [{}] Starting worker'.format(new_worker.queue_name))
             new_worker.start()
