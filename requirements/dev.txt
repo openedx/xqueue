@@ -29,7 +29,7 @@ py==1.5.3                 # via pytest, tox
 pycodestyle==2.4.0
 pytest-cov==2.5.1
 pytest-django==3.2.1
-pytest==3.5.0
+pytest==3.5.1
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz==2018.4
