@@ -40,13 +40,14 @@ DATABASES = {
         'NAME': 'xqueue.sqlite',
     }
 }
-AWS_ACCESS_KEY_ID = "access_key_id"
-AWS_SECRET_ACCESS_KEY = "secret_access_key"
 
 # Bucket where files will be uploaded
 UPLOAD_BUCKET = "s3_bucket"
 UPLOAD_PATH_PREFIX = "xqueue"
 UPLOAD_URL_EXPIRE = 60 * 60 * 24 * 365  # 1 year
+
+AWS_ACCESS_KEY_ID = None
+AWS_SECRET_ACCESS_KEY = None
 
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
