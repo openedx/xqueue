@@ -89,13 +89,13 @@ def get_submission(request):
                     success = False
                     log.error('Could not fetch uploaded files at %s in timeout=%f' % (url, timeout))
                     return HttpResponse(
-                        compose_reply(False, "Error fetching submission. Please try again." % queue_name)
+                        compose_reply(False, "Error fetching submission for %s. Please try again." % queue_name)
                     )
 
                 if (r.status_code not in [200]) or (not success):
                     log.error('Could not fetch uploaded files at %s. Status code: %d' % (url, r.status_code))
                     return HttpResponse(
-                        compose_reply(False, "Error fetching submission. Please try again." % queue_name)
+                        compose_reply(False, "Error fetching submission for %s. Please try again." % queue_name)
                     )
 
                 xqueue_files = json.dumps(json.loads(r.text)["files"])
