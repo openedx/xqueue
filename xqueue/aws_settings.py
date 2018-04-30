@@ -46,6 +46,9 @@ DATABASES['default'].update({
     'PORT': os.environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 })
 
+# If you try to use an Instance IAM Role rather than a user key S3 will invalidate the signed
+# URLs used in uploaded file submissions.  If you don't upload files on grade submissions, then
+# it's ok, the submission is stored directly in the database.
 AWS_ACCESS_KEY_ID = AUTH_TOKENS.get("AWS_ACCESS_KEY_ID", AWS_ACCESS_KEY_ID)
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS.get("AWS_SECRET_ACCESS_KEY", AWS_SECRET_ACCESS_KEY)
 
