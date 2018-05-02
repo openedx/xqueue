@@ -1,6 +1,8 @@
 # Requirements for test runs.
 
-mock
-pytest
-pytest-cov
-pytest-django
+-r ../requirements.txt              # Core xqueue production dependencies
+
+mock                                # Used to stub out assorted functionality during tests
+pytest                              # Testing framework
+pytest-cov                          # pytest plugin for measuring code coverage
+pytest-django                       # Django support for pytest
