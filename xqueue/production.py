@@ -1,13 +1,14 @@
 import codecs
-import yaml
-
 from os import environ
+
+import yaml
 # Normally you should not import ANYTHING from Django directly
 # into your settings, but ImproperlyConfigured is an exception.
 from django.core.exceptions import ImproperlyConfigured
 
 from logsettings import get_logger_config
 from settings import *
+
 
 def get_env_setting(setting):
     """ Get the environment setting or return exception """
@@ -16,6 +17,7 @@ def get_env_setting(setting):
     except KeyError:
         error_msg = "Set the %s env variable" % setting
         raise ImproperlyConfigured(error_msg)
+
 
 # Keep track of the names of settings that represent dicts. Instead of overriding the values in settings.py,
 # the values read from disk should UPDATE the pre-configured dicts.

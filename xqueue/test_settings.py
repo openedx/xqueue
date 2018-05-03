@@ -44,4 +44,4 @@ CONSUMER_DELAY = 1
 # you can set it here, or add a config file / env variable support.
 MATHWORKS_API_KEY = None
 
-USERS = { "test_user": "password" }
+USERS = {"test_user": "password"}
