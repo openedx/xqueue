@@ -182,12 +182,6 @@ CONSUMER_DELAY = 10
 # already running inside NR)
 NEWRELIC_APPNAME = 'xqueue'
 
-# Use S3 as the default storage backend since XQueue doesn't really
-# handle file storage yet (although it does support Swift)
-AWS_ACCESS_KEY_ID = None
-AWS_SECRET_ACCESS_KEY = None
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-
 # These are learner permissions and we generate signed URLs for external graders
 # to download.  The uploads should not be public by default.
 AWS_DEFAULT_ACL = 'private'
