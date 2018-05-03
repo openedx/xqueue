@@ -55,11 +55,6 @@ AWS_SECRET_ACCESS_KEY = AUTH_TOKENS.get("AWS_SECRET_ACCESS_KEY", AWS_SECRET_ACCE
 REQUESTS_BASIC_AUTH = AUTH_TOKENS["REQUESTS_BASIC_AUTH"]
 XQUEUE_USERS = AUTH_TOKENS.get('USERS', None)
 
-# Use S3 as the default storage backend
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-# These are learner permissions and we generate signed URLs for external graders
-# to download.  The uploads should not be public by default.
-AWS_DEFAULT_ACL = 'private'
 AWS_STORAGE_BUCKET_NAME = UPLOAD_BUCKET
 AWS_LOCATION = UPLOAD_PATH_PREFIX
 AWS_QUERYSTRING_EXPIRE = ENV_TOKENS.get('UPLOAD_URL_EXPIRE', UPLOAD_URL_EXPIRE)
