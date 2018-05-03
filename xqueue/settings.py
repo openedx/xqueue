@@ -185,3 +185,6 @@ NEWRELIC_APPNAME = 'xqueue'
 # These are learner permissions and we generate signed URLs for external graders
 # to download.  The uploads should not be public by default.
 AWS_DEFAULT_ACL = 'private'
+
+# This is the list of users managed by update_users
+USERS = None
