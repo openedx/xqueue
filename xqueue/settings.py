@@ -46,9 +46,6 @@ UPLOAD_BUCKET = "s3_bucket"
 UPLOAD_PATH_PREFIX = "xqueue"
 UPLOAD_URL_EXPIRE = 60 * 60 * 24 * 365  # 1 year
 
-AWS_ACCESS_KEY_ID = None
-AWS_SECRET_ACCESS_KEY = None
-
 # Basic auth tuple to pass to reqests library to authenticate with other services
 REQUESTS_BASIC_AUTH = None
 
@@ -184,3 +181,10 @@ CONSUMER_DELAY = 10
 # standalone script, you need to report to the correct app (and aren't
 # already running inside NR)
 NEWRELIC_APPNAME = 'xqueue'
+
+# These are learner permissions and we generate signed URLs for external graders
+# to download.  The uploads should not be public by default.
+AWS_DEFAULT_ACL = 'private'
+
+# This is the list of users managed by update_users
+USERS = None
