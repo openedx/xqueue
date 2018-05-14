@@ -4,8 +4,8 @@
 #
 #    make upgrade
 #
-boto3==1.7.16
-botocore==1.10.16         # via boto3, s3transfer
+boto3==1.7.19
+botocore==1.10.19         # via boto3, s3transfer
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 django-storages==1.6.6
@@ -20,7 +20,7 @@ jmespath==0.9.3           # via boto3, botocore
 mysql-python==1.2.5
 newrelic==3.2.0.91
 path.py==11.0.1
-python-dateutil==2.7.2    # via botocore
+python-dateutil==2.7.3    # via botocore
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz==2018.4
