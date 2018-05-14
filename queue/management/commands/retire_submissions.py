@@ -10,7 +10,11 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Retire submissions that have more than settings.MAX_NUMBER_OF_FAILURES failures. Notify the LMS/student that the queue will no longer attempt to process the submission. Optional <queue_name>"
+    help = """
+           Retire submissions that have more than settings.MAX_NUMBER_OF_FAILURES failures.\
+           Notify the LMS/student that the queue will no longer attempt to process the submission.\
+           Optional <queue_name>
+           """
 
     def add_arguments(self, parser):
         parser.add_argument('queue_name', nargs='*')
@@ -46,7 +50,7 @@ class Command(BaseCommand):
                 log.info(" [ ] Retiring submission id=%d from queue '%s' with num_failures=%d" %
                          (failed_submission.id, failed_submission.queue_name, failed_submission.num_failures))
                 if force:
-                    failed_submission.retired = True # Mark as done without contacting LMS
+                    failed_submission.retired = True  # Mark as done without contacting LMS
                 else:
                     failed_submission.lms_ack = post_failure_to_lms(failed_submission.xqueue_header)
                     failed_submission.retired = failed_submission.lms_ack

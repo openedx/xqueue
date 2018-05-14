@@ -53,8 +53,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         xq_client = XQueueClient(server='http://127.0.0.1:8000',
                                  passwd=settings.XQUEUE_USERS['lms'],
-                                 post_url=
-                                 'http://stage-xqueue-001.m.edx.org:8989')
+                                 post_url='http://stage-xqueue-001.m.edx.org:8989')
         xq_client.login()
         httpd = TCPServerReuse(("", PORT), ServerHandler)
         for queue_name, queue_url in settings.XQUEUES.iteritems():
@@ -62,5 +61,5 @@ class Command(BaseCommand):
                 # only submit to queues that use the xserver
                 xq_client.submit_job(queue_name, queue_name)
                 logger.info("Waiting for response from {0}".format(queue_name))
-                while not queue_name in responses:
+                while queue_name not in responses:
                     httpd.handle_request()

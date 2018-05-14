@@ -48,7 +48,7 @@ class Command(BaseCommand):
         for worker in workers:
             exitcode = worker.exitcode
 
-            if exitcode is None: # the process is running
+            if exitcode is None:  # the process is running
                 continue
             elif exitcode >= 1:  # the process failed
                 failed_workers.append(worker)
