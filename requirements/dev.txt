@@ -28,7 +28,7 @@ more-itertools==4.1.0
 mysql-python==1.2.5
 newrelic==3.2.0.91
 path.py==11.0.1
-pbr==4.0.2
+pbr==4.0.3
 pip-tools==2.0.2
 pluggy==0.6.0
 py==1.5.3
