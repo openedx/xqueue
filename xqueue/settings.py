@@ -25,9 +25,6 @@ MANAGERS = ADMINS
 REQUESTS_TIMEOUT = 5    # seconds
 GRADING_TIMEOUT = 30    # seconds
 
-DB_RETRIES = 3     # Max number of times to query the DB when queued ticket is not found
-DB_WAITTIME = 0.5  # seconds
-
 XQUEUES = {'test-pull': None}
 
 MAX_NUMBER_OF_FAILURES = 3
@@ -163,9 +160,6 @@ LOGGING = get_logger_config(
     logging_env="dev",
     dev_env=True,
     debug=True)
-
-RETRY_MAX_ATTEMPTS = os.environ.get('RETRY_MAX_ATTEMPTS', 10)
-RETRY_TIMEOUT = os.environ.get('RETRY_TIMEOUT', 10)
 
 # How many minutes to ignore pulled or pushed submissions when a client connects
 # for a given queue, since another client/worker may have pulled the submission
