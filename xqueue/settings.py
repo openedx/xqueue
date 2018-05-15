@@ -21,11 +21,18 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# How long we should wait for the LMS to accept a grader response before
+# timing out.
 REQUESTS_TIMEOUT = 5    # seconds
+# How long xqueue_consumer should wait for a response from a remote
+# grader before timing out the request.
 GRADING_TIMEOUT = 30    # seconds
 
 XQUEUES = {'test-pull': None}
 
+# How many times XQueue posting a result back to the LMS can fail
+# This happens during put_submission in the external interface as well
+# as in the retire_submissions command
 MAX_NUMBER_OF_FAILURES = 3
 
 DATABASES = {
@@ -56,6 +63,8 @@ TIME_ZONE = 'America/New_York'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# It's unclear why this is defined, xqueue doesn't use django sites, but does
+# have the database table with one entry in it.  TODO: remove the sites app.
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
