@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = """
            Retire submissions that have more than settings.MAX_NUMBER_OF_FAILURES failures.\
            Notify the LMS/student that the queue will no longer attempt to process the submission.\
-           Optional <queue_name>
+           Optional <queue_name> - no queue name provided means all queues will be processed.
            """
 
     def add_arguments(self, parser):
