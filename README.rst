@@ -62,7 +62,12 @@ later following the SUBMISSION_PROCESSING_DELAY when it is requeued.
 Local Testing
 -------------
 
-XQueue is now available as a docker image used as part of Docker Devstack.
+XQueue can be started via docker-compose with following 
+command
+
+	docker-compose up
+
+Also XQueue is now available as a docker image used as part of Docker Devstack.
 You can start and provision it by using xqueue specific commands configured in
 your `devstack` directory
 
