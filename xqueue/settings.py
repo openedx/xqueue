@@ -28,7 +28,6 @@ GRADING_TIMEOUT = 30    # seconds
 XQUEUES = {'test-pull': None}
 
 MAX_NUMBER_OF_FAILURES = 3
-PULLED_SUBMISSION_TIMEOUT = 10    # seconds
 
 DATABASES = {
     'default': {
