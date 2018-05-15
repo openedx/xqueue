@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 8000:8000
+    environment:
+      DEBUG: 'True'
+    volumes:
+      - db:/db
+
+volumes:
+  db:
+    driver: local
