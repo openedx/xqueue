@@ -18,7 +18,7 @@ idna==2.6                 # via requests
 isort==4.3.4
 jmespath==0.9.3           # via boto3, botocore
 mysql-python==1.2.5
-newrelic==3.2.0.91
+newrelic==3.2.1.93
 path.py==11.0.1
 python-dateutil==2.7.3    # via botocore
 python-memcached==1.48
