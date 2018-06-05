@@ -32,6 +32,7 @@ coverage: clean ## generate and view HTML coverage report
 	pytest --cov-report html
 	$(BROWSER) htmlcov/index.html
 
+export CUSTOM_COMPILE_COMMAND = make upgrade
 upgrade: ## update the requirements/*.txt files with the latest packages satisfying requirements/*.in
 	pip install -qr requirements/pip-tools.txt
 	# Make sure to compile files after any other files they include!
@@ -41,14 +42,6 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	pip-compile --upgrade -o requirements/test.txt requirements/test.in
 	pip-compile --upgrade -o requirements/travis.txt requirements/travis.in
 	pip-compile --upgrade -o requirements/dev.txt requirements/dev.in
-	# Post process all of the files generated above to replace the instructions for recreating them
-	script/post-pip-compile.sh \
-        requirements/pip-tools.txt \
-	    requirements.txt \
-	    requirements/quality.txt \
-	    requirements/test.txt \
-	    requirements/travis.txt \
-	    requirements/dev.txt
 	# Let tox control the Django version for tests
 	sed '/^[dD]jango==/d' requirements/test.txt > requirements/test.tmp
 	mv requirements/test.tmp requirements/test.txt
