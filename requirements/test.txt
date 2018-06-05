@@ -4,9 +4,10 @@
 #
 #    make upgrade
 #
+atomicwrites==1.1.5       # via pytest
 attrs==18.1.0             # via pytest
-boto3==1.7.19
-botocore==1.10.19
+boto3==1.7.32
+botocore==1.10.32
 certifi==2018.4.16
 chardet==3.0.4
 coverage==4.5.1           # via pytest-cov
@@ -20,16 +21,16 @@ idna==2.6
 isort==4.3.4
 jmespath==0.9.3
 mock==2.0.0
-more-itertools==4.1.0     # via pytest
+more-itertools==4.2.0     # via pytest
 mysql-python==1.2.5
-newrelic==3.2.0.91
+newrelic==3.2.1.93
 path.py==11.0.1
-pbr==4.0.2                # via mock
+pbr==4.0.3                # via mock
 pluggy==0.6.0             # via pytest
 py==1.5.3                 # via pytest
 pytest-cov==2.5.1
 pytest-django==3.2.1
-pytest==3.5.1
+pytest==3.6.1
 python-dateutil==2.7.3
 python-memcached==1.48
 python-termstyle==0.1.10
