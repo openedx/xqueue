@@ -28,5 +28,5 @@ pyyaml==3.12              # via edx-django-release-util
 requests==2.18.4
 s3transfer==0.1.13        # via boto3
 six==1.11.0               # via edx-django-release-util, python-dateutil
-urllib3==1.22             # via requests
+urllib3==1.23             # via requests
 wsgiref==0.1.2
