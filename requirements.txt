@@ -4,7 +4,7 @@
 #
 #    make upgrade
 #
-boto3==1.7.32
+boto3==1.7.37
 botocore==1.10.32         # via boto3, s3transfer
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
