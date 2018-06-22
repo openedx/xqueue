@@ -28,15 +28,9 @@ Some tests may require authentication information that, for security reasons,
 should be kept separate from the repository.  For example, you might write
 an integration test that uses an external service that requires login.
 
-For this reason, `xqueue/test_settings.py` has a mechanism for loading
-auth tokens from a JSON file called `test_env.json`.  When the tests run,
-the test suite searches:
-
-1. The directory specified by the environment variable `JENKINS_CONFIG_DIR`,
-if provided
-
-2. One directory above the base `xqueue` directory.
-
 Tests that require authentication to run should raise a SkipTest exception
 if the authentication information is not provided.  See the integration test 
-`queue/tests/test_matlab_grader.py` for an example.
+`queue/tests/test_matlab_grader.py` for an example.  You can add the matlab
+API key to your django settings in test_settings.py but it should not be pushed
+to a repository.  You may prefer to pass that in as an environment variable
+and change the test if you wish to run it.
