@@ -148,3 +148,19 @@ AWS_DEFAULT_ACL = 'private'
 
 # This is the list of users managed by update_users
 USERS = None
+
+# If you use count_queue_submissions to submit data to AWS CloudWatch you'll need to
+# provide some information for how to construct the metrics and alarms.
+# It will store metrics in a namespace of xqueue/environment-deployment and create an alarm
+# for each queue with an alarm on the default_threshold.  If you want a different threshold
+# for a given queue, thresholds has a dictionary of "queue name" : "custom limit".
+# All thresholds share the sns_arn.
+CLOUDWATCH_QUEUE_COUNT_METRICS = {
+    'environment': 'dev',
+    'deployment': 'stack',
+    'sns_arn': 'arn:aws:sns:::',
+    'default_threshold': 50,
+    'thresholds': {
+        'test-pull': 100
+    }
+}

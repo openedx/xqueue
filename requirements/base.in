@@ -1,6 +1,7 @@
 # Core requirements for using this service
 
 MySQL-python==1.2.5
+backoff
 boto3
 django>=1.11,<1.12
 django-storages
