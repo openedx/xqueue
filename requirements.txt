@@ -6,7 +6,7 @@
 #
 backoff==1.5.0
 boto3==1.7.41
-botocore==1.10.41         # via boto3, s3transfer
+botocore==1.10.45         # via boto3, s3transfer
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 django-storages==1.6.6
