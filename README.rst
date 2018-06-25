@@ -26,8 +26,8 @@ How External Graders Interact with the XQueue
 There are two ways kinds of grading services: passive and active.  These
 interact with the XQueue in different ways.
 
-Passive Graders
-~~~~~~~~~~~~~~~
+Passive Graders (aka Push Graders)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Passive graders wait for the XQueue to send them submissions.  They then
 respond synchronously with a graded response.
@@ -43,8 +43,8 @@ responds synchronously with the graded response.
 4. XQueue forwards the graded response to the callback URL the LMS
 provided in its original message.
 
-Active Graders
-~~~~~~~~~~~~~~
+Active Graders (aka Pull Graders)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Active graders pull messages off the XQueue and push responses back to the XQueue.
 
