@@ -6,7 +6,7 @@ def make_hashkey(seed):
     Generate a hashkey (string)
     '''
     h = hashlib.md5()
-    h.update(str(seed))
+    h.update(seed.encode('utf-8'))
     return h.hexdigest()
 
 def get_request_ip(request):
