@@ -10,7 +10,7 @@ gunicorn==0.16.1
 isort
 newrelic
 path.py==11.0.1
-python-memcached==1.48
+python-memcached==1.59
 python-termstyle==0.1.10
 pytz
 requests

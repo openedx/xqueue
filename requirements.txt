@@ -22,7 +22,7 @@ mysql-python==1.2.5
 newrelic==4.4.1.104
 path.py==11.0.1
 python-dateutil==2.7.3    # via botocore
-python-memcached==1.48
+python-memcached==1.59
 python-termstyle==0.1.10
 pytz==2018.6
 pyyaml==3.13              # via edx-django-release-util
