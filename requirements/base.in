@@ -9,7 +9,7 @@ edx-django-release-util==0.3.1
 gunicorn==0.16.1
 isort
 newrelic
-path.py==11.0.1
+path.py==11.5.0
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz
