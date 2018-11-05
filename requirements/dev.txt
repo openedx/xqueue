@@ -38,7 +38,7 @@ py==1.7.0
 pycodestyle==2.4.0
 pytest-cov==2.6.0
 pytest-django==3.4.3
-pytest==3.9.2
+pytest==3.10.0
 python-dateutil==2.7.3
 python-memcached==1.48
 python-termstyle==0.1.10
