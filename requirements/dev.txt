@@ -35,7 +35,7 @@ pbr==5.1.1
 pip-tools==3.2.0
 pluggy==0.8.0
 py==1.7.0
-pycodestyle==2.4.0
+pycodestyle==2.5.0
 pyinotify==0.9.6 ; "linux" in sys_platform
 pytest-cov==2.6.0
 pytest-django==3.4.4
