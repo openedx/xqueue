@@ -13,6 +13,7 @@ certifi==2018.11.29
 chardet==3.0.4
 coverage==4.5.2           # via pytest-cov
 django-storages==1.7.1
+django==1.11.17
 docutils==0.14
 edx-django-release-util==0.3.1
 funcsigs==1.0.2           # via mock, pytest
@@ -31,7 +32,7 @@ pbr==5.1.1                # via mock
 pluggy==0.8.0             # via pytest
 py==1.7.0                 # via pytest
 pytest-cov==2.6.0
-pytest-django==3.4.4
+pytest-django==3.4.7
 pytest==4.0.2
 python-dateutil==2.7.5
 python-memcached==1.48
