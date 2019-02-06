@@ -21,7 +21,7 @@ jmespath==0.9.3           # via boto3, botocore
 mysql-python==1.2.5
 newrelic==4.8.0.110
 path.py==11.0.1
-python-dateutil==2.7.5    # via botocore
+python-dateutil==2.8.0    # via botocore
 python-memcached==1.48
 python-termstyle==0.1.10
 pytz==2018.7
