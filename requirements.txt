@@ -17,7 +17,7 @@ futures==3.2.0            # via isort, s3transfer
 gunicorn==0.16.1
 idna==2.8                 # via requests
 isort==4.3.4
-jmespath==0.9.3           # via boto3, botocore
+jmespath==0.9.4           # via boto3, botocore
 mysql-python==1.2.5
 newrelic==4.8.0.110
 path.py==11.0.1
