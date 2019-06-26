@@ -44,6 +44,7 @@ to messages, or to send invalid responses.
 
 """
 
+from __future__ import absolute_import
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -52,19 +53,21 @@ import time
 import json
 from abc import ABCMeta, abstractmethod
 from queue.consumer import Worker
-import urlparse
+import six.moves.urllib.parse
 import threading
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SocketServer import ThreadingMixIn, ForkingMixIn
+from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from six.moves.socketserver import ThreadingMixIn, ForkingMixIn
 
 import logging
+import six
+from six.moves import range
 logger = logging.getLogger(__name__)
 
 # Suppress low-level network messages
 logging.getLogger('requests').setLevel(logging.WARNING)
 
 
-class GraderStubBase(object):
+class GraderStubBase(six.with_metaclass(ABCMeta, object)):
     """Abstract base class for external grader service stubs.
 
     We make this abstract to accommodate the two kinds of grading servers:
@@ -75,8 +78,6 @@ class GraderStubBase(object):
 
     * Passive: Waits for XQueue to send it a message,
         then responds synchronously."""
-
-    __metaclass__ = ABCMeta
 
     @staticmethod
     def build_response(submission_id, submission_key, score_msg):
@@ -428,7 +429,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         #
         # Note that each key in POST dict is a list, even
         # if the list has only 1 value.
-        post_dict = urlparse.parse_qs(self.rfile.read(length))
+        post_dict = six.moves.urllib.parse.parse_qs(self.rfile.read(length))
 
         # Try to parse the grade response
         try:

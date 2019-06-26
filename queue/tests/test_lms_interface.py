@@ -2,6 +2,7 @@
 Run me with:
     pytest queue/tests/test_lms_interface.py
 """
+from __future__ import absolute_import
 import json
 import shutil
 from queue import lms_interface

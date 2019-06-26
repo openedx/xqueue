@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from queue.models import Submission
 
 from django.core.management import call_command

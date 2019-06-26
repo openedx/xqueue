@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import shutil
 from queue import ext_interface
@@ -9,6 +10,7 @@ from django.contrib.auth.models import User
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
 from mock import patch
+from six.moves import range
 
 
 def parse_xreply(xreply):

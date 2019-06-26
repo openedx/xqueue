@@ -4,7 +4,9 @@ Check on currently queued submissions
 
 from __future__ import unicode_literals
 
-from itertools import izip_longest
+from __future__ import absolute_import
+from __future__ import print_function
+
 from queue.models import Submission
 
 import backoff
@@ -13,6 +15,7 @@ import botocore
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Count
+from six.moves import zip_longest
 
 try:
     import newrelic.agent
@@ -134,7 +137,7 @@ class Command(BaseCommand):
                                                                            deployment,
                                                                            queue['queue_name'])
 
-                print('Creating or updating alarm "{}"'.format(alarm_name))
+                print(('Creating or updating alarm "{}"'.format(alarm_name)))
                 cloudwatch.put_metric_alarm(AlarmName=alarm_name,
                                             AlarmDescription=alarm_name,
                                             Namespace=namespace,
@@ -176,4 +179,4 @@ def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)

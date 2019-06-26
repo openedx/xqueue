@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from queue.ext_interface import get_queuelen, get_submission, put_result
 from queue.lms_interface import submit
 from queue.views import log_in, log_out, status

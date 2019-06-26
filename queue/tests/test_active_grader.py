@@ -1,6 +1,7 @@
 """Test that the XQueue responds to a client, using an Active Grader
 (one that polls the XQueue and pushes responses using a REST-like
 interface)"""
+from __future__ import absolute_import
 from uuid import uuid4
 
 from django.conf import settings

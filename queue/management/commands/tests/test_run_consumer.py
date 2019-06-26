@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from queue.consumer import Worker
 from queue.management.commands.run_consumer import Command
 
