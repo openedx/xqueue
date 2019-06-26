@@ -56,7 +56,7 @@ scandir==1.10.0
 six==1.12.0
 toml==0.10.0
 tox-battery==0.5.1
-tox==3.12.1
+tox==3.13.1
 urllib3==1.25.3
 virtualenv==16.6.1
 wcwidth==0.1.7
