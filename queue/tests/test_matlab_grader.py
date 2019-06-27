@@ -1,4 +1,5 @@
 """Test that the XQueue responds to a client."""
+from __future__ import absolute_import
 from textwrap import dedent
 from uuid import uuid4
 

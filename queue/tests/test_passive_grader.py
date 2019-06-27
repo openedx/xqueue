@@ -1,5 +1,6 @@
 """Test that the XQueue responds to a client, using a Passive Grader
 (one that the XQueue pushes submissions to)"""
+from __future__ import absolute_import
 from uuid import uuid4
 
 from django.test import TransactionTestCase

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import logging
 import os.path
@@ -59,7 +60,7 @@ def submit(request):
                 keys_json = json.dumps(keys)
 
                 if len(urls_json) > CHARFIELD_LEN_LARGE:
-                    key = make_hashkey(xqueue_header + json.dumps(request.FILES.keys()))
+                    key = make_hashkey(xqueue_header + json.dumps(list(request.FILES.keys())))
                     url = _upload_file_dict(urls, keys, queue_name, key)
                     keys = {"KEY_FOR_EXTERNAL_DICTS": key}
                     urls = {"URL_FOR_EXTERNAL_DICTS": url}

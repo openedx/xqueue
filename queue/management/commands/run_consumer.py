@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import time
 from queue.consumer import Worker
@@ -21,7 +22,7 @@ class Command(BaseCommand):
         log.info(' [*] Starting queue workers...')
 
         workers = []
-        queues = settings.XQUEUES.items()
+        queues = list(settings.XQUEUES.items())
 
         # Assigned one worker for queue
         for name, url in queues:

@@ -1,7 +1,9 @@
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 from queue.models import Submission
 
 import pytz
+from six.moves import range
 
 
 def bulk_create_submissions(count=1, days_old=10, **create_params):

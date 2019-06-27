@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from queue.management.commands.tests import bulk_create_submissions
 from queue.models import Submission
 

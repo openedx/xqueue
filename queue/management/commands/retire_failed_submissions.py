@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 from optparse import make_option
 from queue.consumer import post_failure_to_lms

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import codecs
 from os import environ
 
@@ -6,8 +7,8 @@ import yaml
 # into your settings, but ImproperlyConfigured is an exception.
 from django.core.exceptions import ImproperlyConfigured
 
-from logsettings import get_logger_config
-from settings import *
+from .logsettings import get_logger_config
+from .settings import *
 
 
 def get_env_setting(setting):

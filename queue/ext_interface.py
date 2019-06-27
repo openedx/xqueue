@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import logging
 import queue.consumer
@@ -37,7 +38,7 @@ def get_queuelen(request):
         job_count = Submission.objects.get_queue_length(queue_name)
         return HttpResponse(compose_reply(True, job_count))
     else:
-        return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(settings.XQUEUES.keys())))
+        return HttpResponse(compose_reply(False, 'Valid queue names are: ' + ', '.join(list(settings.XQUEUES.keys()))))
 
 
 @login_required

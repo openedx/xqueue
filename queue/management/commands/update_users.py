@@ -6,6 +6,7 @@ Ensure that the right users exist:
 - if they do, update the passwords to match
 
 """
+from __future__ import absolute_import
 import logging
 
 from django.conf import settings
