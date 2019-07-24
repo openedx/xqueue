@@ -12,7 +12,7 @@ certifi==2019.6.16        # via requests
 chardet==3.0.4            # via requests
 django-storages==1.7.1
 django==1.11.21
-docutils==0.14            # via botocore
+docutils==0.15.1            # via botocore
 edx-django-release-util==0.3.1
 futures==3.2.0            # via isort, s3transfer
 gunicorn==0.16.1
