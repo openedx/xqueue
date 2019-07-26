@@ -36,7 +36,7 @@ newrelic==4.20.0.120
 packaging==19.0
 path.py==11.0.1
 pathlib2==2.3.3
-pip-tools==3.8.0
+pip-tools==4.0.0
 pluggy==0.12.0
 py==1.8.0
 pycodestyle==2.5.0
