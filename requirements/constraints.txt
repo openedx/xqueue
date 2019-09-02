@@ -10,3 +10,4 @@
 
 # This packages is a backport which can only be installed on Python 2.7
 futures ; python_version == "2.7"
+wsgiref ; python_version == "2.7"

@@ -8,8 +8,8 @@ atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via packaging, pytest
 backoff==1.8.0
 backports.functools-lru-cache==1.5
-boto3==1.9.220
-botocore==1.12.220
+boto3==1.9.223
+botocore==1.12.223
 certifi==2019.6.16
 chardet==3.0.4
 configparser==3.8.1       # via importlib-metadata
@@ -27,7 +27,7 @@ isort==4.3.21
 jmespath==0.9.4
 mock==3.0.5
 more-itertools==5.0.0     # via pytest, zipp
-mysql-python==1.2.5
+mysqlclient==1.4.4
 newrelic==5.0.2.126
 packaging==19.1           # via pytest
 path.py==11.0.1
@@ -39,7 +39,7 @@ pytest-cov==2.7.1
 pytest-django==3.5.1
 pytest==4.6.5
 python-dateutil==2.8.0
-python-memcached==1.48
+python-memcached==1.59
 python-termstyle==0.1.10
 pytz==2019.2
 pyyaml==5.1.2
@@ -49,5 +49,5 @@ scandir==1.10.0           # via pathlib2
 six==1.12.0
 urllib3==1.25.3
 wcwidth==0.1.7            # via pytest
-wsgiref==0.1.2
+wsgiref==0.1.2 ; python_version == "2.7"
 zipp==0.6.0               # via importlib-metadata
