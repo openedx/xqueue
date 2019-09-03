@@ -1,3 +1,4 @@
 # Requirements for code quality checks
+-c constraints.txt
 
 pycodestyle               # PEP 8 compliance validation
