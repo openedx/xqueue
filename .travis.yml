@@ -6,9 +6,19 @@ sudo: required
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=py27-django111
-    - python: 2.7
       env: TOXENV=quality
+    - python: 2.7
+      env: TOXENV=django111
+    - python: 3.5
+      env: TOXENV=django111
+    - python: 3.6
+      env: TOXENV=django20
+    - python: 3.6
+      env: TOXENV=django21
+    - python: 3.7
+      env: TOXENV=django20
+    - python: 3.7
+      env: TOXENV=django21
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d

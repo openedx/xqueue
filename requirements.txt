@@ -6,8 +6,8 @@
 #
 backoff==1.8.0
 backports.functools-lru-cache==1.5  # via isort
-boto3==1.9.220
-botocore==1.12.220        # via boto3, s3transfer
+boto3==1.9.223
+botocore==1.12.223        # via boto3, s3transfer
 certifi==2019.6.16        # via requests
 chardet==3.0.4            # via requests
 django-storages==1.7.1
@@ -19,16 +19,16 @@ gunicorn==0.16.1
 idna==2.8                 # via requests
 isort==4.3.21
 jmespath==0.9.4           # via boto3, botocore
-mysql-python==1.2.5
+mysqlclient==1.4.4
 newrelic==5.0.2.126
 path.py==11.0.1
 python-dateutil==2.8.0    # via botocore
-python-memcached==1.48
+python-memcached==1.59
 python-termstyle==0.1.10
 pytz==2019.2
 pyyaml==5.1.2             # via edx-django-release-util
 requests==2.22.0
 s3transfer==0.2.1         # via boto3
-six==1.12.0               # via edx-django-release-util, python-dateutil
+six==1.12.0               # via edx-django-release-util, python-dateutil, python-memcached
 urllib3==1.25.3           # via botocore, requests
-wsgiref==0.1.2
+wsgiref==0.1.2 ; python_version == "2.7"

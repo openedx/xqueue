@@ -1,7 +1,7 @@
 # Core requirements for using this service
 -c constraints.txt
 
-MySQL-python==1.2.5
+mysqlclient
 backoff
 boto3
 django>=1.11,<1.12
@@ -11,7 +11,7 @@ gunicorn==0.16.1
 isort
 newrelic
 path.py==11.0.1
-python-memcached==1.48
+python-memcached
 python-termstyle==0.1.10
 pytz
 requests
