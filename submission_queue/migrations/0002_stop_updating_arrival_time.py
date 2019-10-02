@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('queue', '0001_initial'),
+        ('submission_queue', '0001_initial'),
     ]
 
     operations = [
