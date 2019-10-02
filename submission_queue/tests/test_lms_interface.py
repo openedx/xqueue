@@ -1,13 +1,13 @@
 """
 Run me with:
-    pytest queue/tests/test_lms_interface.py
+    pytest submission_queue/tests/test_lms_interface.py
 """
 from __future__ import absolute_import
 import json
 import shutil
-from queue import lms_interface
-from queue.models import Submission
-from queue.util import make_hashkey
+from submission_queue import lms_interface
+from submission_queue.models import Submission
+from submission_queue.util import make_hashkey
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
@@ -117,7 +117,7 @@ class TestLMSInterface(TransactionTestCase):
 
     # By forcing CHARFIELD_LEN_LARGE to be smaller, we'll test
     # the KEY_FOR_EXTERNAL_DICTS,URL_FOR_EXTERNAL_DICTS code
-    @patch('queue.lms_interface.CHARFIELD_LEN_LARGE', 10)
+    @patch('submission_queue.lms_interface.CHARFIELD_LEN_LARGE', 10)
     def test_submit_many_files(self):
         '''
         Submitted files should be uploaded to the storage backend.

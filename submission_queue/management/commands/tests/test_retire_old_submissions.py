@@ -4,8 +4,8 @@ Tests of the update_users management command.
 from __future__ import absolute_import
 
 from datetime import timedelta
-from queue.management.commands.tests import bulk_create_submissions
-from queue.models import Submission
+from submission_queue.management.commands.tests import bulk_create_submissions
+from submission_queue.models import Submission
 
 import pytest
 from django.core.management import call_command
@@ -21,7 +21,7 @@ class RetireOldSubmissionsTest(TestCase):
         self.assertEquals(Submission.objects.filter(retired=False).count(),
                           count)
 
-    @patch('queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=True)
+    @patch('submission_queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=True)
     def test_deletes(self, mock_post_to_lms):
         "Retire all the submissions"
         bulk_create_submissions(5)
@@ -29,7 +29,7 @@ class RetireOldSubmissionsTest(TestCase):
         call_command('retire_old_submissions', 'test')
         self.count_unretired(0)
 
-    @patch('queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=True)
+    @patch('submission_queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=True)
     def test_undeleted(self, mock_post_to_lms):
         """
         Create some older submissions and only retire those old ones
@@ -42,8 +42,8 @@ class RetireOldSubmissionsTest(TestCase):
         call_command('retire_old_submissions', 'test', retire_before=older.isoformat())
         self.count_unretired(5)
 
-    @patch('queue.management.commands.retire_old_submissions.log')
-    @patch('queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=False)
+    @patch('submission_queue.management.commands.retire_old_submissions.log')
+    @patch('submission_queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=False)
     def test_deletes_failing_to_connect_to_lms(self, mock_post_to_lms, mock_logger):
         "Retire all the submissions, and fail the LMS callback"
 

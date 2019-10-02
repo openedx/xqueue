@@ -47,7 +47,7 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	mv requirements/test.tmp requirements/test.txt
 
 quality: ## check coding style with pycodestyle and pylint
-	isort --recursive --check-only queue/ xqueue/
+	isort --recursive --check-only submission_queue/ xqueue/
 	tox -e quality
 
 requirements: ## install development environment requirements
@@ -55,7 +55,7 @@ requirements: ## install development environment requirements
 	pip-sync requirements/dev.txt requirements/private.*
 
 test: clean ## run tests in the current virtualenv
-	python -Wd -m pytest --cov --cov-report= --ds=xqueue.test_settings queue
+	python -Wd -m pytest --cov --cov-report= --ds=xqueue.test_settings submission_queue
 	coverage combine
 	coverage report -m
 
