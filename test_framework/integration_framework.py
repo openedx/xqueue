@@ -134,14 +134,14 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
         delegates to the server to construct the response."""
 
         # Get the length of the request
-        length = int(self.headers.getheader('content-length'))
+        length = int(self.headers.getheader('content-length') if six.PY2 else self.headers.get('content-length'))
 
         # Parse the POST data, which XQueue sends to
         # us as directly-encoded JSON
         post_data = self.rfile.read(length)
 
         try:
-            submission = json.loads(post_data)
+            submission = json.loads(post_data.decode('utf-8'))
 
         # If we could not process the request, log it
         # and respond with failure
@@ -168,7 +168,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
 
             # Send the response
             response_str = json.dumps(response)
-            self.wfile.write(response_str)
+            self.wfile.write(response_str.encode('utf-8'))
 
 
 class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
@@ -349,7 +349,7 @@ class ActiveGraderStub(GraderStubBase):
         else:
 
             # JSON-decode the response
-            response_dict = json.loads(response.content)
+            response_dict = json.loads(response.content.decode('utf-8'))
 
             # Check that we successfully retrieved a submission
             if response_dict['return_code'] == 0:
@@ -394,7 +394,7 @@ class ActiveGraderStub(GraderStubBase):
 
         else:
             # Check the response's return_code and log a warning if we failed
-            response_dict = json.loads(response.content)
+            response_dict = json.loads(response.content.decode('utf-8'))
             if response_dict['return_code'] != 0:
                 logger.warning('Could not submit response to XQueue: %s',
                                response_dict['content'])
@@ -422,14 +422,19 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # Get the length of the request
-        length = int(self.headers.getheader('content-length'))
+        length = int(self.headers.getheader('content-length') if six.PY2 else self.headers.get('content-length'))
 
         # Retrieve the POST dict, which has the form:
         # { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
         #
         # Note that each key in POST dict is a list, even
         # if the list has only 1 value.
-        post_dict = six.moves.urllib.parse.parse_qs(self.rfile.read(length))
+        request_content = self.rfile.read(length)
+        if isinstance(request_content, bytes):
+            contents = request_content.decode('utf-8')
+        else:
+            contents = request_content
+        post_dict = six.moves.urllib.parse.parse_qs(contents)
 
         # Try to parse the grade response
         try:

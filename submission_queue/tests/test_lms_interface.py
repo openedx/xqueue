@@ -18,7 +18,7 @@ from mock import patch
 
 
 def parse_xreply(xreply):
-    xreply = json.loads(xreply)
+    xreply = json.loads(xreply.decode('utf-8'))
     return (xreply['return_code'], xreply['content'])
 
 
@@ -178,4 +178,4 @@ class TestLMSInterface(TransactionTestCase):
         submit_url = '/xqueue/submit/'
         response = client.post(submit_url, *args, **kwargs)
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.content)
+        return json.loads(response.content.decode('utf-8'))

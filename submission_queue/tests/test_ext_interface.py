@@ -14,7 +14,7 @@ from six.moves import range
 
 
 def parse_xreply(xreply):
-    xreply = json.loads(xreply)
+    xreply = json.loads(xreply.decode('utf-8'))
     return (xreply['return_code'], xreply['content'])
 
 
