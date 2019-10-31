@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 import json
 import shutil
-from submission_queue import ext_interface
-from submission_queue.models import Submission
-from submission_queue.util import make_hashkey
+from queue import ext_interface
+from queue.models import Submission
+from queue.util import make_hashkey
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -210,7 +210,7 @@ class TestExtInterface(TransactionTestCase):
         self.assertEqual(error, 1)  # failure
         self.assertEqual(msg, 'Submission does not exist')
 
-    @patch('submission_queue.consumer.post_grade_to_lms', return_value=False)
+    @patch('queue.consumer.post_grade_to_lms', return_value=False)
     @override_settings(SUBMISSION_PROCESSING_DELAY=0)
     def test_put_result_with_lms_failures(self, mock_post_grade_to_lms):
         """

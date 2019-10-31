@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-from submission_queue.management.commands.tests import bulk_create_submissions
-from submission_queue.models import Submission
+from queue.management.commands.tests import bulk_create_submissions
+from queue.models import Submission
 
 from django.core.management import call_command
 from django.core.management.base import CommandError

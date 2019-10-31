@@ -2,9 +2,9 @@ from __future__ import absolute_import
 import json
 import logging
 import os.path
-from submission_queue.models import CHARFIELD_LEN_LARGE, Submission
-from submission_queue.util import get_request_ip, make_hashkey
-from submission_queue.views import compose_reply
+from queue.models import CHARFIELD_LEN_LARGE, Submission
+from queue.util import get_request_ip, make_hashkey
+from queue.views import compose_reply
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required

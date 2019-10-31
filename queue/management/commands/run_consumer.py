@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import logging
 import time
-from submission_queue.consumer import Worker
+from queue.consumer import Worker
 
 from django.conf import settings
 from django.core.management.base import BaseCommand

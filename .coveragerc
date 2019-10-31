@@ -1,11 +1,11 @@
 [run]
 data_file = .coverage
 source =
-    submission_queue
+    queue
 omit =
-    submission_queue/management/commands/tests/*
-    submission_queue/migrations/*
-    submission_queue/tests/*
+    queue/management/commands/tests/*
+    queue/migrations/*
+    queue/tests/*
 concurrency =
     multiprocessing
     thread

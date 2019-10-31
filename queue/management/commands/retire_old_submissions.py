@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import logging
-from submission_queue.consumer import post_failure_to_lms
-from submission_queue.models import Submission
+from queue.consumer import post_failure_to_lms
+from queue.models import Submission
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import dateparse, timezone
