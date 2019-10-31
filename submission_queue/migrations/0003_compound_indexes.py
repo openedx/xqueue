@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('queue', '0002_stop_updating_arrival_time'),
+        ('submission_queue', '0002_stop_updating_arrival_time'),
     ]
 
     operations = [
