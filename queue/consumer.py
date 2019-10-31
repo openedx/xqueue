@@ -4,7 +4,7 @@ import json
 import logging
 import multiprocessing
 import time
-from submission_queue.models import Submission
+from queue.models import Submission
 
 import requests
 from django.conf import settings

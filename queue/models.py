@@ -1,7 +1,7 @@
 """
 To generate a migration, make changes to this model file and then run:
 
-django-admin.py schemamigration submission_queue [migration_name] --auto --settings=xqueue.settings --pythonpath=.
+django-admin.py schemamigration queue [migration_name] --auto --settings=xqueue.settings --pythonpath=.
 
 """
 from __future__ import absolute_import
@@ -90,7 +90,6 @@ class Submission(models.Model):
         index_together = [('queue_name', 'retired', 'push_time', 'arrival_time'),
                           ('queue_name', 'retired', 'pull_time', 'arrival_time'),
                           ('lms_callback_url', 'retired')]
-        db_table = 'queue_submission'
 
     # Submission
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of LMS

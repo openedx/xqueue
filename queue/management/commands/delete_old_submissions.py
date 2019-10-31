@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import logging
 import time
 from datetime import datetime, timedelta
-from submission_queue.models import Submission
+from queue.models import Submission
 
 import pytz
 from django.core.management.base import BaseCommand, CommandError

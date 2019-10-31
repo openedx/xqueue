@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import json
 import logging
-import submission_queue.consumer
-from submission_queue.models import Submission
-from submission_queue.util import get_request_ip, make_hashkey
-from submission_queue.views import compose_reply
+import queue.consumer
+from queue.models import Submission
+from queue.util import get_request_ip, make_hashkey
+from queue.views import compose_reply
 
 import requests
 from django.conf import settings
@@ -147,7 +147,7 @@ def put_result(request):
             submission.grader_reply = grader_reply
 
             # Deliver grading results to LMS
-            success = submission_queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
+            success = queue.consumer.post_grade_to_lms(submission.xqueue_header, grader_reply)
             submission.lms_ack = success
 
             # Keep track of how many times we've failed to return a grade for this submission

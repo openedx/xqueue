@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from datetime import datetime, timedelta
-from submission_queue.models import Submission
+from queue.models import Submission
 
 import pytz
 from six.moves import range
