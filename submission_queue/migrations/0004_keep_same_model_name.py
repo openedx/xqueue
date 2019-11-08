@@ -7,6 +7,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
+    replaces = [('queue', '0003_compound_indexes')]
+
     dependencies = [
         ('submission_queue', '0003_compound_indexes'),
     ]

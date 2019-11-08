@@ -9,6 +9,8 @@ from django.db import connection, migrations, models
 
 class Migration(migrations.Migration):
 
+    replaces = [('queue', '0001_initial')]
+
     dependencies = [
     ]
 
