@@ -30,5 +30,5 @@ pyyaml==5.1.2             # via edx-django-release-util
 requests==2.22.0
 s3transfer==0.2.1         # via boto3
 six==1.12.0               # via edx-django-release-util, python-dateutil, python-memcached
-urllib3==1.25.3           # via botocore, requests
+urllib3==1.25.7           # via botocore, requests
 wsgiref==0.1.2 ; python_version == "2.7"
