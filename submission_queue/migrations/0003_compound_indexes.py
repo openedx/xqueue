@@ -7,8 +7,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
+    replaces = [('queue', '0003_compound_indexes')]
+
     dependencies = [
-        ('queue', '0002_stop_updating_arrival_time'),
+        ('submission_queue', '0002_stop_updating_arrival_time'),
     ]
 
     operations = [

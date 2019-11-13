@@ -3,7 +3,7 @@ Tests of the database models in the ``queue`` application.
 """
 from __future__ import absolute_import
 
-from queue.models import Submission
+from submission_queue.models import Submission
 
 from django.test import TestCase
 import six

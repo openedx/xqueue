@@ -9,6 +9,8 @@ from django.db import connection, migrations, models
 
 class Migration(migrations.Migration):
 
+    replaces = [('queue', '0001_initial')]
+
     dependencies = [
     ]
 
@@ -35,5 +37,8 @@ class Migration(migrations.Migration):
                 ('lms_ack', models.BooleanField(default=False)),
                 ('retired', models.BooleanField(default=False, db_index=True)),
             ],
+            options={
+                'db_table': 'queue_submission',
+            }
         ),
     ]

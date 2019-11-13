@@ -52,7 +52,7 @@ import datetime
 import time
 import json
 from abc import ABCMeta, abstractmethod
-from queue.consumer import Worker
+from submission_queue.consumer import Worker
 import six.moves.urllib.parse
 import threading
 from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
