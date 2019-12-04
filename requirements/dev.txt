@@ -23,7 +23,6 @@ docutils==0.15.2
 edx-django-release-util==0.3.1
 filelock==3.0.12
 funcsigs==1.0.2
-futures==3.3.0 ; python_version == "2.7"
 gunicorn==0.16.1
 idna==2.8
 importlib-metadata==0.23
@@ -36,7 +35,7 @@ newrelic==5.2.3.131
 packaging==19.2
 path.py==11.0.1
 pathlib2==2.3.5
-pip-tools==4.2.0
+pip-tools==4.3.0
 pluggy==0.13.0
 py==1.8.0
 pycodestyle==2.5.0
@@ -60,5 +59,4 @@ tox==3.14.1
 urllib3==1.25.7
 virtualenv==16.7.7
 wcwidth==0.1.7
-wsgiref==0.1.2 ; python_version == "2.7"
 zipp==0.6.0
