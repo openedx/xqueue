@@ -122,7 +122,7 @@ class Submission(models.Model):
 
     objects = SubmissionManager()
 
-    def __unicode__(self):
+    def __str__(self):
         submission_info  = "Submission from %s for queue '%s':\n" % (self.requester_id, self.queue_name)
         submission_info += "    Callback URL: %s\n" % self.lms_callback_url
         submission_info += "    Arrival time: %s\n" % self.arrival_time
