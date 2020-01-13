@@ -15,4 +15,3 @@ python-memcached
 python-termstyle==0.1.10
 pytz
 requests
-wsgiref==0.1.2
