@@ -27,7 +27,7 @@ pytz==2019.3
 pyyaml==5.3               # via edx-django-release-util
 requests==2.22.0
 s3transfer==0.3.0         # via boto3
-six==1.13.0               # via edx-django-release-util, python-dateutil, python-memcached
+six==1.14.0               # via edx-django-release-util, python-dateutil, python-memcached
 urllib3==1.25.7           # via botocore, requests
 
 # The following packages are considered to be unsafe in a requirements file:
