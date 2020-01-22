@@ -27,7 +27,7 @@ mysqlclient==1.4.6
 newrelic==5.4.1.134
 packaging==20.0
 path.py==11.0.1
-pip-tools==4.3.0
+pip-tools==4.4.0
 pluggy==0.13.1
 py==1.8.1
 pycodestyle==2.5.0
