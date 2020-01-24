@@ -25,7 +25,7 @@ python-termstyle==0.1.10
 pytz==2019.3
 pyyaml==5.3               # via edx-django-release-util
 requests==2.22.0
-s3transfer==0.3.1         # via boto3
+s3transfer==0.3.2         # via boto3
 six==1.14.0               # via edx-django-release-util, python-dateutil, python-memcached
 urllib3==1.25.7           # via botocore, requests
 
