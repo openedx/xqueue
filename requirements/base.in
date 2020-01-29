@@ -16,4 +16,4 @@ python-termstyle==0.1.10
 pytz
 requests
 # Pin pip to 18.1 since newer versions break tox and prevent merging
-pip==18.1
+pip==20.0.2
