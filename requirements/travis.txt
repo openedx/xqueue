@@ -10,8 +10,6 @@ codecov==2.0.15
 coverage==5.0.3           # via codecov
 filelock==3.0.12          # via tox
 idna==2.8                 # via requests
-importlib-metadata==1.4.0  # via pluggy, tox
-more-itertools==5.0.0     # via zipp
 packaging==20.0           # via tox
 pluggy==0.13.1            # via tox
 py==1.8.1                 # via tox
@@ -19,10 +17,7 @@ pyparsing==2.4.6          # via packaging
 requests==2.22.0          # via codecov
 six==1.14.0               # via packaging, tox
 toml==0.10.0              # via tox
-tox-battery==0.5.1
+tox-battery==0.5.2
 tox==3.14.3
 urllib3==1.25.7           # via requests
 virtualenv==16.7.9        # via tox
-zipp==1.0.0               # via importlib-metadata
-# Pin pip to 18.1 since newer versions break tox and prevent merging
-pip==18.1
