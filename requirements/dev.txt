@@ -27,10 +27,11 @@ mysqlclient==1.4.6
 newrelic==5.4.1.134
 packaging==20.1
 path.py==11.0.1
-pip-tools==4.4.0
+pip-tools==4.4.1
 pluggy==0.13.1
 py==1.8.1
 pycodestyle==2.5.0
+pyinotify==0.9.6 ; "linux" in sys_platform
 pyparsing==2.4.6
 pytest-cov==2.8.1
 pytest-django==3.8.0
