@@ -12,10 +12,10 @@ chardet==3.0.4
 click==7.0
 codecov==2.0.15
 coverage==5.0.3
-django-storages==1.8
-django==2.2.9
+django-storages==1.9
+django==2.2.10
 docutils==0.15.2
-edx-django-release-util==0.3.5
+edx-django-release-util==0.3.6
 filelock==3.0.12
 gunicorn==0.16.1
 idna==2.8
@@ -24,13 +24,14 @@ isort==4.3.21
 jmespath==0.9.4
 mock==3.0.5
 mysqlclient==1.4.6
-newrelic==5.4.1.134
+newrelic==5.6.0.135
 packaging==20.1
 path.py==11.0.1
-pip-tools==4.4.0
+pip-tools==4.4.1
 pluggy==0.13.1
 py==1.8.1
 pycodestyle==2.5.0
+pyinotify==0.9.6 ; "linux" in sys_platform
 pyparsing==2.4.6
 pytest-cov==2.8.1
 pytest-django==3.8.0
