@@ -9,6 +9,7 @@ certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 codecov==2.0.15
 coverage==5.0.3           # via codecov
+distlib==0.3.0            # via virtualenv
 filelock==3.0.12          # via tox, virtualenv
 idna==2.8                 # via requests
 importlib-metadata==1.5.0  # via pluggy, tox, virtualenv
@@ -21,7 +22,7 @@ requests==2.22.0          # via codecov
 six==1.14.0               # via packaging, tox, virtualenv
 toml==0.10.0              # via tox
 tox-battery==0.5.2
-tox==3.14.3
+tox==3.14.5
 urllib3==1.25.8           # via requests
-virtualenv==20.0.1        # via tox
-zipp==1.1.0               # via importlib-metadata
+virtualenv==20.0.4        # via tox
+zipp==1.2.0               # via importlib-metadata

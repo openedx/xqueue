@@ -7,13 +7,14 @@
 appdirs==1.4.3
 attrs==19.3.0
 backoff==1.10.0
-boto3==1.11.14
-botocore==1.14.14
+boto3==1.12.1
+botocore==1.15.1
 certifi==2019.11.28
 chardet==3.0.4
 click==7.0
 codecov==2.0.15
 coverage==5.0.3
+distlib==0.3.0
 django-storages==1.9.1
 django==2.2.10
 docutils==0.15.2
@@ -52,11 +53,11 @@ six==1.14.0
 sqlparse==0.3.0
 toml==0.10.0
 tox-battery==0.5.2
-tox==3.14.3
+tox==3.14.5
 urllib3==1.25.8
-virtualenv==20.0.1
+virtualenv==20.0.4
 wcwidth==0.1.8
-zipp==1.1.0
+zipp==1.2.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
