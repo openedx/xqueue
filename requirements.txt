@@ -14,7 +14,7 @@ django==2.2.10
 docutils==0.15.2          # via botocore
 edx-django-release-util==0.3.6
 gunicorn==0.16.1
-idna==2.8                 # via requests
+idna==2.9                 # via requests
 isort==4.3.21
 jmespath==0.9.4           # via boto3, botocore
 mysqlclient==1.4.6
