@@ -33,7 +33,7 @@ newrelic==5.6.0.135
 packaging==20.1
 path.py==11.0.1
 pathlib2==2.3.5
-pip-tools==4.4.1
+pip-tools==4.5.0
 pluggy==0.13.1
 py==1.8.1
 pycodestyle==2.5.0
