@@ -7,12 +7,12 @@
 appdirs==1.4.3
 attrs==19.3.0
 backoff==1.10.0
-boto3==1.12.1
-botocore==1.15.1
+boto3==1.12.6
+botocore==1.15.6
 certifi==2019.11.28
 chardet==3.0.4
 click==7.0
-codecov==2.0.15
+codecov==2.0.16
 coverage==5.0.3
 distlib==0.3.0
 django-storages==1.9.1
@@ -21,19 +21,19 @@ docutils==0.15.2
 edx-django-release-util==0.3.6
 filelock==3.0.12
 gunicorn==0.16.1
-idna==2.8
+idna==2.9
 importlib-metadata==1.5.0
 importlib-resources==1.0.2
 isort==4.3.21
-jmespath==0.9.4
+jmespath==0.9.5
 mock==3.0.5
 more-itertools==5.0.0
 mysqlclient==1.4.6
-newrelic==5.6.0.135
+newrelic==5.8.0.136
 packaging==20.1
 path.py==11.0.1
 pathlib2==2.3.5
-pip-tools==4.4.1
+pip-tools==4.5.0
 pluggy==0.13.1
 py==1.8.1
 pycodestyle==2.5.0
@@ -47,7 +47,7 @@ python-memcached==1.59
 python-termstyle==0.1.10
 pytz==2019.3
 pyyaml==5.3
-requests==2.22.0
+requests==2.23.0
 s3transfer==0.3.3
 six==1.14.0
 sqlparse==0.3.0
@@ -55,7 +55,7 @@ toml==0.10.0
 tox-battery==0.5.2
 tox==3.14.5
 urllib3==1.25.8
-virtualenv==20.0.4
+virtualenv==20.0.5
 wcwidth==0.1.8
 zipp==1.2.0
 
