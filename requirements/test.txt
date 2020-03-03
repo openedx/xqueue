@@ -5,43 +5,43 @@
 #    make upgrade
 #
 attrs==19.3.0             # via pytest
-backoff==1.10.0
-boto3==1.12.6
-botocore==1.15.6
-certifi==2019.11.28
-chardet==3.0.4
+backoff==1.10.0           # via -r requirements/../requirements.txt (line 7)
+boto3==1.12.12            # via -r requirements/../requirements.txt (line 8)
+botocore==1.15.12         # via -r requirements/../requirements.txt (line 9), boto3, s3transfer
+certifi==2019.11.28       # via -r requirements/../requirements.txt (line 10), requests
+chardet==3.0.4            # via -r requirements/../requirements.txt (line 11), requests
 coverage==5.0.3           # via pytest-cov
-django-storages==1.9.1
-docutils==0.15.2
-edx-django-release-util==0.3.6
-gunicorn==0.16.1
-idna==2.9
+django-storages==1.9.1    # via -r requirements/../requirements.txt (line 12)
+docutils==0.15.2          # via -r requirements/../requirements.txt (line 14), botocore
+edx-django-release-util==0.3.6  # via -r requirements/../requirements.txt (line 15)
+gunicorn==0.16.1          # via -r requirements/../requirements.txt (line 16)
+idna==2.9                 # via -r requirements/../requirements.txt (line 17), requests
 importlib-metadata==1.5.0  # via pluggy, pytest
-isort==4.3.21
-jmespath==0.9.5
-mock==3.0.5
-more-itertools==5.0.0     # via pytest
-mysqlclient==1.4.6
-newrelic==5.8.0.136
+isort==4.3.21             # via -r requirements/../requirements.txt (line 18)
+jmespath==0.9.5           # via -r requirements/../requirements.txt (line 19), boto3, botocore
+mock==3.0.5               # via -r requirements/test.in (line 6)
+more-itertools==5.0.0     # via -c requirements/constraints.txt (line 13), pytest
+mysqlclient==1.4.6        # via -r requirements/../requirements.txt (line 20)
+newrelic==5.8.0.136       # via -r requirements/../requirements.txt (line 21)
 packaging==20.1           # via pytest
-path.py==11.0.1
+path.py==11.0.1           # via -r requirements/../requirements.txt (line 22)
 pathlib2==2.3.5           # via pytest
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pyparsing==2.4.6          # via packaging
-pytest-cov==2.8.1
-pytest-django==3.8.0
-pytest==5.3.2 ; python_version > "3.0"
-python-dateutil==2.8.1
-python-memcached==1.59
-python-termstyle==0.1.10
-pytz==2019.3
-pyyaml==5.3
-requests==2.23.0
-s3transfer==0.3.3
-six==1.14.0
-sqlparse==0.3.0
-urllib3==1.25.8
+pytest-cov==2.8.1         # via -r requirements/test.in (line 8)
+pytest-django==3.8.0      # via -r requirements/test.in (line 9)
+pytest==5.3.2 ; python_version > "3.0"  # via -c requirements/constraints.txt (line 14), -r requirements/test.in (line 7), pytest-cov, pytest-django
+python-dateutil==2.8.1    # via -r requirements/../requirements.txt (line 23), botocore
+python-memcached==1.59    # via -r requirements/../requirements.txt (line 24)
+python-termstyle==0.1.10  # via -r requirements/../requirements.txt (line 25)
+pytz==2019.3              # via -r requirements/../requirements.txt (line 26), django
+pyyaml==5.3               # via -r requirements/../requirements.txt (line 27), edx-django-release-util
+requests==2.23.0          # via -r requirements/../requirements.txt (line 28)
+s3transfer==0.3.3         # via -r requirements/../requirements.txt (line 29), boto3
+six==1.14.0               # via -r requirements/../requirements.txt (line 30), edx-django-release-util, mock, more-itertools, packaging, pathlib2, python-dateutil, python-memcached
+sqlparse==0.3.1           # via -r requirements/../requirements.txt (line 31), django
+urllib3==1.25.8           # via -r requirements/../requirements.txt (line 32), botocore, requests
 wcwidth==0.1.8            # via pytest
 zipp==1.2.0               # via importlib-metadata
 
