@@ -8,11 +8,7 @@ python:
 
 env:
 - TOXENV=django22
-
-matrix:
-  include:
-  - python: 3.5
-    env: TOXENV=py35-quality
+- TOXENV=py35-quality
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
