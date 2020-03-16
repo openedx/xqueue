@@ -10,7 +10,7 @@ services:
     image: mysql:5.6
   xqueue:
     container_name: xqueue
-    image: edxops/xqueue:latest
+    image: openedx/xqueue:latest
     command: tail -f /dev/null
     volumes:
       - ..:/edx/app/xqueue/xqueue

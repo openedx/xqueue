@@ -1,24 +1,50 @@
 language: python
-services:
-  - docker
-sudo: required
-
 python:
-- 3.5
-
-env:
-- TOXENV=django22
-- TOXENV=py35-quality
-
-before_install:
-  - docker-compose -f .travis/docker-compose-travis.yml up -d
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
-script:
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
-after_success:
-  - pip install -r requirements/travis.txt
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
-  - codecov
+- '3.6'
 branches:
   only:
-    - master
+  - master
+services:
+- docker
+before_install:
+- docker-compose -f .travis/docker-compose-travis.yml up -d
+- docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd
+  /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
+install:
+- pip install -r requirements/travis.txt
+script:
+- docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd
+  /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
+after_success:
+- docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd
+  /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
+- codecov
+jobs:
+  include:
+  - name: Django 1.11
+    env:
+    - TOXENV=django111
+  - name: Django 2.0
+    env:
+    - TOXENV=django20
+  - name: Django 2.1
+    env:
+    - TOXENV=django21
+  - name: Django 2.2
+    env:
+    - TOXENV=django22
+  - name: Docker Build
+    before_install: []
+    install: []
+    script:
+    - make docker_build
+env:
+  global:
+  - DOCKER_USERNAME=edxbuilder
+  # encrypted DOCKER_PASSWORD
+  - secure: DeapireJ5NIwis4bMCdMMSSip+tySatpcsZgX/Ou4tAQCNuifyyqHKkvgXK3iZrwv/HsIoCxr6+FeVGXFu2ITiwEYaZnlTWKzA+a2rNE1em7VSZZc0nGMTMbxoPDAGEbk3tQYIDX0cx8nhYsRxeBKsX3cuY05tQhMk5pnaQZ9tQ=
+deploy:
+  provider: script
+  script: make travis_docker_push
+  on:
+    branch: master
