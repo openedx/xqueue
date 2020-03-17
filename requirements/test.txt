@@ -6,11 +6,11 @@
 #
 attrs==19.3.0             # via pytest
 backoff==1.10.0           # via -r requirements/../requirements.txt
-boto3==1.12.17            # via -r requirements/../requirements.txt
-botocore==1.15.17         # via -r requirements/../requirements.txt, boto3, s3transfer
+boto3==1.12.22            # via -r requirements/../requirements.txt
+botocore==1.15.22         # via -r requirements/../requirements.txt, boto3, s3transfer
 certifi==2019.11.28       # via -r requirements/../requirements.txt, requests
 chardet==3.0.4            # via -r requirements/../requirements.txt, requests
-coverage==5.0.3           # via pytest-cov
+coverage==5.0.4           # via pytest-cov
 django-storages==1.9.1    # via -r requirements/../requirements.txt
 docutils==0.15.2          # via -r requirements/../requirements.txt, botocore
 edx-django-release-util==0.3.6  # via -r requirements/../requirements.txt
