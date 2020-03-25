@@ -55,7 +55,7 @@ toml==0.10.0              # via -r requirements/travis.txt, tox
 tox-battery==0.5.2        # via -r requirements/travis.txt
 tox==3.14.5               # via -r requirements/travis.txt, tox-battery
 urllib3==1.25.8           # via -r requirements/test.txt, -r requirements/travis.txt, botocore, requests
-virtualenv==20.0.13       # via -r requirements/travis.txt, tox
+virtualenv==20.0.14       # via -r requirements/travis.txt, tox
 wcwidth==0.1.9            # via -r requirements/test.txt, pytest
 zipp==1.2.0               # via -r requirements/test.txt, -r requirements/travis.txt, importlib-metadata, importlib-resources
 
