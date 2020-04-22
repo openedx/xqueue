@@ -7,40 +7,40 @@
 appdirs==1.4.3            # via -r requirements/travis.txt, virtualenv
 attrs==19.3.0             # via -r requirements/test.txt, pytest
 backoff==1.10.0           # via -r requirements/test.txt
-boto3==1.12.28            # via -r requirements/test.txt
-botocore==1.15.28         # via -r requirements/test.txt, boto3, s3transfer
-certifi==2019.11.28       # via -r requirements/test.txt, -r requirements/travis.txt, requests
+boto3==1.12.43            # via -r requirements/test.txt
+botocore==1.15.43         # via -r requirements/test.txt, boto3, s3transfer
+certifi==2020.4.5.1       # via -r requirements/test.txt, -r requirements/travis.txt, requests
 chardet==3.0.4            # via -r requirements/test.txt, -r requirements/travis.txt, requests
 click==7.1.1              # via -r requirements/pip-tools.txt, pip-tools
 codecov==2.0.22           # via -r requirements/travis.txt
-coverage==5.0.4           # via -r requirements/test.txt, -r requirements/travis.txt, codecov, pytest-cov
+coverage==5.1             # via -r requirements/test.txt, -r requirements/travis.txt, codecov, pytest-cov
 distlib==0.3.0            # via -r requirements/travis.txt, virtualenv
 django-storages==1.9.1    # via -r requirements/test.txt
-django==2.2.11            # via -r requirements/test.txt, django-storages, edx-django-release-util
+django==2.2.12            # via -r requirements/test.txt, django-storages, edx-django-release-util
 docutils==0.15.2          # via -r requirements/test.txt, botocore
-edx-django-release-util==0.4.1  # via -r requirements/test.txt
+edx-django-release-util==0.4.2  # via -r requirements/test.txt
 filelock==3.0.12          # via -r requirements/travis.txt, tox, virtualenv
 gunicorn==0.16.1          # via -r requirements/test.txt
 idna==2.9                 # via -r requirements/test.txt, -r requirements/travis.txt, requests
-importlib-metadata==1.5.0  # via -r requirements/test.txt, -r requirements/travis.txt, importlib-resources, pluggy, pytest, tox, virtualenv
+importlib-metadata==1.6.0  # via -r requirements/test.txt, -r requirements/travis.txt, importlib-resources, pluggy, pytest, tox, virtualenv
 importlib-resources==1.4.0  # via -r requirements/travis.txt, virtualenv
 isort==4.3.21             # via -r requirements/test.txt
 jmespath==0.9.5           # via -r requirements/test.txt, boto3, botocore
 mock==3.0.5               # via -r requirements/test.txt
 more-itertools==5.0.0     # via -c requirements/constraints.txt, -r requirements/test.txt, pytest
 mysqlclient==1.4.6        # via -r requirements/test.txt
-newrelic==5.10.0.138      # via -r requirements/test.txt
+newrelic==5.12.0.140      # via -r requirements/test.txt
 packaging==20.3           # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
 path.py==11.0.1           # via -r requirements/test.txt
 pathlib2==2.3.5           # via -r requirements/test.txt, pytest
-pip-tools==4.5.1          # via -r requirements/pip-tools.txt
+pip-tools==5.0.0          # via -r requirements/pip-tools.txt
 pluggy==0.13.1            # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
 py==1.8.1                 # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
 pycodestyle==2.5.0        # via -r requirements/quality.txt
 pyinotify==0.9.6 ; "linux" in sys_platform  # via -r requirements/dev.in
-pyparsing==2.4.6          # via -r requirements/test.txt, -r requirements/travis.txt, packaging
+pyparsing==2.4.7          # via -r requirements/test.txt, -r requirements/travis.txt, packaging
 pytest-cov==2.8.1         # via -r requirements/test.txt
-pytest-django==3.8.0      # via -r requirements/test.txt
+pytest-django==3.9.0      # via -r requirements/test.txt
 pytest==5.3.2 ; python_version > "3.0"  # via -c requirements/constraints.txt, -r requirements/test.txt, pytest-cov, pytest-django
 python-dateutil==2.8.1    # via -r requirements/test.txt, botocore
 python-memcached==1.59    # via -r requirements/test.txt
@@ -53,11 +53,12 @@ six==1.14.0               # via -r requirements/pip-tools.txt, -r requirements/t
 sqlparse==0.3.1           # via -r requirements/test.txt, django
 toml==0.10.0              # via -r requirements/travis.txt, tox
 tox-battery==0.5.2        # via -r requirements/travis.txt
-tox==3.14.5               # via -r requirements/travis.txt, tox-battery
-urllib3==1.25.8           # via -r requirements/test.txt, -r requirements/travis.txt, botocore, requests
-virtualenv==20.0.13       # via -r requirements/travis.txt, tox
+tox==3.14.6               # via -r requirements/travis.txt, tox-battery
+urllib3==1.25.9           # via -r requirements/test.txt, -r requirements/travis.txt, botocore, requests
+virtualenv==20.0.18       # via -r requirements/travis.txt, tox
 wcwidth==0.1.9            # via -r requirements/test.txt, pytest
 zipp==1.2.0               # via -r requirements/test.txt, -r requirements/travis.txt, importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
+# pip
 # setuptools

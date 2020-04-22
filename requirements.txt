@@ -5,20 +5,20 @@
 #    make upgrade
 #
 backoff==1.10.0           # via -r requirements/base.in
-boto3==1.12.28            # via -r requirements/base.in
-botocore==1.15.28         # via boto3, s3transfer
-certifi==2019.11.28       # via requests
+boto3==1.12.43            # via -r requirements/base.in
+botocore==1.15.43         # via boto3, s3transfer
+certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
 django-storages==1.9.1    # via -r requirements/base.in
-django==2.2.11            # via -r requirements/base.in, django-storages, edx-django-release-util
+django==2.2.12            # via -r requirements/base.in, django-storages, edx-django-release-util
 docutils==0.15.2          # via botocore
-edx-django-release-util==0.4.1  # via -r requirements/base.in
+edx-django-release-util==0.4.2  # via -r requirements/base.in
 gunicorn==0.16.1          # via -r requirements/base.in
 idna==2.9                 # via requests
 isort==4.3.21             # via -r requirements/base.in
 jmespath==0.9.5           # via boto3, botocore
 mysqlclient==1.4.6        # via -r requirements/base.in
-newrelic==5.10.0.138      # via -r requirements/base.in
+newrelic==5.12.0.140      # via -r requirements/base.in
 path.py==11.0.1           # via -r requirements/base.in
 python-dateutil==2.8.1    # via botocore
 python-memcached==1.59    # via -r requirements/base.in
@@ -29,7 +29,7 @@ requests==2.23.0          # via -r requirements/base.in
 s3transfer==0.3.3         # via boto3
 six==1.14.0               # via edx-django-release-util, python-dateutil, python-memcached
 sqlparse==0.3.1           # via django
-urllib3==1.25.8           # via botocore, requests
+urllib3==1.25.9           # via botocore, requests
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
