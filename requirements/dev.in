@@ -7,4 +7,4 @@
 -r test.txt                         # Dependencies for running the various test suites
 -r travis.txt                       # tox and related dependencies
 
-pyinotify; "linux" in sys_platform  # More efficient checking for runserver reload trigger events
+pywatchman; "linux" in sys_platform  # More efficient checking for runserver reload trigger events
