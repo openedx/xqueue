@@ -5,8 +5,8 @@
 #    make upgrade
 #
 backoff==1.10.0           # via -r requirements/base.in
-boto3==1.12.43            # via -r requirements/base.in
-botocore==1.15.43         # via boto3, s3transfer
+boto3==1.12.46            # via -r requirements/base.in
+botocore==1.15.46         # via boto3, s3transfer
 certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
 django-storages==1.9.1    # via -r requirements/base.in
