@@ -133,7 +133,7 @@ class Command(BaseCommand):
                 treat_missing_data = "notBreaching"
                 statistic = "Maximum"
                 actions = cloudwatch_configuration['sns_arns']
-                alarm_name = "{}-{} {} queue length over threshold".format(environment,
+                alarm_name = "{}-{} {} xqueue queue length over threshold".format(environment,
                                                                            deployment,
                                                                            queue['queue_name'])
 

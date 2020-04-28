@@ -82,5 +82,5 @@ class CountQueuedSubmissionsTest(TestCase):
                 metric_alarm_kwargs.append(kwargs)
 
         self.assertEquals(len(metric_alarm_kwargs), 2)
-        self.assertEquals(metric_alarm_kwargs[0]['AlarmName'], u'dev-stack test2 queue length over threshold')
-        self.assertEquals(metric_alarm_kwargs[1]['AlarmName'], u'dev-stack test-pull queue length over threshold')
+        self.assertEquals(metric_alarm_kwargs[0]['AlarmName'], u'dev-stack test2 xqueue queue length over threshold')
+        self.assertEquals(metric_alarm_kwargs[1]['AlarmName'], u'dev-stack test-pull xqueue queue length over threshold')
