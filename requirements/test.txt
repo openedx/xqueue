@@ -6,8 +6,8 @@
 #
 attrs==19.3.0             # via pytest
 backoff==1.10.0           # via -r requirements/../requirements.txt
-boto3==1.12.46            # via -r requirements/../requirements.txt
-botocore==1.15.46         # via -r requirements/../requirements.txt, boto3, s3transfer
+boto3==1.12.48            # via -r requirements/../requirements.txt
+botocore==1.15.48         # via -r requirements/../requirements.txt, boto3, s3transfer
 certifi==2020.4.5.1       # via -r requirements/../requirements.txt, requests
 chardet==3.0.4            # via -r requirements/../requirements.txt, requests
 coverage==5.1             # via pytest-cov
@@ -35,7 +35,7 @@ pytest==5.3.2 ; python_version > "3.0"  # via -c requirements/constraints.txt, -
 python-dateutil==2.8.1    # via -r requirements/../requirements.txt, botocore
 python-memcached==1.59    # via -r requirements/../requirements.txt
 python-termstyle==0.1.10  # via -r requirements/../requirements.txt
-pytz==2019.3              # via -r requirements/../requirements.txt, django
+pytz==2020.1              # via -r requirements/../requirements.txt, django
 pyyaml==5.3.1             # via -r requirements/../requirements.txt, edx-django-release-util
 requests==2.23.0          # via -r requirements/../requirements.txt
 s3transfer==0.3.3         # via -r requirements/../requirements.txt, boto3

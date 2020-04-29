@@ -7,11 +7,11 @@
 appdirs==1.4.3            # via -r requirements/travis.txt, virtualenv
 attrs==19.3.0             # via -r requirements/test.txt, pytest
 backoff==1.10.0           # via -r requirements/test.txt
-boto3==1.12.46            # via -r requirements/test.txt
-botocore==1.15.46         # via -r requirements/test.txt, boto3, s3transfer
+boto3==1.12.48            # via -r requirements/test.txt
+botocore==1.15.48         # via -r requirements/test.txt, boto3, s3transfer
 certifi==2020.4.5.1       # via -r requirements/test.txt, -r requirements/travis.txt, requests
 chardet==3.0.4            # via -r requirements/test.txt, -r requirements/travis.txt, requests
-click==7.1.1              # via -r requirements/pip-tools.txt, pip-tools
+click==7.1.2              # via -r requirements/pip-tools.txt, pip-tools
 codecov==2.0.22           # via -r requirements/travis.txt
 coverage==5.1             # via -r requirements/test.txt, -r requirements/travis.txt, codecov, pytest-cov
 distlib==0.3.0            # via -r requirements/travis.txt, virtualenv
@@ -44,7 +44,7 @@ pytest==5.3.2 ; python_version > "3.0"  # via -c requirements/constraints.txt, -
 python-dateutil==2.8.1    # via -r requirements/test.txt, botocore
 python-memcached==1.59    # via -r requirements/test.txt
 python-termstyle==0.1.10  # via -r requirements/test.txt
-pytz==2019.3              # via -r requirements/test.txt, django
+pytz==2020.1              # via -r requirements/test.txt, django
 pywatchman==1.4.1 ; "linux" in sys_platform  # via -r requirements/dev.in
 pyyaml==5.3.1             # via -r requirements/test.txt, edx-django-release-util
 requests==2.23.0          # via -r requirements/test.txt, -r requirements/travis.txt, codecov
