@@ -67,3 +67,19 @@ validate: quality test ## run tests and quality checks
 
 selfcheck: ## check that the Makefile is well-formed
 	@echo "The Makefile is well-formed."
+docker_build:
+	docker build . -f Dockerfile -t openedx/xqueue
+	docker build . -f Dockerfile --target newrelic -t openedx/xqueue:latest-newrelic
+
+travis_docker_tag: docker_build
+	docker tag openedx/xqueue openedx/xqueue:$$TRAVIS_COMMIT
+	docker tag openedx/xqueue:latest-newrelic openedx/xqueue:$$TRAVIS_COMMIT-newrelic
+
+travis_docker_auth:
+	echo "$$DOCKER_PASSWORD" | docker login -u "$$DOCKER_USERNAME" --password-stdin
+
+travis_docker_push: travis_docker_tag travis_docker_auth ## push to docker hub
+	docker push 'openedx/xqueue:latest'
+	docker push "openedx/xqueue:$$TRAVIS_COMMIT"
+	docker push 'openedx/xqueue:latest-newrelic'
+	docker push "openedx/xqueue:$$TRAVIS_COMMIT-newrelic"
