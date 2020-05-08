@@ -60,6 +60,7 @@ test: clean ## run tests in the current virtualenv
 	coverage report -m
 
 test-all: ## run tests on every supported Python/Django combination
+	pip install -U pip==20.0.2
 	tox -e quality
 	tox
 
