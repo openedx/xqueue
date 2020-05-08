@@ -5,6 +5,10 @@ sudo: required
 python:
 - 3.5
 - 3.8
+matrix:
+  include:
+    - env: TOXENV=django22
+    - env TOXENV=quality
 env:
   global:
   - DOCKER_USERNAME=edxbuilder
