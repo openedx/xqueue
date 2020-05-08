@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:xenial as app
 
 RUN apt update && \
   apt install -qy git-core language-pack-en libmysqlclient-dev ntp libssl-dev python3.5 python3-pip python3.5-dev && \
@@ -29,3 +29,8 @@ EXPOSE 8040
 CMD gunicorn -c /edx/app/xqueue/xqueue/docker_gunicorn_configuration.py --bind=0.0.0.0:8040 --workers 2 --max-requests=1000 xqueue.wsgi:application
 
 COPY . /edx/app/xqueue
+
+FROM app as newrelic
+RUN pip install newrelic
+CMD newrelic-admin run-program gunicorn -c /edx/app/xqueue/xqueue/docker_gunicorn_configuration.py --bind=0.0.0.0:8040 --workers 2 --max-requests=1000 xqueue.wsgi:application
+
