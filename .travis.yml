@@ -3,22 +3,31 @@ services:
   - docker
 sudo: required
 
-python:
-- 3.5
-- 3.8
-
-env:
-- TOXENV=django22
-- TOXENV=quality
+matrix:
+  include:
+    - python: 3.5
+      env:
+        - TOXENV=quality
+    - python: 3.5
+      env:
+        - TOXENV=py35-django22
+    - python: 3.8
+      env:
+        - TOXENV=py38-django22
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
+  - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip install -r requirements/travis.txt"
+install:
+  - docker exec -t xqueue bash -c "
+    sudo add-apt-repository ppa:deadsnakes/ppa -y;
+    sudo apt-get update -y;
+    sudo apt-get install python3.8 python3.8-distutils python3.8-dev -y;"
 script:
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
+  - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
 after_success:
   - pip install -r requirements/travis.txt
-  - docker exec xqueue bash -c "source /edx/app/xqueue/venvs/xqueue/bin/activate; cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
+  - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
   - codecov
 branches:
   only:
