@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from .production import *
 
 if SWIFT_REGION_NAME:

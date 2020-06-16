@@ -44,23 +44,24 @@ to messages, or to send invalid responses.
 
 """
 
-from __future__ import absolute_import
-from django.test.client import Client
-from django.contrib.auth.models import User
-from django.conf import settings
+
 import datetime
-import time
 import json
-from abc import ABCMeta, abstractmethod
-from submission_queue.consumer import Worker
-import six.moves.urllib.parse
+import logging
 import threading
+import time
+from abc import ABCMeta, abstractmethod
+
+import six
+import six.moves.urllib.parse
+from django.contrib.auth.models import User
+from django.test.client import Client
+from six.moves import range
 from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from six.moves.socketserver import ThreadingMixIn, ForkingMixIn
 
-import logging
-import six
-from six.moves import range
+from submission_queue.consumer import Worker
+
 logger = logging.getLogger(__name__)
 
 # Suppress low-level network messages

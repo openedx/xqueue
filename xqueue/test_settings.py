@@ -1,10 +1,5 @@
-from __future__ import print_function
-
-from __future__ import absolute_import
-import os
 from uuid import uuid4
 
-from .logsettings import get_logger_config
 from .settings import *
 
 log_dir = REPO_PATH / "log"

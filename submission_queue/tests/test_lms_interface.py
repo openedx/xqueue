@@ -2,7 +2,6 @@
 Run me with:
     pytest submission_queue/tests/test_lms_interface.py
 """
-from __future__ import absolute_import
 import json
 import shutil
 from submission_queue import lms_interface

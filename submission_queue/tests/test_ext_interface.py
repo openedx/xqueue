@@ -1,9 +1,4 @@
-from __future__ import absolute_import
 import json
-import shutil
-from submission_queue import ext_interface
-from submission_queue.models import Submission
-from submission_queue.util import make_hashkey
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,6 +6,9 @@ from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
 from mock import patch
 from six.moves import range
+
+from submission_queue import ext_interface
+from submission_queue.models import Submission
 
 
 def parse_xreply(xreply):

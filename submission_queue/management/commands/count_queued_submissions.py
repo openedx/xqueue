@@ -1,12 +1,6 @@
 """
 Check on currently queued submissions
 """
-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
-from __future__ import print_function
-
 from submission_queue.models import Submission
 
 import backoff
@@ -47,11 +41,11 @@ class Command(BaseCommand):
         to New Relic Insights
         """
         queue_counts = (
-                        Submission.objects.
-                        values('queue_name').
-                        filter(retired=False).
-                        annotate(queue_count=Count('queue_name')).
-                        order_by('-queue_count')
+            Submission.objects.
+                values('queue_name').
+                filter(retired=False).
+                annotate(queue_count=Count('queue_name')).
+                order_by('-queue_count')
         )
 
         self.pretty_print_queues(queue_counts)
@@ -134,8 +128,8 @@ class Command(BaseCommand):
                 statistic = "Maximum"
                 actions = cloudwatch_configuration['sns_arns']
                 alarm_name = "{}-{} {} xqueue queue length over threshold".format(environment,
-                                                                           deployment,
-                                                                           queue['queue_name'])
+                                                                                  deployment,
+                                                                                  queue['queue_name'])
 
                 print(('Creating or updating alarm "{}"'.format(alarm_name)))
                 cloudwatch.put_metric_alarm(AlarmName=alarm_name,

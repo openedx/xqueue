@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
 from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     replaces = [('queue', '0002_stop_updating_arrival_time')]
 
     dependencies = [

@@ -1,7 +1,6 @@
 """
 Tests of the database models in the ``queue`` application.
 """
-from __future__ import absolute_import
 
 from submission_queue.models import Submission
 
