@@ -4,7 +4,6 @@ To generate a migration, make changes to this model file and then run:
 django-admin.py schemamigration submission_queue [migration_name] --auto --settings=xqueue.settings --pythonpath=.
 
 """
-from __future__ import absolute_import
 import json
 from datetime import datetime, timedelta
 

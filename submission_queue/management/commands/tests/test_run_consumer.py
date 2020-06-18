@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from submission_queue.consumer import Worker
 from submission_queue.management.commands.run_consumer import Command
 

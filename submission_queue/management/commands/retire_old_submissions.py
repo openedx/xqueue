@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import logging
 from submission_queue.consumer import post_failure_to_lms
 from submission_queue.models import Submission

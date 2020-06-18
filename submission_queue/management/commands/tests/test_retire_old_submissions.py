@@ -1,24 +1,23 @@
 """
 Tests of the update_users management command.
 """
-from __future__ import absolute_import
 
 from datetime import timedelta
-from submission_queue.management.commands.tests import bulk_create_submissions
-from submission_queue.models import Submission
 
-import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
 from mock import patch
 
+from submission_queue.management.commands.tests import bulk_create_submissions
+from submission_queue.models import Submission
+
 
 class RetireOldSubmissionsTest(TestCase):
 
     def count_unretired(self, count):
-        self.assertEquals(Submission.objects.filter(retired=False).count(),
+        self.assertEqual(Submission.objects.filter(retired=False).count(),
                           count)
 
     @patch('submission_queue.management.commands.retire_old_submissions.post_failure_to_lms', return_value=True)
@@ -52,9 +51,9 @@ class RetireOldSubmissionsTest(TestCase):
         call_command('retire_old_submissions', 'test')
         mock_logger.error.assert_called()
         logs, _ = mock_logger.error.call_args
-        self.assertRegexpMatches(logs[0], r'Could not contact LMS to retire submission')
+        self.assertRegex(logs[0], r'Could not contact LMS to retire submission')
         self.count_unretired(0)
 
     def test_bad_arguments(self):
-        with self.assertRaisesRegexp(CommandError, 'unable to parse datetime'):
+        with self.assertRaisesRegex(CommandError, 'unable to parse datetime'):
             call_command('retire_old_submissions', 'test', retire_before='2018-04-03')

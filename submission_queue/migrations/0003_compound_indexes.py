@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-from __future__ import absolute_import
 from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     replaces = [('queue', '0003_compound_indexes')]
 
     dependencies = [
@@ -16,6 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterIndexTogether(
             name='submission',
-            index_together=set([('queue_name', 'retired', 'pull_time', 'arrival_time'), ('lms_callback_url', 'retired'), ('queue_name', 'retired', 'push_time', 'arrival_time')]),
+            index_together=set([('queue_name', 'retired', 'pull_time', 'arrival_time'), ('lms_callback_url', 'retired'),
+                                ('queue_name', 'retired', 'push_time', 'arrival_time')]),
         ),
     ]

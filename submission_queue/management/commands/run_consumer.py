@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import logging
 import time
 from submission_queue.consumer import Worker
