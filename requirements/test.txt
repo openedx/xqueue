@@ -6,43 +6,43 @@
 #
 attrs==19.3.0             # via pytest
 backoff==1.10.0           # via -r requirements/../requirements.txt
-boto3==1.12.48            # via -r requirements/../requirements.txt
-botocore==1.15.48         # via -r requirements/../requirements.txt, boto3, s3transfer
-certifi==2020.4.5.1       # via -r requirements/../requirements.txt, requests
+boto3==1.14.11            # via -r requirements/../requirements.txt
+botocore==1.17.11         # via -r requirements/../requirements.txt, boto3, s3transfer
+certifi==2020.6.20        # via -r requirements/../requirements.txt, requests
 chardet==3.0.4            # via -r requirements/../requirements.txt, requests
 coverage==5.1             # via pytest-cov
 django-storages==1.9.1    # via -r requirements/../requirements.txt
 docutils==0.15.2          # via -r requirements/../requirements.txt, botocore
-edx-django-release-util==0.4.2  # via -r requirements/../requirements.txt
+edx-django-release-util==0.4.4  # via -r requirements/../requirements.txt
 gunicorn==0.16.1          # via -r requirements/../requirements.txt
 idna==2.9                 # via -r requirements/../requirements.txt, requests
-importlib-metadata==1.6.0  # via pluggy, pytest
+importlib-metadata==1.6.1  # via pluggy, pytest
 isort==4.3.21             # via -r requirements/../requirements.txt
-jmespath==0.9.5           # via -r requirements/../requirements.txt, boto3, botocore
+jmespath==0.10.0          # via -r requirements/../requirements.txt, boto3, botocore
 mock==3.0.5               # via -r requirements/test.in
-more-itertools==5.0.0     # via -c requirements/constraints.txt, pytest
+more-itertools==8.4.0     # via pytest
 mysqlclient==1.4.6        # via -r requirements/../requirements.txt
-newrelic==5.12.0.140      # via -r requirements/../requirements.txt
-packaging==20.3           # via pytest
+newrelic==5.14.1.144      # via -r requirements/../requirements.txt
+packaging==20.4           # via pytest
 path.py==11.0.1           # via -r requirements/../requirements.txt
 pathlib2==2.3.5           # via pytest
 pluggy==0.13.1            # via pytest
-py==1.8.1                 # via pytest
+py==1.9.0                 # via pytest
 pyparsing==2.4.7          # via packaging
-pytest-cov==2.8.1         # via -r requirements/test.in
+pytest-cov==2.10.0        # via -r requirements/test.in
 pytest-django==3.9.0      # via -r requirements/test.in
-pytest==5.3.2 ; python_version > "3.0"  # via -c requirements/constraints.txt, -r requirements/test.in, pytest-cov, pytest-django
+pytest==5.4.3             # via -r requirements/test.in, pytest-cov, pytest-django
 python-dateutil==2.8.1    # via -r requirements/../requirements.txt, botocore
 python-memcached==1.59    # via -r requirements/../requirements.txt
 python-termstyle==0.1.10  # via -r requirements/../requirements.txt
 pytz==2020.1              # via -r requirements/../requirements.txt, django
 pyyaml==5.3.1             # via -r requirements/../requirements.txt, edx-django-release-util
-requests==2.23.0          # via -r requirements/../requirements.txt
+requests==2.24.0          # via -r requirements/../requirements.txt
 s3transfer==0.3.3         # via -r requirements/../requirements.txt, boto3
-six==1.14.0               # via -r requirements/../requirements.txt, edx-django-release-util, mock, more-itertools, packaging, pathlib2, python-dateutil, python-memcached
+six==1.15.0               # via -r requirements/../requirements.txt, edx-django-release-util, mock, packaging, pathlib2, python-dateutil, python-memcached
 sqlparse==0.3.1           # via -r requirements/../requirements.txt, django
 urllib3==1.25.9           # via -r requirements/../requirements.txt, botocore, requests
-wcwidth==0.1.9            # via pytest
+wcwidth==0.2.5            # via pytest
 zipp==1.2.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
