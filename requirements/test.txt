@@ -6,8 +6,8 @@
 #
 attrs==19.3.0             # via pytest
 backoff==1.10.0           # via -r requirements/../requirements.txt
-boto3==1.14.18            # via -r requirements/../requirements.txt
-botocore==1.17.18         # via -r requirements/../requirements.txt, boto3, s3transfer
+boto3==1.14.20            # via -r requirements/../requirements.txt
+botocore==1.17.20         # via -r requirements/../requirements.txt, boto3, s3transfer
 certifi==2020.6.20        # via -r requirements/../requirements.txt, requests
 chardet==3.0.4            # via -r requirements/../requirements.txt, requests
 coverage==5.2             # via pytest-cov
