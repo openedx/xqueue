@@ -52,11 +52,13 @@ import threading
 import time
 from abc import ABCMeta, abstractmethod
 
-from urllib import parse
+import six
+import six.moves.urllib.parse
 from django.contrib.auth.models import User
 from django.test.client import Client
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn, ForkingMixIn
+from six.moves import range
+from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from six.moves.socketserver import ThreadingMixIn, ForkingMixIn
 
 from submission_queue.consumer import Worker
 
@@ -66,7 +68,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
 
-class GraderStubBase(metaclass=ABCMeta):
+class GraderStubBase(six.with_metaclass(ABCMeta, object)):
     """Abstract base class for external grader service stubs.
 
     We make this abstract to accommodate the two kinds of grading servers:
@@ -133,7 +135,7 @@ class GradingRequestHandler(BaseHTTPRequestHandler):
         delegates to the server to construct the response."""
 
         # Get the length of the request
-        length = int(self.headers.get('content-length'))
+        length = int(self.headers.getheader('content-length') if six.PY2 else self.headers.get('content-length'))
 
         # Parse the POST data, which XQueue sends to
         # us as directly-encoded JSON
@@ -421,7 +423,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # Get the length of the request
-        length = int(self.headers.get('content-length'))
+        length = int(self.headers.getheader('content-length') if six.PY2 else self.headers.get('content-length'))
 
         # Retrieve the POST dict, which has the form:
         # { POST_PARAM: [ POST_VAL_1, POST_VAL_2, ...], ... }
@@ -433,7 +435,7 @@ class LoggingRequestHandler(BaseHTTPRequestHandler):
             contents = request_content.decode('utf-8')
         else:
             contents = request_content
-        post_dict = parse.parse_qs(contents)
+        post_dict = six.moves.urllib.parse.parse_qs(contents)
 
         # Try to parse the grade response
         try:
