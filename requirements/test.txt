@@ -6,8 +6,8 @@
 #
 attrs==19.3.0             # via pytest
 backoff==1.10.0           # via -r requirements/../requirements.txt
-boto3==1.14.35            # via -r requirements/../requirements.txt
-botocore==1.17.35         # via -r requirements/../requirements.txt, boto3, s3transfer
+boto3==1.14.40            # via -r requirements/../requirements.txt
+botocore==1.17.40         # via -r requirements/../requirements.txt, boto3, s3transfer
 certifi==2020.6.20        # via -r requirements/../requirements.txt, requests
 chardet==3.0.4            # via -r requirements/../requirements.txt, requests
 coverage==5.2.1           # via pytest-cov
@@ -23,7 +23,7 @@ jmespath==0.10.0          # via -r requirements/../requirements.txt, boto3, boto
 mock==3.0.5               # via -r requirements/test.in
 more-itertools==8.4.0     # via pytest
 mysqlclient==2.0.1        # via -r requirements/../requirements.txt
-newrelic==5.14.1.144      # via -r requirements/../requirements.txt
+newrelic==5.16.0.145      # via -r requirements/../requirements.txt
 packaging==20.4           # via pytest
 path.py==11.0.1           # via -r requirements/../requirements.txt
 pathlib2==2.3.5           # via pytest
