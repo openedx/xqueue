@@ -51,7 +51,7 @@ def submit(request):
                 urls = dict()  # For external grader use
                 for filename in request.FILES.keys():
                     key = make_hashkey(xqueue_header + filename)
-                    url = _upload(request.FILES[filename], queue_name, key)
+                    key, url = _upload(request.FILES[filename], queue_name, key)
                     keys.update({filename: key})
                     urls.update({filename: url})
 
@@ -161,5 +161,5 @@ def _upload(file_to_upload, path, name):
         URL to access uploaded file
     '''
     full_path = os.path.join(path, name)
-    default_storage.save(full_path, file_to_upload)
-    return default_storage.url(full_path)
+    full_path = default_storage.save(full_path, file_to_upload)
+    return full_path, default_storage.url(full_path)
