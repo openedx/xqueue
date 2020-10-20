@@ -12,7 +12,7 @@ env:
 - TOXENV=quality
 
 before_script:
-  - mysql -e 'SET @@GLOBAL.wait_timeout=28800'
+  - mysql -e "SET @@GLOBAL.wait_timeout=28800"
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
