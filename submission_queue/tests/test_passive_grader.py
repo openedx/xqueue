@@ -45,6 +45,25 @@ class PassiveGraderTest(TransactionTestCase):
     # in Jenkins
     QUEUE_NAME = 'test_queue_%s' % uuid4().hex
 
+    def setUp(self):
+        """Set up the client and stubs to be used across tests."""
+        # Create the grader
+        self.grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
+
+        # Create the response listener
+        # and configure it to receive messages on a local port
+        self.response_listener = GradeResponseListener()
+
+        # Create the client (input submissions)
+        # and configure it to send messages
+        # that will be sent back to our response listener
+        self.client = XQueueTestClient(self.response_listener.port_num())
+
+        # Create the user and make sure we are logged in
+        XQueueTestClient.create_user('test', 'test@edx.org', 'password')
+        user1 = self.client.login(username='test', password='password')
+        self.assertEqual(user1.username, 'test')
+
     def test_submission(self):
         """Submit a single response to the XQueue and check that
         we get the expected response."""
