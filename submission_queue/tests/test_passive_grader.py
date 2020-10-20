@@ -65,16 +65,38 @@ class PassiveGraderTest(TransactionTestCase):
 
         # Start up workers to pull messages from the queue
         # and forward them to our grader
-        self.assertEqual(1,1)
         self.grader.start_workers(PassiveGraderTest.QUEUE_NAME)
-
-    def tearDown(self):
-        """Stop each of the listening services to free up the ports"""
-
-        self.grader.stop()
-        self.response_listener.stop()
 
     def test_submission(self):
         """Submit a single response to the XQueue and check that
         we get the expected response."""
-        self.assertEqual(1, 1)
+
+        payload = {'test': 'test'}
+        student_input = 'test response'
+
+        # Tell the xqueue to forward messages to our grader
+        xqueue_settings = {PassiveGraderTest.QUEUE_NAME: self.grader.grader_url()}
+        with override_settings(XQUEUES=xqueue_settings):
+
+            # Send the XQueue a submission to be graded
+            submission = self.client.build_request(PassiveGraderTest.QUEUE_NAME,
+                                                   grader_payload=payload,
+                                                   student_response=student_input)
+
+            self.client.send_request(submission)
+
+            # Poll the response listener until we get a response
+            # or reach the timeout
+            def poll_func(listener):
+                return len(listener.get_grade_responses()) > 0
+            success = self.response_listener.block_until(poll_func,
+                                                         sleep_time=0.5,
+                                                         timeout=4.0)
+
+        # Check that we did not time out
+        self.assertTrue(success)
+
+        # Check the response matches what we expect
+        responses = self.response_listener.get_grade_responses()
+        xqueue_body = responses[0]['response']['xqueue_body']
+        self.assertEqual(PassiveGraderTest.GRADER_RESPONSE, xqueue_body)
