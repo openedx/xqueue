@@ -76,10 +76,7 @@ class PassiveGraderTest(TransactionTestCase):
         """Submit a single response to the XQueue and check that
         we get the expected response."""
 
-        payload = {'test': 'test'}
-        student_input = 'test response'
         import time
         time.sleep(0.5)
 
         self.assertEqual(1, 1)
-        grader = SimplePassiveGrader(PassiveGraderTest.GRADER_RESPONSE)
