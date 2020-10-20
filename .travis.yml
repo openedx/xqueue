@@ -12,7 +12,6 @@ env:
 - TOXENV=quality
 
 before_script:
-  - echo -e "[server]\nwait_timeout=28800" | sudo tee -a /etc/mysql/my.cnf
   - mysql -e 'SET @@GLOBAL.wait_timeout=28800'
 
 before_install:
