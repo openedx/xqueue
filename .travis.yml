@@ -13,7 +13,7 @@ env:
 
 before_script:
   - echo -e "[server]\nwait_timeout=28800" | sudo tee -a /etc/mysql/my.cnf
-  - sudo service mysql restart
+  - mysql -e 'SET @@GLOBAL.wait_timeout=28800'
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
