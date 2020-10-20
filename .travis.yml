@@ -21,7 +21,7 @@ install:
     sudo apt-get install python3.8 python3.8-distutils python3.8-dev -y;"
 before_script:
   - docker exec xqueue bash -c "mysql -h db -e 'set global wait_timeout = 28800;' -e 'set global interactive_timeout=28800;'"
-  - docker exec xqueue bash -c "mysql -h db -e 'set global max_allowed_packet=10485760;'"
+  - docker exec xqueue bash -c "mysql -h db -e 'set global net_write_timeout=500;' -e 'set global net_read_timeout=500;'"
 script:
   - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
 after_success:
