@@ -12,6 +12,7 @@ env:
 - TOXENV=quality
 
 before_script:
+  - docker exec xqueue bash -c "apt-get update && apt-get install -y mysql-client"
   - docker exec xqueue bash -c "mysql -h db -e 'set global wait_timeout = 28800;'"
 
 before_install:
