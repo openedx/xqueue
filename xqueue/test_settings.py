@@ -19,7 +19,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         # pytest/django TestCase instances auto-prefix test_ onto the NAME
         'NAME': 'xqueue',
-        'HOST': os.environ.get('DB_HOST', 'edx.devstack.mysql'),
+        'HOST': os.environ.get('DB_HOST', 'edx.devstack.mysql57'),
         # Wrap all view methods in an atomic transaction automatically.
         'ATOMIC_REQUESTS': True
     }
