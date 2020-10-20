@@ -530,7 +530,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
         # be re-used later
         self.socket.close()
 
-    def block_until(self, poll_func, sleep_time=0.1, timeout=0.0):
+    def block_until(self, poll_func, sleep_time=0.1, timeout=10.0):
         """Block until the grade response listener is in a certain state,
         or we time out.
 
