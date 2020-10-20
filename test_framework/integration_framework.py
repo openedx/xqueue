@@ -301,7 +301,7 @@ class ActiveGraderStub(GraderStubBase):
 
             # If we can't get one now, wait a bit then retry
             if submission is None:
-                time.sleep(ActiveGraderStub.SLEEP_TIME)
+                pass
 
             # Otherwise, process the submission
             # and push a response back to the XQueue
@@ -558,7 +558,7 @@ class GradeResponseListener(ThreadingMixIn, HTTPServer):
             else:
 
                 # Wait the specified amount of time before retrying
-                time.sleep(sleep_time)
+
 
                 # Update elapsed time
                 now = datetime.datetime.now()

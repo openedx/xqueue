@@ -37,7 +37,7 @@ class Command(BaseCommand):
         # Monitor workers
         while workers:
             self.monitor(workers)
-            time.sleep(MONITOR_SLEEPTIME)
+
 
         log.info(' [*] All workers finished. Exiting')
 

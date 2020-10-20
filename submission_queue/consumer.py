@@ -118,7 +118,6 @@ class Worker(multiprocessing.Process):
             else:
                 self._deliver_submission()
             # Wait the given seconds between checking the database
-            time.sleep(settings.CONSUMER_DELAY)
 
         log.info("Consumer for queue {queue} stopped".format(queue=self.queue_name))
 
