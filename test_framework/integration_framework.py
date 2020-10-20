@@ -226,11 +226,12 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
 
     def stop(self):
         """Stop listening on the local port and close the socket"""
-        self.shutdown()
+        # self.shutdown()
 
         # # We also need to manually close the socket, so it can
         # # be re-used later
         # self.socket.close()
+        pass
 
     def grader_url(self):
         """Returns the URL for the local port we are listening on"""
