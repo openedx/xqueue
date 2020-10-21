@@ -2,6 +2,7 @@
 (one that the XQueue pushes submissions to)"""
 from uuid import uuid4
 
+from django.db import close_old_connections
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 
@@ -33,7 +34,6 @@ class SimplePassiveGrader(PassiveGraderStub):
         """
         return self._response_dict
 
-
 class PassiveGraderTest(TransactionTestCase):
     """Test that we can send messages to the xqueue
     and receive a response when using a "passive" external
@@ -62,9 +62,9 @@ class PassiveGraderTest(TransactionTestCase):
         # Create the user and make sure we are logged in
         XQueueTestClient.create_user('test', 'test@edx.org', 'password')
         self.client.login(username='test', password='password')
-
         # Start up workers to pull messages from the queue
         # and forward them to our grader
+        close_old_connections()
         self.grader.start_workers(PassiveGraderTest.QUEUE_NAME)
 
     def tearDown(self):
