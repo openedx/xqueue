@@ -3,13 +3,10 @@ services:
   - docker
 sudo: required
 
-python:
-- 3.5
-
 env:
 - TOXENV=py35-django22
 - TOXENV=py38-django22
-- TOXENV=quality
+- TOXENV=py35-quality
 
 before_install:
   - docker-compose -f .travis/docker-compose-travis.yml up -d
