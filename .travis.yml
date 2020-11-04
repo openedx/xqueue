@@ -22,7 +22,7 @@ install:
 before_script:
   - docker exec xqueue bash -c "apt-get update && apt-get install -y mysql-client"
   - docker exec xqueue bash -c "mysql -h db -e 'set global wait_timeout = 28800;' -e 'set global interactive_timeout=28800;'"
-  - docker exec xqueue bash -c "mysql -h db -e 'set global net_write_timeout=500;' -e 'set global net_read_timeout=500;'"
+  - docker exec xqueue bash -c "mysql -h db -e 'set global innodb_log_file_size = 128MB;' -e 'set global max_allowed_packet = 128M;'"
 script:
   - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; TOXENV=${TOXENV} tox"
 after_success:
