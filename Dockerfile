@@ -1,12 +1,14 @@
 FROM ubuntu:xenial
 
 RUN apt update && \
-  apt install -qy git-core language-pack-en libmysqlclient-dev ntp libssl-dev python3.5 python3-pip python3.5-dev && \
-  pip3 install --upgrade pip setuptools && \
+  apt-get install -y software-properties-common && \
+  apt-add-repository -y ppa:deadsnakes/ppa && apt-get update && \
+  apt-get install git-core language-pack-en python3-pip libmysqlclient-dev ntp libssl-dev python3.8-dev python3.8-venv -qy && \
   rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-RUN ln -s /usr/bin/python3 /usr/bin/python
+ENV VIRTUAL_ENV=/venv
+RUN python3.8 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
