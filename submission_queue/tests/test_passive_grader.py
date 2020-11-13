@@ -2,6 +2,7 @@
 (one that the XQueue pushes submissions to)"""
 from uuid import uuid4
 
+from django.db import connection
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 
@@ -63,6 +64,7 @@ class PassiveGraderTest(TransactionTestCase):
         XQueueTestClient.create_user('test', 'test@edx.org', 'password')
         self.client.login(username='test', password='password')
 
+        connection.close()
         # Start up workers to pull messages from the queue
         # and forward them to our grader
         self.grader.start_workers(PassiveGraderTest.QUEUE_NAME)
