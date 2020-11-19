@@ -55,7 +55,6 @@ requirements: ## install development environment requirements
 
 test: requirements clean
 	pytest --cov --cov-report= --ds=xqueue.test_settings submission_queue
-	coverage combine
 	coverage report -m
 
 test-all: ## run tests on every supported Python/Django combination
