@@ -203,6 +203,8 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         else:
             cls.worker_list = []
 
+        from django.db import connection
+        connection.close()
         for i in range(num_workers):
             worker = Worker(queue_name=queue_name, worker_url=destination_url)
             worker.start()
@@ -225,7 +227,10 @@ class PassiveGraderStub(ForkingMixIn, HTTPServer, GraderStubBase):
         server_thread.start()
 
     def stop(self):
-        """Stop listening on the local port and close the socket"""
+        """Stop worker processes, stop listening on the local port, and close the socket"""
+        for worker in self.worker_list:
+            worker.terminate()
+
         self.shutdown()
 
         # We also need to manually close the socket, so it can
