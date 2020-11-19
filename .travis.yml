@@ -27,7 +27,7 @@ matrix:
         TOXENV="py35-django22"
       after_success:
         - pip3 install -r requirements/travis.txt
-        - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
+        - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage xml"
         - codecov
     - python: 3.8
       env:
@@ -35,7 +35,7 @@ matrix:
         TOXENV="py38-django22"
       after_success:
         - python3.8 -m pip install -r requirements/travis.txt
-        - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage combine; coverage xml"
+        - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage xml"
         - codecov
     - python: 3.5
       env:
