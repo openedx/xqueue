@@ -131,7 +131,7 @@ class Command(BaseCommand):
                                                                                   deployment,
                                                                                   queue['queue_name'])
 
-                print(('Creating or updating alarm "{}"'.format(alarm_name)))
+                print(f'Creating or updating alarm "{alarm_name}"')
                 cloudwatch.put_metric_alarm(AlarmName=alarm_name,
                                             AlarmDescription=alarm_name,
                                             Namespace=namespace,
@@ -148,7 +148,7 @@ class Command(BaseCommand):
                                             AlarmActions=actions)
 
 
-class CwBotoWrapper(object):
+class CwBotoWrapper:
     max_tries = 5
 
     def __init__(self):

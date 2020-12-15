@@ -67,7 +67,7 @@ class SubmissionManager(models.Manager):
         """
 
         if time_field not in ['push_time', 'pull_time']:
-            raise ValueError('time_field must be pull_time or push_time not ({})'.format(time_field))
+            raise ValueError(f'time_field must be pull_time or push_time not ({time_field})')
 
         previous_update = datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY)
         if time_field == "push_time":
@@ -75,7 +75,7 @@ class SubmissionManager(models.Manager):
         elif time_field == "pull_time":
             time_filter = Q(pull_time__lte=(previous_update)) | Q(pull_time__isnull=True)
 
-        return super(SubmissionManager, self).get_queryset().filter(time_filter)
+        return super().get_queryset().filter(time_filter)
 
 
 class Submission(models.Model):
@@ -83,7 +83,7 @@ class Submission(models.Model):
     Representation of submission request, including metadata information
     '''
 
-    class Meta(object):
+    class Meta:
         # Once we get to Django 1.11 use indexes, it would have allowed a better index name
         # https://docs.djangoproject.com/en/1.11/ref/models/options/#django.db.models.Options.indexes
         index_together = [('queue_name', 'retired', 'push_time', 'arrival_time'),

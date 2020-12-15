@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from submission_queue.models import Submission
 
 import pytz
-from six.moves import range
 
 
 def bulk_create_submissions(count=1, days_old=10, **create_params):
@@ -15,7 +14,7 @@ def bulk_create_submissions(count=1, days_old=10, **create_params):
 def create_submission(**create_params):
     submission_params = dict(
         retired=0,
-        queue_name=u'test',
+        queue_name='test',
     )
     submission_params.update(create_params)
     return Submission.objects.create(**submission_params)

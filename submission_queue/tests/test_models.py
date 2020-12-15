@@ -13,10 +13,10 @@ class TestSubmission(TestCase):
     Tests of the ``Submission`` model.
     """
     def test_keys(self):
-        keys = u'Alabama Florida Ohio Oklahoma West Virginia'
+        keys = 'Alabama Florida Ohio Oklahoma West Virginia'
         submission = Submission(s3_keys=keys)
         assert submission.keys == keys
 
     def test_text_representation(self):
-        submission = Submission(requester_id=u'Alice', queue_name=u'Wonderland', xqueue_header=u'{}')
-        assert u"Submission from Alice for queue 'Wonderland'" in six.text_type(submission)
+        submission = Submission(requester_id='Alice', queue_name='Wonderland', xqueue_header='{}')
+        assert "Submission from Alice for queue 'Wonderland'" in str(submission)

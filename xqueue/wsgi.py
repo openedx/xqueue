@@ -46,11 +46,11 @@ class ForceReadPostHandler(WSGIHandler):
     """
     def __init__(self):
         django.setup()
-        super(ForceReadPostHandler, self).__init__()
+        super().__init__()
 
     def get_response(self, request):
         data = request.POST.copy()  # read the POST data passing it
-        return super(ForceReadPostHandler, self).get_response(request)
+        return super().get_response(request)
 
 
 application = ForceReadPostHandler()

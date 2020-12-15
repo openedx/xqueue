@@ -31,7 +31,7 @@ def submit(request):
         (request_is_valid, lms_callback_url, queue_name, xqueue_header, xqueue_body) = _is_valid_request(request.POST)
 
         if not request_is_valid:
-            log.error("Invalid queue submission from LMS: lms ip: {0}, request.POST: {1}".format(
+            log.error("Invalid queue submission from LMS: lms ip: {}, request.POST: {}".format(
                 get_request_ip(request),
                 request.POST,
             ))

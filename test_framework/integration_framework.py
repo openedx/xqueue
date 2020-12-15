@@ -56,7 +56,6 @@ import six
 import six.moves.urllib.parse
 from django.contrib.auth.models import User
 from django.test.client import Client
-from six.moves import range
 from six.moves.BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from six.moves.socketserver import ThreadingMixIn, ForkingMixIn
 
@@ -68,7 +67,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('requests').setLevel(logging.WARNING)
 
 
-class GraderStubBase(six.with_metaclass(ABCMeta, object)):
+class GraderStubBase(metaclass=ABCMeta):
     """Abstract base class for external grader service stubs.
 
     We make this abstract to accommodate the two kinds of grading servers:
@@ -610,7 +609,7 @@ class XQueueTestClient(Client):
         callback_port: The local port for the xqueue to POST callback
             responses to."""
         self._callback_port = callback_port
-        super(XQueueTestClient, self).__init__()
+        super().__init__()
 
     def build_request(self, queuename,
                       grader_payload=None,

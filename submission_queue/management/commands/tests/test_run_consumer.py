@@ -3,7 +3,7 @@ from submission_queue.management.commands.run_consumer import Command
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from mock import patch
+from unittest.mock import patch
 
 
 class RunConsumer(TestCase):

@@ -3,12 +3,12 @@ Tests of the update_users management command.
 """
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
-from mock import patch
 
 from submission_queue.management.commands.tests import bulk_create_submissions
 from submission_queue.models import Submission

@@ -55,13 +55,13 @@ class Command(BaseCommand):
         # Process the command arguments.
         chunk_size = options.get('chunk_size', self.DEFAULT_CHUNK_SIZE)
         if chunk_size <= 0:
-            raise CommandError('Only positive chunk size is allowed ({}).'.format(chunk_size))
+            raise CommandError(f'Only positive chunk size is allowed ({chunk_size}).')
         sleep_between = options.get('sleep_between', self.DEFAULT_SLEEP_BETWEEN_DELETES)
         if sleep_between < 0:
-            raise CommandError('Only non-negative sleep between seconds is allowed ({}).'.format(sleep_between))
+            raise CommandError(f'Only non-negative sleep between seconds is allowed ({sleep_between}).')
         days_old = options.get('days_old', self.DEFAULT_DAYS_OLD)
         if days_old < 0:
-            raise CommandError('Only non-negative days old is allowed ({}).'.format(days_old))
+            raise CommandError(f'Only non-negative days old is allowed ({days_old}).')
 
         delete_date = datetime.now(pytz.utc) - timedelta(days=days_old)
 

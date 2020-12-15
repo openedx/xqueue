@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db import migrations, models
 
 
@@ -13,7 +11,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterIndexTogether(
             name='submission',
-            index_together=set([('queue_name', 'retired', 'pull_time', 'arrival_time'), ('lms_callback_url', 'retired'),
-                                ('queue_name', 'retired', 'push_time', 'arrival_time')]),
+            index_together={('queue_name', 'retired', 'pull_time', 'arrival_time'), ('lms_callback_url', 'retired'),
+                                ('queue_name', 'retired', 'push_time', 'arrival_time')},
         ),
     ]

@@ -122,7 +122,7 @@ def put_result(request):
         (reply_is_valid, submission_id, submission_key, grader_reply) = _is_valid_reply(request.POST)
 
         if not reply_is_valid:
-            log.error("Invalid reply from pull-grader: grader_id: {0} request.POST: {1}".format(
+            log.error("Invalid reply from pull-grader: grader_id: {} request.POST: {}".format(
                 get_request_ip(request),
                 request.POST,
             ))
@@ -131,7 +131,7 @@ def put_result(request):
             try:
                 submission = Submission.objects.select_for_update().get(id=submission_id)
             except Submission.DoesNotExist:
-                log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {0}, submission_id: {1}, submission_key: {2}, grader_reply: {3}".format(
+                log.error("Grader submission_id refers to nonexistent entry in Submission DB: grader: {}, submission_id: {}, submission_key: {}, grader_reply: {}".format(
                     get_request_ip(request),
                     submission_id,
                     submission_key,

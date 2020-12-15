@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
         # Start workers
         for worker in workers:
-            log.info(' [{}] Starting worker'.format(worker.queue_name))
+            log.info(f' [{worker.queue_name}] Starting worker')
             worker.start()
 
         # Monitor workers
@@ -57,16 +57,16 @@ class Command(BaseCommand):
 
         # remove finished workers
         for worker in finished_workers:
-            log.info(' [{}] Worker stopped'.format(worker.queue_name))
+            log.info(f' [{worker.queue_name}] Worker stopped')
             workers.remove(worker)
 
         # restart failed workers
         for worker in failed_workers:
-            log.info(' [{}] Worker failed'.format(worker.queue_name))
+            log.info(f' [{worker.queue_name}] Worker failed')
             workers.remove(worker)
 
             new_worker = Worker(queue_name=worker.queue_name, worker_url=worker.worker_url)
             workers.append(new_worker)
 
-            log.info(' [{}] Starting worker'.format(new_worker.queue_name))
+            log.info(f' [{new_worker.queue_name}] Starting worker')
             new_worker.start()

@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
-from mock import patch
+from unittest.mock import patch
 
 
 def parse_xreply(xreply):

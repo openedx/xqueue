@@ -66,7 +66,7 @@ def post_grade_to_lms(header, body):
         attempts += 1
 
     if not success:
-        log.error("Unable to return to LMS: lms_callback_url: {0}, payload: {1}, lms_reply: {2}".format(lms_callback_url, payload, lms_reply))
+        log.error(f"Unable to return to LMS: lms_callback_url: {lms_callback_url}, payload: {payload}, lms_reply: {lms_reply}")
 
     return success
 
@@ -101,13 +101,13 @@ class Worker(multiprocessing.Process):
     """Encapsulation of a single database montitor that listens on a queue
     """
     def __init__(self, queue_name, worker_url):
-        super(Worker, self).__init__()
+        super().__init__()
 
         self.queue_name = queue_name
         self.worker_url = worker_url
 
     def run(self):
-        log.info("Starting consumer for queue {queue}".format(queue=self.queue_name))
+        log.info(f"Starting consumer for queue {self.queue_name}")
 
         if newrelic:
             deliver_submission_task = newrelic.agent.BackgroundTaskWrapper(self._deliver_submission)
@@ -120,7 +120,7 @@ class Worker(multiprocessing.Process):
             # Wait the given seconds between checking the database
             time.sleep(settings.CONSUMER_DELAY)
 
-        log.info("Consumer for queue {queue} stopped".format(queue=self.queue_name))
+        log.info(f"Consumer for queue {self.queue_name} stopped")
 
     def _deliver_submission(self):
         """
@@ -152,7 +152,7 @@ class Worker(multiprocessing.Process):
             submission.grader_reply = grader_reply
             submission.lms_ack = post_grade_to_lms(submission.xqueue_header, grader_reply)
         else:
-            log.error("Submission {} to grader {} failure: Reply: {}, ".format(submission.id, self.worker_url, grader_reply))
+            log.error(f"Submission {submission.id} to grader {self.worker_url} failure: Reply: {grader_reply}, ")
             submission.num_failures += 1
             submission.lms_ack = post_failure_to_lms(submission.xqueue_header)
 

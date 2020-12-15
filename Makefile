@@ -53,7 +53,11 @@ requirements: ## install development environment requirements
 	pip install -qr requirements/pip-tools.txt --exists-action w
 	pip-sync requirements/dev.txt requirements/private.*
 
-test: requirements clean
+test_requirements: ## install development environment requirements
+	pip install -qr requirements/pip-tools.txt --exists-action w
+	pip install -qr requirements/test.txt
+
+test: test_requirements clean
 	pytest --cov --cov-report= --ds=xqueue.test_settings submission_queue
 	coverage report -m
 
