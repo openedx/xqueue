@@ -1,8 +1,8 @@
+from io import StringIO
 from submission_queue.models import Submission
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.utils.six import StringIO
 from unittest.mock import call, patch
 
 
