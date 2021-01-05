@@ -4,6 +4,7 @@ Run me with:
 """
 import json
 import shutil
+from unittest.mock import patch
 from submission_queue import lms_interface
 from submission_queue.models import Submission
 from submission_queue.util import make_hashkey
@@ -13,7 +14,6 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
-from unittest.mock import patch
 
 
 def parse_xreply(xreply):

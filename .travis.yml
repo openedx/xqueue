@@ -20,6 +20,6 @@ script:
   - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && tox -e ${TOXENV}"
 
 after_success:
-  - python3.8 -m pip install -r requirements/travis.txt
-  - docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage xml"
-  - codecov
+  - test $TOXENV="django22" &&
+    docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage xml"
+    && codecov

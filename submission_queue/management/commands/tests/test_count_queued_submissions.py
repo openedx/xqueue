@@ -1,9 +1,9 @@
 from io import StringIO
 from submission_queue.models import Submission
+from unittest.mock import call, patch
 
 from django.core.management import call_command
 from django.test import TestCase
-from unittest.mock import call, patch
 
 
 class CountQueuedSubmissionsTest(TestCase):

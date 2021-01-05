@@ -24,7 +24,6 @@ idna==2.10                # via -r requirements/test.txt, -r requirements/travis
 iniconfig==1.1.1          # via -r requirements/test.txt, pytest
 isort==5.6.4              # via -r requirements/test.txt
 jmespath==0.10.0          # via -r requirements/test.txt, boto3, botocore
-mock==4.0.3               # via -r requirements/test.txt
 mysqlclient==2.0.2        # via -r requirements/test.txt
 newrelic==5.22.1.152      # via -r requirements/test.txt
 packaging==20.8           # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
@@ -41,6 +40,7 @@ python-dateutil==2.8.1    # via -r requirements/test.txt, botocore
 python-memcached==1.59    # via -r requirements/test.txt
 python-termstyle==0.1.10  # via -r requirements/test.txt
 pytz==2020.4              # via -r requirements/test.txt, django
+pywatchman==1.4.1 ; "linux" in sys_platform  # via -r requirements/dev.in
 pyyaml==5.3.1             # via -r requirements/test.txt, edx-django-release-util
 requests==2.25.0          # via -r requirements/test.txt, -r requirements/travis.txt, codecov
 s3transfer==0.3.3         # via -r requirements/test.txt, boto3

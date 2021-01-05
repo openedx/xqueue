@@ -1,10 +1,10 @@
 import json
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
-from unittest.mock import patch
 
 from submission_queue import ext_interface
 from submission_queue.models import Submission

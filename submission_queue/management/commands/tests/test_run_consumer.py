@@ -1,9 +1,10 @@
+from unittest.mock import patch
+
 from submission_queue.consumer import Worker
 from submission_queue.management.commands.run_consumer import Command
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from unittest.mock import patch
 
 
 class RunConsumer(TestCase):
