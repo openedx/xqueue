@@ -7,7 +7,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-class XQueueClient(object):
+class XQueueClient:
     """
     Test client to simulate a hello world problem
     submission

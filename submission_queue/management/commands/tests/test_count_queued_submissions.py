@@ -1,21 +1,21 @@
+from io import StringIO
 from submission_queue.models import Submission
+from unittest.mock import call, patch
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.utils.six import StringIO
-from mock import call, patch
 
 
 class CountQueuedSubmissionsTest(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.stdout = StringIO()
-        super(CountQueuedSubmissionsTest, cls).setUpClass()
+        super().setUpClass()
 
     def _create_submission(self, **create_params):
         submission_params = dict(
             retired=0,
-            queue_name=u'test'
+            queue_name='test'
         )
         submission_params.update(create_params)
         return Submission.objects.create(**submission_params)
@@ -68,18 +68,18 @@ class CountQueuedSubmissionsTest(TestCase):
             if 'put_metric_name' in name:
                 self.assertEqual(len(kwargs['Metricdata']), 2)
                 self.assertEqual(kwargs,
-                                  {'Namespace': u'xqueue/dev-stack',
+                                  {'Namespace': 'xqueue/dev-stack',
                                    'MetricData': [
-                                       {u'Dimensions': [{u'Name': u'queue', u'Value': u'test2'}],
-                                        u'Value': 2,
-                                        u'MetricName': u'queue_length'
+                                       {'Dimensions': [{'Name': 'queue', 'Value': 'test2'}],
+                                        'Value': 2,
+                                        'MetricName': 'queue_length'
                                         },
-                                       {u'Dimensions': [{u'Name': u'queue', u'Value': u'test-pull'}],
-                                        u'Value': 1,
-                                        u'MetricName': u'queue_length'}]})
+                                       {'Dimensions': [{'Name': 'queue', 'Value': 'test-pull'}],
+                                        'Value': 1,
+                                        'MetricName': 'queue_length'}]})
             if 'put_metric_alarm' in name:
                 metric_alarm_kwargs.append(kwargs)
 
         self.assertEqual(len(metric_alarm_kwargs), 2)
-        self.assertEqual(metric_alarm_kwargs[0]['AlarmName'], u'dev-stack test2 xqueue queue length over threshold')
-        self.assertEqual(metric_alarm_kwargs[1]['AlarmName'], u'dev-stack test-pull xqueue queue length over threshold')
+        self.assertEqual(metric_alarm_kwargs[0]['AlarmName'], 'dev-stack test2 xqueue queue length over threshold')
+        self.assertEqual(metric_alarm_kwargs[1]['AlarmName'], 'dev-stack test-pull xqueue queue length over threshold')

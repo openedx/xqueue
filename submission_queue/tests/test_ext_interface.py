@@ -1,11 +1,10 @@
 import json
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase, override_settings
 from django.test.client import Client
-from mock import patch
-from six.moves import range
 
 from submission_queue import ext_interface
 from submission_queue.models import Submission
@@ -37,11 +36,11 @@ class TestExtInterface(TransactionTestCase):
         """
         client = Client()
         client.login(**self.credentials)
-        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'MIA'})
+        response = client.get('/xqueue/get_queuelen/', {'queue_name': 'MIA'})
         assert response.status_code == 200
         error, message = parse_xreply(response.content)
         assert error
-        assert u'Valid queue names are: ' in message
+        assert 'Valid queue names are: ' in message
 
     def test_queue_length_missing_queue_name(self):
         """
@@ -49,11 +48,11 @@ class TestExtInterface(TransactionTestCase):
         """
         client = Client()
         client.login(**self.credentials)
-        response = client.get(u'/xqueue/get_queuelen/')
+        response = client.get('/xqueue/get_queuelen/')
         assert response.status_code == 200
         error, message = parse_xreply(response.content)
         assert error
-        assert message == u"'get_queuelen' must provide parameter 'queue_name'"
+        assert message == "'get_queuelen' must provide parameter 'queue_name'"
 
     # get_submission
     def test_get_submission_no_queue(self):
@@ -74,7 +73,7 @@ class TestExtInterface(TransactionTestCase):
         """
         client = Client()
         client.login(**self.credentials)
-        response = client.get('/xqueue/get_submission/', {u'queue_name': u'nope'})
+        response = client.get('/xqueue/get_submission/', {'queue_name': 'nope'})
         self.assertEqual(response.status_code, 200)
         (error, msg) = parse_xreply(response.content)
         self.assertEqual(error, True)
@@ -86,7 +85,7 @@ class TestExtInterface(TransactionTestCase):
         """
         client = Client()
         client.login(**self.credentials)
-        response = client.get('/xqueue/get_submission/', {u'queue_name': u'tmp'})
+        response = client.get('/xqueue/get_submission/', {'queue_name': 'tmp'})
         self.assertEqual(response.status_code, 200)
         (error, msg) = parse_xreply(response.content)
         self.assertEqual(error, 1)  # queue empty but exists still comes with a False code
@@ -104,7 +103,7 @@ class TestExtInterface(TransactionTestCase):
 
         client = Client()
         client.login(**self.credentials)
-        response = client.get('/xqueue/get_submission/', {u'queue_name': u'tmp'})
+        response = client.get('/xqueue/get_submission/', {'queue_name': 'tmp'})
         self.assertEqual(response.status_code, 200)
         (error, msg) = parse_xreply(response.content)
         self.assertEqual(error, 0)  # success apparently
@@ -122,7 +121,7 @@ class TestExtInterface(TransactionTestCase):
         body = json.dumps({"test": "test"})
         for i in range(2):
             Submission.objects.create(queue_name='tmp',
-                                      lms_callback_url='/{}'.format(i),
+                                      lms_callback_url=f'/{i}',
                                       xqueue_header='{}',
                                       xqueue_body=body)
 
@@ -130,20 +129,20 @@ class TestExtInterface(TransactionTestCase):
         client.login(**self.credentials)
 
         # Confirm there are 2
-        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'tmp'})
+        response = client.get('/xqueue/get_queuelen/', {'queue_name': 'tmp'})
         self.assertEqual(response.status_code, 200)
         error, queue_length = parse_xreply(response.content)
         self.assertEqual(error, 0)  # success apparently
         self.assertEqual(queue_length, 2)
 
         # Fetch one down
-        response = client.get('/xqueue/get_submission/', {u'queue_name': u'tmp'})
+        response = client.get('/xqueue/get_submission/', {'queue_name': 'tmp'})
         self.assertEqual(response.status_code, 200)
         (error, msg) = parse_xreply(response.content)
         self.assertEqual(error, 0)  # success apparently
 
         # Confirm that we now have 1
-        response = client.get(u'/xqueue/get_queuelen/', {u'queue_name': u'tmp'})
+        response = client.get('/xqueue/get_queuelen/', {'queue_name': 'tmp'})
         self.assertEqual(response.status_code, 200)
         error, queue_length = parse_xreply(response.content)
         self.assertEqual(error, 0)  # success apparently
