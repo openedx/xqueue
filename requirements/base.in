@@ -7,7 +7,7 @@ boto3
 Django >= 1.11, <2.3
 django-storages
 edx-django-release-util
-gunicorn==0.16.1
+gunicorn
 isort
 newrelic
 path.py==11.0.1
