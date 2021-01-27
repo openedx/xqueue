@@ -14,9 +14,9 @@ attrs==20.3.0
     #   pytest
 backoff==1.10.0
     # via -r requirements/test.txt
-boto3==1.16.57
+boto3==1.16.60
     # via -r requirements/test.txt
-botocore==1.19.57
+botocore==1.19.60
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -37,7 +37,7 @@ click==7.1.2
     #   pip-tools
 codecov==2.1.11
     # via -r requirements/travis.txt
-coverage==5.3.1
+coverage==5.4
     # via
     #   -r requirements/test.txt
     #   -r requirements/travis.txt
@@ -82,7 +82,7 @@ jmespath==0.10.0
     #   botocore
 mysqlclient==2.0.3
     # via -r requirements/test.txt
-newrelic==6.0.0.154
+newrelic==6.0.1.155
     # via -r requirements/test.txt
 packaging==20.8
     # via
@@ -117,7 +117,7 @@ pytest-cov==2.11.1
     # via -r requirements/test.txt
 pytest-django==4.1.0
     # via -r requirements/test.txt
-pytest==6.2.1
+pytest==6.2.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -174,7 +174,7 @@ tox==3.21.2
     # via
     #   -r requirements/travis.txt
     #   tox-battery
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   -r requirements/test.txt
     #   -r requirements/travis.txt
