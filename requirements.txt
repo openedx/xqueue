@@ -6,9 +6,9 @@
 #
 backoff==1.10.0
     # via -r requirements/base.in
-boto3==1.16.57
+boto3==1.16.60
     # via -r requirements/base.in
-botocore==1.19.57
+botocore==1.19.60
     # via
     #   boto3
     #   s3transfer
@@ -38,7 +38,7 @@ jmespath==0.10.0
     #   botocore
 mysqlclient==2.0.3
     # via -r requirements/base.in
-newrelic==6.0.0.154
+newrelic==6.0.1.155
     # via -r requirements/base.in
 path.py==11.0.1
     # via -r requirements/base.in
@@ -65,7 +65,7 @@ six==1.15.0
     #   python-memcached
 sqlparse==0.4.1
     # via django
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   botocore
     #   requests
