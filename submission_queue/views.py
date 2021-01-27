@@ -36,6 +36,8 @@ def log_in(request):
 
 # Log out
 # --------------------------------------------------
+# Log out
+# --------------------------------------------------
 @csrf_exempt
 def log_out(request):
     logout(request)
