@@ -34,7 +34,9 @@ def log_in(request):
     else:
         return HttpResponse(compose_reply(False, 'login_required'))
 
-
+# Log out
+# --------------------------------------------------
+@csrf_exempt
 def log_out(request):
     logout(request)
     return HttpResponse(compose_reply(success=True, content='Goodbye'))
