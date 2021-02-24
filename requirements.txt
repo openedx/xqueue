@@ -6,9 +6,9 @@
 #
 backoff==1.10.0
     # via -r requirements/base.in
-boto3==1.17.9
+boto3==1.17.14
     # via -r requirements/base.in
-botocore==1.20.9
+botocore==1.20.14
     # via
     #   boto3
     #   s3transfer
@@ -18,7 +18,7 @@ chardet==4.0.0
     # via requests
 django-storages==1.11.1
     # via -r requirements/base.in
-django==2.2.18
+django==2.2.19
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
