@@ -6,9 +6,9 @@
 #
 backoff==1.10.0
     # via -r requirements/base.in
-boto3==1.17.29
+boto3==1.17.35
     # via -r requirements/base.in
-botocore==1.20.29
+botocore==1.20.35
     # via
     #   boto3
     #   s3transfer
@@ -30,7 +30,7 @@ gunicorn==20.0.4
     # via -r requirements/base.in
 idna==2.10
     # via requests
-isort==5.7.0
+isort==5.8.0
     # via -r requirements/base.in
 jmespath==0.10.0
     # via
@@ -56,7 +56,7 @@ pyyaml==5.4.1
     # via edx-django-release-util
 requests==2.25.1
     # via -r requirements/base.in
-s3transfer==0.3.4
+s3transfer==0.3.6
     # via boto3
 six==1.15.0
     # via
