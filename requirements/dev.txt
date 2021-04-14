@@ -14,9 +14,9 @@ attrs==20.3.0
     #   pytest
 backoff==1.10.0
     # via -r requirements/test.txt
-boto3==1.17.46
+boto3==1.17.51
     # via -r requirements/test.txt
-botocore==1.20.46
+botocore==1.20.51
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -119,7 +119,7 @@ pyparsing==2.4.7
     #   packaging
 pytest-cov==2.11.1
     # via -r requirements/test.txt
-pytest-django==4.1.0
+pytest-django==4.2.0
     # via -r requirements/test.txt
 pytest==6.2.3
     # via
@@ -149,7 +149,7 @@ requests==2.25.1
     #   -r requirements/test.txt
     #   -r requirements/travis.txt
     #   codecov
-s3transfer==0.3.6
+s3transfer==0.3.7
     # via
     #   -r requirements/test.txt
     #   boto3
