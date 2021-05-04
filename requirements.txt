@@ -18,7 +18,7 @@ chardet==4.0.0
     # via requests
 django-storages==1.11.1
     # via -r requirements/base.in
-django==2.2.20
+django==2.2.21
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
