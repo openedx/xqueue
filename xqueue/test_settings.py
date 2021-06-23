@@ -16,13 +16,9 @@ LOGGING = get_logger_config(log_dir,
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        # pytest/django TestCase instances auto-prefix test_ onto the NAME
-        'NAME': 'xqueue',
-        'HOST': os.environ.get('DB_HOST', 'edx.devstack.mysql57'),
-        # Wrap all view methods in an atomic transaction automatically.
-        'ATOMIC_REQUESTS': True
-    }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'ATOMIC_REQUESTS': True,
+    },
 }
 
 # We set up the XQueue to send submissions to test_queue

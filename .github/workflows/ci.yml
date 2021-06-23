@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['py38']
+        toxenv: ['django22', 'django30', 'django31', 'quality']
+
+    steps:
+      - name: check out branch
+        uses: actions/checkout@v2
+
+      - name: set up python${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }
+
+      - name: tox -e ${{ toxenv }}
+        run: tox -e ${{ toxenv }}
+
+      - run: codecov
+        uses: codecov/codecov-action@v1
+        if: matrix.toxenv == 'django31'
