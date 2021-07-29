@@ -4,22 +4,22 @@
 #
 #    make upgrade
 #
-attrs==20.3.0
+attrs==21.2.0
     # via pytest
-backoff==1.10.0
+backoff==1.11.1
     # via -r requirements/../requirements.txt
-boto3==1.17.66
+boto3==1.18.9
     # via -r requirements/../requirements.txt
-botocore==1.20.66
+botocore==1.21.9
     # via
     #   -r requirements/../requirements.txt
     #   boto3
     #   s3transfer
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   -r requirements/../requirements.txt
     #   requests
-chardet==4.0.0
+charset-normalizer==2.0.3
     # via
     #   -r requirements/../requirements.txt
     #   requests
@@ -32,17 +32,17 @@ django-storages==1.11.1
     #   -r requirements/../requirements.txt
     #   django-storages
     #   edx-django-release-util
-edx-django-release-util==1.0.0
+edx-django-release-util==1.1.0
     # via -r requirements/../requirements.txt
 gunicorn==20.1.0
     # via -r requirements/../requirements.txt
-idna==2.10
+idna==3.2
     # via
     #   -r requirements/../requirements.txt
     #   requests
 iniconfig==1.1.1
     # via pytest
-isort==5.8.0
+isort==5.9.3
     # via -r requirements/../requirements.txt
 jmespath==0.10.0
     # via
@@ -51,9 +51,9 @@ jmespath==0.10.0
     #   botocore
 mysqlclient==2.0.3
     # via -r requirements/../requirements.txt
-newrelic==6.2.0.156
+newrelic==6.4.4.161
     # via -r requirements/../requirements.txt
-packaging==20.9
+packaging==21.0
     # via pytest
 path.py==11.0.1
     # via -r requirements/../requirements.txt
@@ -63,16 +63,16 @@ py==1.10.0
     # via pytest
 pyparsing==2.4.7
     # via packaging
-pytest-cov==2.11.1
+pytest-cov==2.12.1
     # via -r requirements/test.in
-pytest-django==4.2.0
+pytest-django==4.4.0
     # via -r requirements/test.in
 pytest==6.2.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
     #   pytest-django
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via
     #   -r requirements/../requirements.txt
     #   botocore
@@ -88,13 +88,13 @@ pyyaml==5.4.1
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-release-util
-requests==2.25.1
+requests==2.26.0
     # via -r requirements/../requirements.txt
-s3transfer==0.4.2
+s3transfer==0.5.0
     # via
     #   -r requirements/../requirements.txt
     #   boto3
-six==1.15.0
+six==1.16.0
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-release-util
@@ -105,8 +105,10 @@ sqlparse==0.4.1
     #   -r requirements/../requirements.txt
     #   django
 toml==0.10.2
-    # via pytest
-urllib3==1.26.4
+    # via
+    #   pytest
+    #   pytest-cov
+urllib3==1.26.6
     # via
     #   -r requirements/../requirements.txt
     #   botocore

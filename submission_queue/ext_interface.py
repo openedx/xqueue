@@ -87,7 +87,7 @@ def get_submission(request):
                     success = True
                 except (ConnectionError, Timeout):
                     success = False
-                    log.error('Could not fetch uploaded files at %s in timeout=%f' % (url, timeout))
+                    log.error(f'Could not fetch uploaded files at {url} in timeout={timeout:f}')
                     return HttpResponse(
                         compose_reply(False, "Error fetching submission for %s. Please try again." % queue_name)
                     )
