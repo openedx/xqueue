@@ -11,7 +11,6 @@ jobs:
 
     runs-on: ubuntu-20.04
     strategy:
-      max-parallel: 4
       matrix:
         tox-env: [ django22, django30, django31, django32 ]
 

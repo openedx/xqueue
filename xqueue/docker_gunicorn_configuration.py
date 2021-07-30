@@ -7,7 +7,7 @@ bind = "127.0.0.1:8040"
 workers = 6
 
 def pre_request(worker, req):
-    worker.log.info(f"{req.method} {req.path}")
+    worker.log.info("{} {}".format(req.method, req.path))
 
 
 def close_all_caches():

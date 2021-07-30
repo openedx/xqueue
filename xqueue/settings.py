@@ -90,6 +90,10 @@ MEDIA_URL = ''
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'uofqkujp@z#_vtwct+v716z+^3hijelj1^fkydwo2^pbkxghfq'
 
+DEFAULT_HASHING_ALGORITHM = "sha1"
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
