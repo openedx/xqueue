@@ -37,7 +37,7 @@ class XQueueClient:
             'xqueue_body': json.dumps({
                 'student_info': json.dumps({
                     'anonymous_student_id':
-                    "connect_py_%s_%s" % (run_time, uniqueid),
+                    f"connect_py_{run_time}_{uniqueid}",
                     'submission_time': run_time,
                 }),
                 'grader_payload': json.dumps({

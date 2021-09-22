@@ -136,7 +136,7 @@ class MatlabGraderTest(TransactionTestCase):
 
         Returns the response from Mathworks (dict)"""
 
-        payload = "%%api_key=%s\n%%%%\n%s\n" % (self.api_key, matlab_code)
+        payload = f"%api_key={self.api_key}\n%%\n{matlab_code}\n"
 
         # Tell the xqueue to forward messages to the mathworks grader
         # using our unique queue name

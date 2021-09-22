@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        tox-env: [ django22, django30, django31, django32 ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Start container
+      run: |
+        docker-compose -f .travis/docker-compose-travis.yml up -d
+
+    - name: Install test dependencies and run tests
+      env:
+        TOXENV: ${{ matrix.tox-env }}
+      run: |
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip3 install -r requirements/travis.txt"
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && tox -e ${TOXENV}"
+
+    - name: Code Coverage
+      if: matrix.tox-env=='django22'
+      run: |
+        python3.8 -m pip install -r requirements/travis.txt &&
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; coverage xml" && codecov

@@ -87,7 +87,7 @@ def _http_post(url, data, timeout):
     try:
         r = requests.post(url, data=data, auth=auth, timeout=timeout, verify=False)
     except (ConnectionError, Timeout):
-        log.error('Could not connect to server at %s in timeout=%f' % (url, timeout))
+        log.error(f'Could not connect to server at {url} in timeout={timeout:f}')
         return (False, 'cannot connect to server')
 
     if r.status_code not in [200]:
@@ -162,4 +162,4 @@ class Worker(multiprocessing.Process):
         submission.save()
 
     def __repr__(self):
-        return "Worker (%r, %r)" % (self.worker_url, self.queue_name)
+        return f"Worker ({self.worker_url!r}, {self.queue_name!r})"
