@@ -12,40 +12,40 @@ backoff==1.11.1
     # via -r requirements/test.txt
 backports.entry-points-selectable==1.1.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
-boto3==1.18.48
+boto3==1.18.55
     # via -r requirements/test.txt
-botocore==1.21.48
+botocore==1.21.55
     # via
     #   -r requirements/test.txt
     #   boto3
     #   s3transfer
 certifi==2021.5.30
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   requests
 charset-normalizer==2.0.6
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   requests
 click==8.0.1
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
 codecov==2.1.12
-    # via -r requirements/travis.txt
-coverage==5.5
+    # via -r requirements/ci.txt
+coverage[toml]==6.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   codecov
     #   pytest-cov
 distlib==0.3.3
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 django==2.2.24
     # via
@@ -69,17 +69,17 @@ edx-django-release-util==1.1.0
     # via -r requirements/test.txt
 edx-django-utils==4.4.0
     # via -r requirements/test.txt
-filelock==3.1.0
+filelock==3.3.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
     #   virtualenv
 gunicorn==20.1.0
     # via -r requirements/test.txt
 idna==3.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   requests
 iniconfig==1.1.1
     # via
@@ -100,8 +100,8 @@ newrelic==7.0.0.166
     #   edx-django-utils
 packaging==21.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   pytest
     #   tox
 path.py==11.0.1
@@ -118,12 +118,12 @@ pip-tools==6.3.0
     # via -r requirements/pip-tools.txt
 platformdirs==2.4.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 pluggy==1.0.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   pytest
     #   tox
 psutil==5.8.0
@@ -132,23 +132,23 @@ psutil==5.8.0
     #   edx-django-utils
 py==1.10.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   pytest
     #   tox
 pycodestyle==2.7.0
     # via -r requirements/quality.txt
 pyparsing==2.4.7
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   packaging
 pytest==6.2.5
     # via
     #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements/test.txt
 pytest-django==4.4.0
     # via -r requirements/test.txt
@@ -160,7 +160,7 @@ python-memcached==1.59
     # via -r requirements/test.txt
 python-termstyle==0.1.10
     # via -r requirements/test.txt
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements/test.txt
     #   django
@@ -170,8 +170,8 @@ pyyaml==5.4.1
     #   edx-django-release-util
 requests==2.26.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   codecov
 s3transfer==0.5.0
     # via
@@ -179,8 +179,8 @@ s3transfer==0.5.0
     #   boto3
 six==1.16.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   edx-django-release-util
     #   python-dateutil
     #   python-memcached
@@ -196,30 +196,31 @@ stevedore==3.4.0
     #   edx-django-utils
 toml==0.10.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   pytest
-    #   pytest-cov
     #   tox
 tomli==1.2.1
     # via
     #   -r requirements/pip-tools.txt
+    #   -r requirements/test.txt
+    #   coverage
     #   pep517
 tox==3.24.4
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox-battery
 tox-battery==0.6.1
-    # via -r requirements/travis.txt
+    # via -r requirements/ci.txt
 urllib3==1.26.7
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   -r requirements/travis.txt
     #   botocore
     #   requests
 virtualenv==20.8.1
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
 wheel==0.37.0
     # via
