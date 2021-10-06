@@ -5,6 +5,6 @@
 -r pip-tools.txt                    # pip-tools and its dependencies, for managing requirements files
 -r quality.txt                      # Static analysis tools for measuring code quality
 -r test.txt                         # Dependencies for running the various test suites
--r travis.txt                       # tox and related dependencies
+-r ci.txt                       # tox and related dependencies
 
 pywatchman; "linux" in sys_platform  # More efficient checking for runserver reload trigger events
