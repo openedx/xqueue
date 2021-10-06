@@ -4,10 +4,6 @@
 #
 #    make upgrade
 #
-asgiref==3.4.1
-    # via
-    #   -r requirements/../requirements.txt
-    #   django
 attrs==21.2.0
     # via pytest
 backoff==1.11.1
@@ -30,6 +26,7 @@ charset-normalizer==2.0.6
 coverage[toml]==6.0
     # via pytest-cov
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/../requirements.txt
     #   django-crum
     #   django-storages
