@@ -4,8 +4,6 @@
 #
 #    make upgrade
 #
-asgiref==3.4.1
-    # via django
 backoff==1.11.1
     # via -r requirements/base.in
 boto3==1.18.55
@@ -18,8 +16,9 @@ certifi==2021.5.30
     # via requests
 charset-normalizer==2.0.6
     # via requests
-django==3.2.8
+django==2.2.24
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
     #   django-crum
     #   django-storages
