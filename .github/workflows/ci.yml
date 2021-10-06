@@ -19,7 +19,7 @@ jobs:
 
     - name: Start container
       run: |
-        docker-compose -f docker-compose-ci.yml up -d
+        docker-compose -f .github/docker-compose-ci.yml up -d
 
     - name: Install test dependencies and run tests
       env:
