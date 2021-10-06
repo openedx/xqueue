@@ -37,8 +37,10 @@ class SubmissionManager(models.Manager):
             submission: A single submission from the queue, guaranteed to be unretired
         '''
 
+        # We use models.Value(0) to make use of the indexing on the field. MySQL does not
+        # support boolean types natively, and checking for False will cause a table scan.
         submission = self.time_filter('pull_time').filter(
-                            queue_name=queue_name, retired=False
+                            queue_name=queue_name, retired=models.Value(0)
                         ).order_by(
                             'arrival_time'
                         ).first()
@@ -52,8 +54,10 @@ class SubmissionManager(models.Manager):
         """
         Finds a single submission that hasn't been pushed for SUBMISSION_PROCESSING_DELAY
         """
+        # We use models.Value(0) to make use of the indexing on the field. MySQL does not
+        # support boolean types natively, and checking for False will cause a table scan.
         return self.time_filter('push_time').filter(
-            queue_name=queue_name, retired=False
+            queue_name=queue_name, retired=models.Value(0)
         ).order_by(
             'arrival_time'
         ).first()
