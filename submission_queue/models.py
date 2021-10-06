@@ -94,7 +94,7 @@ class Submission(models.Model):
     # Submission
     requester_id     = models.CharField(max_length=CHARFIELD_LEN_SMALL)  # ID of LMS
     lms_callback_url = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
-    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL, db_index=True)
+    queue_name       = models.CharField(max_length=CHARFIELD_LEN_SMALL)
     xqueue_header    = models.CharField(max_length=CHARFIELD_LEN_LARGE)
     xqueue_body      = models.TextField()
 
