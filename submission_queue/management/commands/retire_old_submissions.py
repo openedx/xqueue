@@ -3,6 +3,7 @@ from submission_queue.consumer import post_failure_to_lms
 from submission_queue.models import Submission
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import models
 from django.utils import dateparse, timezone
 
 log = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             )
 
     def handle(self, *args, **options):
-        submissions = Submission.objects.filter(queue_name=options['queue_name'], retired=False)
+        submissions = Submission.objects.filter(queue_name=options['queue_name'], retired=models.Value(0))
         if options['retire_before']:
             retire_before = dateparse.parse_datetime(options['retire_before'])
             if retire_before:

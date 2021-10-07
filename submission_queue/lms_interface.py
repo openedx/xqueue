@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.db import transaction
+from django.db import transaction, models
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -90,7 +90,9 @@ def _invalidate_prior_submissions(lms_callback_url):
         (user, module-id). This function relies on the fact that lms_callback_url
         takes the form: /path/to/callback/<user>/<id>/...
     '''
-    prior_submissions = Submission.objects.filter(lms_callback_url=lms_callback_url[:128], retired=False)
+    prior_submissions = Submission.objects.filter(
+        lms_callback_url=lms_callback_url[:128], retired=models.Value(0)
+    )
     prior_submissions.update(retired=True)
 
 

@@ -25,7 +25,7 @@ class SubmissionManager(models.Manager):
         """
         How many unretired submissions are available for a queue
         """
-        return self.time_filter('pull_time').filter(queue_name=queue_name, retired=False).count()
+        return self.time_filter('pull_time').filter(queue_name=queue_name, retired=models.Value(0)).count()
 
     def get_single_unretired_submission(self, queue_name):
         '''
