@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import models
 
 from submission_queue.consumer import post_failure_to_lms
 from submission_queue.models import Submission
@@ -35,12 +36,12 @@ class Command(BaseCommand):
 
         queue_names = options['queue_name']
         if len(queue_names) == 0:
-            failed_submissions = Submission.objects.filter(retired=False)
+            failed_submissions = Submission.objects.filter(retired=models.Value(0))
             failed_submissions = failed_submissions.exclude(num_failures=0)
             self.retire_submissions(failed_submissions, force)
         else:
             for queue_name in queue_names:
-                failed_submissions = Submission.objects.filter(queue_name=queue_name, retired=False)
+                failed_submissions = Submission.objects.filter(queue_name=queue_name, retired=models.Value(0))
                 failed_submissions = failed_submissions.exclude(num_failures=0)
                 self.retire_submissions(failed_submissions, force)
 

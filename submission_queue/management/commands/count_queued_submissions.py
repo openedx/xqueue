@@ -8,7 +8,7 @@ import boto3
 import botocore
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Count
+from django.db.models import Count, Value
 from six.moves import zip_longest
 
 try:
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         queue_counts = (
             Submission.objects.
                 values('queue_name').
-                filter(retired=False).
+                filter(retired=Value(0)).
                 annotate(queue_count=Count('queue_name')).
                 order_by('-queue_count')
         )
