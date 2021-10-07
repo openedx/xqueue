@@ -4,7 +4,7 @@
 mysqlclient
 backoff
 boto3
-Django >= 1.11, <2.3
+Django<4
 django-storages
 edx-django-release-util
 edx-django-utils
