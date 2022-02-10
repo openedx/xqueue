@@ -18,7 +18,7 @@ certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.7
     # via requests
-django==3.2.8
+django==3.2.12
     # via
     #   -r requirements/base.in
     #   django-crum
