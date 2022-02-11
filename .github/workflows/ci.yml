@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        tox-env: [ django32, quality ]
+        tox-env: [quality, django32, django40]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2

@@ -9,7 +9,6 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
-
 from submission_queue.management.commands.tests import bulk_create_submissions
 from submission_queue.models import Submission
 
@@ -56,4 +55,4 @@ class RetireOldSubmissionsTest(TestCase):
 
     def test_bad_arguments(self):
         with self.assertRaisesRegex(CommandError, 'unable to parse datetime'):
-            call_command('retire_old_submissions', 'test', retire_before='2018-04-03')
+            call_command('retire_old_submissions', 'test', retire_before='2018-14-03')
