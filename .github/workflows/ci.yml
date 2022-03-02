@@ -14,6 +14,7 @@ jobs:
       matrix:
         tox-env: [quality, django32, django40]
         python-version: [3.8]
+        db-version: ['mysql57', 'mysql80']
 
     steps:
     - uses: actions/checkout@v2
@@ -25,6 +26,7 @@ jobs:
     - name: Install test dependencies and run tests
       env:
         TOXENV: ${{ matrix.tox-env }}
+        DB_HOST: ${{ matrix.db-version }}
       run: |
         docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip3 install -r requirements/ci.txt"
         docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && tox -e ${TOXENV}"
