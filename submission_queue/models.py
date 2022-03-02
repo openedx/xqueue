@@ -154,3 +154,7 @@ class Submission(models.Model):
         Alias for `s3_urls` field.
         '''
         return self.s3_urls
+
+
+class UserLearnerAssessmentDataTranslationAuditDepartmentTest(models.Model):
+    user_id_test = models.PositiveIntegerField(blank=False, null=False, db_index=True)
