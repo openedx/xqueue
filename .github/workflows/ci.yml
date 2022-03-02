@@ -28,7 +28,7 @@ jobs:
         TOXENV: ${{ matrix.tox-env }}
       run: |
         docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip3 install -r requirements/ci.txt"
-        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && tox -e ${TOXENV} DB_HOST=${{ matrix.db-version }}"
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && --env DB_HOST=${{ matrix.db-version }} tox -e ${TOXENV}"
 
     - name: Code Coverage
       if: matrix.tox-env=='django32'
