@@ -1,13 +1,22 @@
 version: "2.1"
 
 services:
-  mysql:
+  mysql57:
+    image: mysql:5.7
+    container_name: mysql57
     command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
-    container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: ""
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    image: mysql:5.7
+
+  mysql80:
+    image: mysql:8.0
+    container_name: mysql80
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
   xqueue:
     container_name: xqueue
     image: edxops/xqueue:latest
@@ -15,7 +24,7 @@ services:
     volumes:
       - ..:/edx/app/xqueue/xqueue
     depends_on:
-      - mysql
+      - mysql57
+      - mysql80
     environment:
-      DB_HOST: "db"
       RABBIT_HOST: "rabbit"
