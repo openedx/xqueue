@@ -152,7 +152,7 @@ NEWRELIC_APPNAME = 'xqueue'
 AWS_DEFAULT_ACL = 'private'
 
 # This is the list of users managed by update_users
-USERS = None
+USERS = {"user": "pass"}
 
 # If you use count_queue_submissions to submit data to AWS CloudWatch you'll need to
 # provide some information for how to construct the metrics and alarms.
