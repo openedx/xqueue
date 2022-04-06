@@ -25,9 +25,11 @@ COPY requirements /edx/app/xqueue/requirements
 COPY requirements.txt /edx/app/xqueue/requirements.txt
 RUN pip install -r requirements.txt
 
+COPY . /edx/app/xqueue
+RUN chown app /edx/app/xqueue
 USER app
+
+RUN python manage.py migrate && python manage.py update_users
 
 EXPOSE 8040
 CMD gunicorn -c /edx/app/xqueue/xqueue/docker_gunicorn_configuration.py --bind=0.0.0.0:8040 --workers 2 --max-requests=1000 xqueue.wsgi:application
-
-COPY . /edx/app/xqueue
