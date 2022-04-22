@@ -18,7 +18,7 @@ certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.11
     # via requests
-django==3.2.12
+django==3.2.13
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
