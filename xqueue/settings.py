@@ -95,6 +95,7 @@ DEFAULT_HASHING_ALGORITHM = "sha1"
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 MIDDLEWARE = (
+    'edx_django_utils.monitoring.CookieMonitoringMiddleware',
     'edx_django_utils.monitoring.DeploymentMonitoringMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
