@@ -8,17 +8,17 @@ asgiref==3.5.2
     # via django
 backoff==2.1.2
     # via -r requirements/base.in
-boto3==1.24.44
+boto3==1.24.73
     # via -r requirements/base.in
-botocore==1.27.44
+botocore==1.27.73
     # via
     #   boto3
     #   s3transfer
-certifi==2022.6.15
+certifi==2022.9.14
     # via requests
 cffi==1.15.1
     # via pynacl
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via edx-django-utils
@@ -32,17 +32,17 @@ django==3.2.15
     #   edx-django-utils
 django-crum==0.7.9
     # via edx-django-utils
-django-storages==1.12.3
+django-storages==1.13.1
     # via -r requirements/base.in
-django-waffle==2.6.0
+django-waffle==3.0.0
     # via edx-django-utils
 edx-django-release-util==1.2.0
     # via -r requirements/base.in
-edx-django-utils==5.0.0
+edx-django-utils==5.0.1
     # via -r requirements/base.in
 gunicorn==20.1.0
     # via -r requirements/base.in
-idna==3.3
+idna==3.4
     # via requests
 isort==5.10.1
     # via -r requirements/base.in
@@ -52,15 +52,15 @@ jmespath==1.0.1
     #   botocore
 mysqlclient==2.1.1
     # via -r requirements/base.in
-newrelic==7.16.0.178
+newrelic==8.1.0.180
     # via
     #   -r requirements/base.in
     #   edx-django-utils
 path-py==11.0.1
     # via -r requirements/base.in
-pbr==5.9.0
+pbr==5.10.0
     # via stevedore
-psutil==5.9.1
+psutil==5.9.2
     # via edx-django-utils
 pycparser==2.21
     # via cffi
@@ -72,7 +72,7 @@ python-memcached==1.59
     # via -r requirements/base.in
 python-termstyle==0.1.10
     # via -r requirements/base.in
-pytz==2022.1
+pytz==2022.2.1
     # via
     #   -r requirements/base.in
     #   django
@@ -91,7 +91,7 @@ sqlparse==0.4.2
     # via django
 stevedore==4.0.0
     # via edx-django-utils
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   botocore
     #   requests
