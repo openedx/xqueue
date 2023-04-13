@@ -27,7 +27,6 @@ build==0.10.0
     #   pip-tools
 certifi==2022.12.7
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   requests
 cffi==1.15.1
@@ -36,7 +35,6 @@ cffi==1.15.1
     #   pynacl
 charset-normalizer==3.1.0
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   requests
 click==8.1.3
@@ -45,13 +43,9 @@ click==8.1.3
     #   -r requirements/test.txt
     #   edx-django-utils
     #   pip-tools
-codecov==2.1.12
-    # via -r requirements/ci.txt
 coverage[toml]==7.2.1
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/test.txt
-    #   codecov
     #   pytest-cov
 distlib==0.3.6
     # via
@@ -92,7 +86,6 @@ gunicorn==20.1.0
     # via -r requirements/test.txt
 idna==3.4
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   requests
 iniconfig==2.0.0
@@ -188,10 +181,7 @@ pyyaml==6.0
     #   -r requirements/test.txt
     #   edx-django-release-util
 requests==2.28.2
-    # via
-    #   -r requirements/ci.txt
-    #   -r requirements/test.txt
-    #   codecov
+    # via -r requirements/test.txt
 s3transfer==0.6.0
     # via
     #   -r requirements/test.txt
@@ -231,7 +221,6 @@ tox-battery==0.6.1
     # via -r requirements/ci.txt
 urllib3==1.26.15
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   botocore
     #   requests
