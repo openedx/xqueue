@@ -8,15 +8,11 @@ asgiref==3.6.0
     # via
     #   -r requirements/test.txt
     #   django
-attrs==22.2.0
-    # via
-    #   -r requirements/test.txt
-    #   pytest
 backoff==2.2.1
     # via -r requirements/test.txt
-boto3==1.26.91
+boto3==1.26.114
     # via -r requirements/test.txt
-botocore==1.29.91
+botocore==1.29.114
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -43,7 +39,7 @@ click==8.1.3
     #   -r requirements/test.txt
     #   edx-django-utils
     #   pip-tools
-coverage[toml]==7.2.1
+coverage[toml]==7.2.3
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -71,13 +67,13 @@ django-waffle==3.0.0
     #   edx-django-utils
 edx-django-release-util==1.2.0
     # via -r requirements/test.txt
-edx-django-utils==5.2.0
+edx-django-utils==5.4.0
     # via -r requirements/test.txt
 exceptiongroup==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-filelock==3.9.1
+filelock==3.11.0
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -101,11 +97,11 @@ jmespath==1.0.1
     #   botocore
 mysqlclient==2.1.1
     # via -r requirements/test.txt
-newrelic==8.7.0
+newrelic==8.8.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-packaging==23.0
+packaging==23.1
     # via
     #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
@@ -119,9 +115,9 @@ pbr==5.11.1
     # via
     #   -r requirements/test.txt
     #   stevedore
-pip-tools==6.12.3
+pip-tools==6.13.0
     # via -r requirements/pip-tools.txt
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   -r requirements/ci.txt
     #   virtualenv
@@ -153,7 +149,7 @@ pyproject-hooks==1.0.0
     # via
     #   -r requirements/pip-tools.txt
     #   build
-pytest==7.2.2
+pytest==7.3.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -170,7 +166,7 @@ python-memcached==1.59
     # via -r requirements/test.txt
 python-termstyle==0.1.10
     # via -r requirements/test.txt
-pytz==2022.7.1
+pytz==2023.3
     # via
     #   -r requirements/test.txt
     #   django
