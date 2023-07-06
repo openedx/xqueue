@@ -4,7 +4,7 @@ FROM ubuntu:focal as app
 
 RUN apt-get update && \
     apt-get upgrade -qy && apt-get install language-pack-en locales git \
-    python3.8-dev python3-virtualenv libmysqlclient-dev libssl-dev build-essential wget unzip -qy && \
+    python3.8-dev python3-virtualenv libmysqlclient-dev libssl-dev build-essential pkg-config wget unzip -qy && \
     rm -rf /var/lib/apt/lists/*
 
 # Python is Python3.
