@@ -1,5 +1,6 @@
-from django.urls import include, re_path
+from django.urls import path
+from django.urls import include
 
 urlpatterns = [
-   re_path(r'^xqueue/', include('submission_queue.urls')),
+   path('xqueue/', include('submission_queue.urls')),
 ]
