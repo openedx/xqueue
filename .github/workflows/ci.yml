@@ -14,7 +14,7 @@ jobs:
       matrix:
         tox-env: [quality, django32, django42]
         python-version: [3.8]
-        db-version: ['mysql57', 'mysql80']
+        db-version: ['mysql80']
 
     steps:
     - uses: actions/checkout@v2
