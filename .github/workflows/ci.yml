@@ -12,9 +12,15 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        tox-env: [quality, django32, django40]
+        tox-env: [quality, django32, django42]
         python-version: [3.8]
         db-version: ['mysql57', 'mysql80']
+        # excluding mysql5.7 with Django 4.2 since Django 4.2 has 
+        # dropped support for MySQL<8
+        exclude:
+          - django-version: 'django42'
+            db-version: 'mysql57'
+
 
     steps:
     - uses: actions/checkout@v2
