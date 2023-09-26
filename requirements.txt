@@ -8,6 +8,8 @@ asgiref==3.7.2
     # via django
 backoff==2.2.1
     # via -r requirements/base.in
+backports-zoneinfo==0.2.1
+    # via django
 boto3==1.28.54
     # via -r requirements/base.in
 botocore==1.31.54
@@ -22,10 +24,8 @@ charset-normalizer==3.2.0
     # via requests
 click==8.1.7
     # via edx-django-utils
-django==3.2.21
+django==4.2.5
     # via
-    #   -c requirements/common_constraints.txt
-    #   -r requirements/base.in
     #   django-crum
     #   django-storages
     #   django-waffle
@@ -76,9 +76,7 @@ python-memcached==1.59
 python-termstyle==0.1.10
     # via -r requirements/base.in
 pytz==2023.3.post1
-    # via
-    #   -r requirements/base.in
-    #   django
+    # via -r requirements/base.in
 pyyaml==6.0.1
     # via edx-django-release-util
 requests==2.31.0
