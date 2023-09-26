@@ -18,9 +18,8 @@ jobs:
         # excluding mysql5.7 with Django 4.2 since Django 4.2 has 
         # dropped support for MySQL<8
         exclude:
-          - django-version: 'django42'
+          - tox-env: 'django42'
             db-version: 'mysql57'
-
 
     steps:
     - uses: actions/checkout@v2
