@@ -24,7 +24,6 @@ click==8.1.7
     # via edx-django-utils
 django==3.2.21
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
     #   django-crum
     #   django-storages

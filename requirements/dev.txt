@@ -49,7 +49,6 @@ distlib==0.3.7
     #   virtualenv
 django==3.2.21
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
     #   django-crum
     #   django-storages
