@@ -65,6 +65,7 @@ quality: ## check coding style with pycodestyle and pylint
 	isort --recursive --check-only submission_queue/ xqueue/
 
 requirements: ## install development environment requirements
+	pip install -qr requirements/pip.txt
 	pip install -qr requirements/pip-tools.txt --exists-action w
 	pip-sync requirements/dev.txt requirements/private.*
 
