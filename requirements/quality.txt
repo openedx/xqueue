@@ -4,5 +4,5 @@
 #
 #    make upgrade
 #
-pycodestyle==2.11.0
+pycodestyle==2.11.1
     # via -r requirements/quality.in
