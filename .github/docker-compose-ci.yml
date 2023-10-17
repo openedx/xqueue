@@ -19,7 +19,7 @@ services:
 
   xqueue:
     container_name: xqueue
-    image: edxops/xqueue-dev:latest
+    image: edxops/xqueue:latest
     command: tail -f /dev/null
     volumes:
       - ..:/edx/app/xqueue/xqueue
