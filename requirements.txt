@@ -10,22 +10,23 @@ backoff==2.2.1
     # via -r requirements/base.in
 backports-zoneinfo==0.2.1
     # via django
-boto3==1.28.54
+boto3==1.28.68
     # via -r requirements/base.in
-botocore==1.31.54
+botocore==1.31.68
     # via
     #   boto3
     #   s3transfer
 certifi==2023.7.22
     # via requests
-cffi==1.15.1
+cffi==1.16.0
     # via pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.1
     # via requests
 click==8.1.7
     # via edx-django-utils
-django==4.2.5
+django==4.2.6
     # via
+    #   -r requirements/base.in
     #   django-crum
     #   django-storages
     #   django-waffle
@@ -33,7 +34,7 @@ django==4.2.5
     #   edx-django-utils
 django-crum==0.7.9
     # via edx-django-utils
-django-storages==1.14
+django-storages==1.14.2
     # via -r requirements/base.in
 django-waffle==4.0.0
     # via edx-django-utils
@@ -53,17 +54,17 @@ jmespath==1.0.1
     #   botocore
 mysqlclient==2.2.0
     # via -r requirements/base.in
-newrelic==9.1.0
+newrelic==9.1.1
     # via
     #   -r requirements/base.in
     #   edx-django-utils
-packaging==23.1
+packaging==23.2
     # via gunicorn
 path-py==11.0.1
     # via -r requirements/base.in
 pbr==5.11.1
     # via stevedore
-psutil==5.9.5
+psutil==5.9.6
     # via edx-django-utils
 pycparser==2.21
     # via cffi
@@ -81,7 +82,7 @@ pyyaml==6.0.1
     # via edx-django-release-util
 requests==2.31.0
     # via -r requirements/base.in
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via boto3
 six==1.16.0
     # via
@@ -94,7 +95,7 @@ stevedore==5.1.0
     # via edx-django-utils
 typing-extensions==4.8.0
     # via asgiref
-urllib3==1.26.16
+urllib3==1.26.18
     # via
     #   botocore
     #   requests
