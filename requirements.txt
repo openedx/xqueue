@@ -10,9 +10,9 @@ backoff==2.2.1
     # via -r requirements/base.in
 backports-zoneinfo==0.2.1
     # via django
-boto3==1.28.68
+boto3==1.28.73
     # via -r requirements/base.in
-botocore==1.31.68
+botocore==1.31.73
     # via
     #   boto3
     #   s3transfer

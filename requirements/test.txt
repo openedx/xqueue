@@ -14,9 +14,9 @@ backports-zoneinfo==0.2.1
     # via
     #   -r requirements/../requirements.txt
     #   django
-boto3==1.28.68
+boto3==1.28.73
     # via -r requirements/../requirements.txt
-botocore==1.31.68
+botocore==1.31.73
     # via
     #   -r requirements/../requirements.txt
     #   boto3
@@ -110,7 +110,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
-pytest==7.4.2
+pytest==7.4.3
     # via
     #   -r requirements/test.in
     #   pytest-cov
