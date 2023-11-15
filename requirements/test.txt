@@ -14,9 +14,9 @@ backports-zoneinfo==0.2.1
     # via
     #   -r requirements/../requirements.txt
     #   django
-boto3==1.28.68
+boto3==1.29.0
     # via -r requirements/../requirements.txt
-botocore==1.31.68
+botocore==1.32.0
     # via
     #   -r requirements/../requirements.txt
     #   boto3
@@ -29,7 +29,7 @@ cffi==1.16.0
     # via
     #   -r requirements/../requirements.txt
     #   pynacl
-charset-normalizer==3.3.1
+charset-normalizer==3.3.2
     # via
     #   -r requirements/../requirements.txt
     #   requests
@@ -60,7 +60,7 @@ django-waffle==4.0.0
     #   edx-django-utils
 edx-django-release-util==1.3.0
     # via -r requirements/../requirements.txt
-edx-django-utils==5.7.0
+edx-django-utils==5.8.0
     # via -r requirements/../requirements.txt
 exceptiongroup==1.1.3
     # via pytest
@@ -81,7 +81,7 @@ jmespath==1.0.1
     #   botocore
 mysqlclient==2.2.0
     # via -r requirements/../requirements.txt
-newrelic==9.1.1
+newrelic==9.1.2
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
@@ -92,7 +92,7 @@ packaging==23.2
     #   pytest
 path-py==11.0.1
     # via -r requirements/../requirements.txt
-pbr==5.11.1
+pbr==6.0.0
     # via
     #   -r requirements/../requirements.txt
     #   stevedore
@@ -110,14 +110,14 @@ pynacl==1.5.0
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
-pytest==7.4.2
+pytest==7.4.3
     # via
     #   -r requirements/test.in
     #   pytest-cov
     #   pytest-django
 pytest-cov==4.1.0
     # via -r requirements/test.in
-pytest-django==4.5.2
+pytest-django==4.7.0
     # via -r requirements/test.in
 python-dateutil==2.8.2
     # via
