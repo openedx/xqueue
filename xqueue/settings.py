@@ -78,6 +78,11 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+# Django 4.0+ uses zoneinfo if this is not set. We can remove this and
+# migrate to zoneinfo after Django 4.2 upgrade. See more on following url
+# https://docs.djangoproject.com/en/4.2/releases/4.0/#zoneinfo-default-timezone-implementation
+USE_DEPRECATED_PYTZ = True
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = ''
@@ -89,8 +94,6 @@ MEDIA_URL = ''
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'uofqkujp@z#_vtwct+v716z+^3hijelj1^fkydwo2^pbkxghfq'
-
-DEFAULT_HASHING_ALGORITHM = "sha1"
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
