@@ -24,7 +24,7 @@ charset-normalizer==3.2.0
     # via requests
 click==8.1.7
     # via edx-django-utils
-django==4.2.7
+django==4.2.10
     # via
     #   django-crum
     #   django-storages
