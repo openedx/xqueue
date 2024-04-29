@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        tox-env: [quality, django42]
-        python-version: ['3.8', '3.12']
+        python-version: ['py38', 'py312']
+        django-version: ['django42']
         db-version: ['mysql80']
 
     steps:
@@ -25,7 +25,24 @@ jobs:
 
     - name: Install test dependencies and run tests
       env:
-        TOXENV: ${{ matrix.tox-env }}
+        TOXENV: ${{ matrix.python-version }}-${{ matrix.django-version }}
       run: |
         docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip3 install -r requirements/ci.txt"
         docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && DB_HOST=${{ matrix.db-version }} tox -e ${TOXENV}"
+
+  quality:
+
+    runs-on: ubuntu-20.04
+    env:
+      db-version: mysql80
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Start container
+      run: |
+        docker-compose -f .github/docker-compose-ci.yml up -d
+
+    - name: Install test dependencies and run quality tests
+      run: |
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/; pip3 install -r requirements/ci.txt"
+        docker exec xqueue bash -c "cd /edx/app/xqueue/xqueue/ && DB_HOST=${{ env.db-version }} tox -e quality"
