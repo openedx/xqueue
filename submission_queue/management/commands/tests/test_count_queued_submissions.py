@@ -45,14 +45,14 @@ class CountQueuedSubmissionsTest(TestCase):
         self.assertRegex(self.stdout.getvalue(), r'test2\s*2\s*\ntest1\s*1')
 
         expected_nr_calls = [
-            call('test1', 1),
-            call('test2', 2)
+            call('Custom/XQueueLength/test1[submissions]', 1, application=mock_newrelic_agent.register_application.return_value),
+            call('Custom/XQueueLength/test2[submissions]', 2, application=mock_newrelic_agent.register_application.return_value)
         ]
 
         self.assertEqual(len(expected_nr_calls),
                           mock_newrelic_agent.record_custom_metric.call_count)
 
-        mock_newrelic_agent.record_custom_metric.has_calls(expected_nr_calls, any_order=True)
+        mock_newrelic_agent.record_custom_metric.assert_has_calls(expected_nr_calls, any_order=True)
 
     @patch('boto3.client')
     def test_push_to_cloudwatch(self, mock_boto3):
