@@ -10,8 +10,9 @@ asgiref==3.8.1
     #   django
 backoff==2.2.1
     # via -r requirements/../requirements.txt
-backports-zoneinfo==0.2.1
+backports-zoneinfo==0.2.1 ; python_version < "3.9"
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/../requirements.txt
     #   django
 boto3==1.34.93
