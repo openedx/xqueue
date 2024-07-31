@@ -1,6 +1,9 @@
-Part of `edX code`__.
+⛔️ WARNING
+==========
 
-__ http://code.edx.org/
+This repository is under-maintained. We are not fixing bugs or developing new features for it. We hope to deprecate it officially in October of 2024. For updates, `follow along on the DEPR ticket <https://github.com/openedx/public-engineering/issues/214>`_.
+
+Although we have stopped integrating new contributions, we always appreciate security disclosures and patches sent to security@openedx.org
 
 xqueue
 ======
