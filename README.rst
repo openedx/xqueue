@@ -5,10 +5,6 @@ This repository is under-maintained. We are not fixing bugs or developing new fe
 
 Although we have stopped integrating new contributions, we always appreciate security disclosures and patches sent to security@openedx.org
 
-Part of `edX code`__.
-
-__ http://code.edx.org/
-
 xqueue
 ======
 
