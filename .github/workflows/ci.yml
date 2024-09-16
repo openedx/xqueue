@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +22,7 @@ jobs:
 
     - name: Start container
       run: |
-        docker-compose -f .github/docker-compose-ci.yml up -d
+        docker compose -f .github/docker-compose-ci.yml up -d
 
     - name: setup python
       if: ${{ matrix.python-version == 'py312' }}
