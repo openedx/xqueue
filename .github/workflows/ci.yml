@@ -28,7 +28,7 @@ jobs:
       if: ${{ matrix.python-version == 'py312' }}
       run: |
         docker exec -e TOXENV=${{ matrix.python-version }}-${{ matrix.env-name }} -e DB_HOST=${{ matrix.db-version }} xqueue bash -c \
-        "apt update && apt install -y software-properties-common && add-apt-repository ppa:deadsnakes/ppa -y && apt install python3.12 python3.12-dev python3.12-distutils -y"
+        "apt update && apt install -y software-properties-common && add-apt-repository ppa:deadsnakes/ppa -y && apt install python3.12 python3.12-dev -y"
 
     - name: Install test dependencies and run tests
       env:
