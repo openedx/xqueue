@@ -15,9 +15,9 @@ backports-zoneinfo==0.2.1 ; python_version < "3.9"
     #   -c requirements/constraints.txt
     #   -r requirements/../requirements.txt
     #   django
-boto3==1.36.21
+boto3==1.37.13
     # via -r requirements/../requirements.txt
-botocore==1.36.21
+botocore==1.37.13
     # via
     #   -r requirements/../requirements.txt
     #   boto3
@@ -52,7 +52,7 @@ django-crum==0.7.9
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
-django-storages==1.14.4
+django-storages==1.14.5
     # via -r requirements/../requirements.txt
 django-waffle==4.2.0
     # via
@@ -60,7 +60,7 @@ django-waffle==4.2.0
     #   edx-django-utils
 edx-django-release-util==1.4.0
     # via -r requirements/../requirements.txt
-edx-django-utils==7.1.0
+edx-django-utils==7.2.0
     # via -r requirements/../requirements.txt
 exceptiongroup==1.2.2
     # via pytest
@@ -81,7 +81,7 @@ jmespath==1.0.1
     #   botocore
 mysqlclient==2.2.7
     # via -r requirements/../requirements.txt
-newrelic==10.6.0
+newrelic==10.7.0
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
@@ -110,7 +110,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/../requirements.txt
     #   edx-django-utils
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -135,7 +135,7 @@ pyyaml==6.0.2
     #   edx-django-release-util
 requests==2.32.3
     # via -r requirements/../requirements.txt
-s3transfer==0.11.2
+s3transfer==0.11.4
     # via
     #   -r requirements/../requirements.txt
     #   boto3
