@@ -173,3 +173,6 @@ CLOUDWATCH_QUEUE_COUNT_METRICS = {
         'test-pull': 100
     }
 }
+
+# Configurable telemetry services via edx-django-utils
+OPENEDX_TELEMETRY = None

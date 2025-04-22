@@ -12,21 +12,21 @@ backports-zoneinfo==0.2.1 ; python_version < "3.9"
     # via
     #   -c requirements/constraints.txt
     #   django
-boto3==1.34.93
+boto3==1.36.21
     # via -r requirements/base.in
-botocore==1.34.93
+botocore==1.36.21
     # via
     #   boto3
     #   s3transfer
-certifi==2024.2.2
+certifi==2025.1.31
     # via requests
-cffi==1.16.0
+cffi==1.17.1
     # via pynacl
-charset-normalizer==3.3.2
+charset-normalizer==3.4.1
     # via requests
-click==8.1.7
+click==8.1.8
     # via edx-django-utils
-django==4.2.13
+django==4.2.19
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
@@ -37,17 +37,17 @@ django==4.2.13
     #   edx-django-utils
 django-crum==0.7.9
     # via edx-django-utils
-django-storages==1.14.2
+django-storages==1.14.4
     # via -r requirements/base.in
-django-waffle==4.1.0
+django-waffle==4.2.0
     # via edx-django-utils
 edx-django-release-util==1.4.0
     # via -r requirements/base.in
-edx-django-utils==5.12.0
+edx-django-utils==7.1.0
     # via -r requirements/base.in
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/base.in
-idna==3.7
+idna==3.10
     # via requests
 isort==5.13.2
     # via -r requirements/base.in
@@ -55,19 +55,19 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-mysqlclient==2.2.4
+mysqlclient==2.2.7
     # via -r requirements/base.in
-newrelic==9.9.0
+newrelic==10.6.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
-packaging==24.0
+packaging==24.2
     # via gunicorn
 path-py==11.0.1
     # via -r requirements/base.in
-pbr==6.0.0
+pbr==6.1.1
     # via stevedore
-psutil==5.9.8
+psutil==7.0.0
     # via edx-django-utils
 pycparser==2.22
     # via cffi
@@ -79,26 +79,27 @@ python-memcached==1.62
     # via -r requirements/base.in
 python-termstyle==0.1.10
     # via -r requirements/base.in
-pytz==2024.1
+pytz==2025.1
     # via -r requirements/base.in
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via edx-django-release-util
-requests==2.31.0
+requests==2.32.3
     # via -r requirements/base.in
-s3transfer==0.10.1
+s3transfer==0.11.2
     # via boto3
-six==1.16.0
+six==1.17.0
     # via
     #   edx-django-release-util
     #   python-dateutil
-sqlparse==0.5.0
+sqlparse==0.5.3
     # via django
-stevedore==5.2.0
+stevedore==5.3.0
     # via edx-django-utils
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via asgiref
-urllib3==1.26.18
+urllib3==1.26.20
     # via
+    #   -c requirements/common_constraints.txt
     #   botocore
     #   requests
 
