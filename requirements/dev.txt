@@ -64,7 +64,7 @@ distlib==0.3.8
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==4.2.19
+django==4.2.20
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.txt
