@@ -5,11 +5,12 @@ Remove old submissions after they were lost or returned to the LMS
 import logging
 import time
 from datetime import datetime, timedelta
-from submission_queue.models import Submission
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+
+from submission_queue.models import Submission
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class Command(BaseCommand):
         if days_old < 0:
             raise CommandError(f'Only non-negative days old is allowed ({days_old}).')
 
-        delete_date = datetime.now(pytz.utc) - timedelta(days=days_old)
+        delete_date = datetime.now(ZoneInfo("UTC")) - timedelta(days=days_old)
 
         old_submissions = Submission.objects.filter(arrival_time__lte=delete_date)
         total_old_submissions = old_submissions.count()

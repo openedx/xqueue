@@ -11,10 +11,6 @@ edx-django-utils
 gunicorn
 isort
 newrelic
-path.py==11.0.1
+path
 python-memcached
-python-termstyle==0.1.10
-pytz
 requests
-# Pin pip to 18.1 since newer versions break tox and prevent merging
-pip==18.1

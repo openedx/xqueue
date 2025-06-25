@@ -6,8 +6,8 @@ django-admin.py schemamigration submission_queue [migration_name] --auto --setti
 """
 import json
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -73,7 +73,7 @@ class SubmissionManager(models.Manager):
         if time_field not in ['push_time', 'pull_time']:
             raise ValueError(f'time_field must be pull_time or push_time not ({time_field})')
 
-        previous_update = datetime.now(pytz.utc) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY)
+        previous_update = datetime.now(ZoneInfo("UTC")) - timedelta(minutes=settings.SUBMISSION_PROCESSING_DELAY)
         if time_field == "push_time":
             time_filter = Q(push_time__lte=(previous_update)) | Q(push_time__isnull=True)
         elif time_field == "pull_time":
@@ -90,9 +90,7 @@ class Submission(models.Model):
     class Meta:
         # Once we get to Django 1.11 use indexes, it would have allowed a better index name
         # https://docs.djangoproject.com/en/1.11/ref/models/options/#django.db.models.Options.indexes
-        index_together = [('queue_name', 'retired', 'push_time', 'arrival_time'),
-                          ('queue_name', 'retired', 'pull_time', 'arrival_time'),
-                          ('lms_callback_url', 'retired')]
+        indexes = [models.Index(fields=("queue_name", "retired", "push_time", "arrival_time")), models.Index(fields=("queue_name", "retired", "pull_time", "arrival_time")), models.Index(fields=("lms_callback_url", "retired"))]
         db_table = 'queue_submission'
 
     # Submission
