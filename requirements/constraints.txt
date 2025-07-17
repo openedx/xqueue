@@ -10,5 +10,3 @@
 
 # Common constraints for edx repos
 -c common_constraints.txt
-
-backports-zoneinfo==0.2.1; python_version < '3.9'
