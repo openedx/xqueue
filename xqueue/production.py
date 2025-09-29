@@ -19,6 +19,15 @@ def get_env_setting(setting):
         raise ImproperlyConfigured(error_msg)
 
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 # Keep track of the names of settings that represent dicts. Instead of overriding the values in settings.py,
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ()
@@ -34,6 +43,17 @@ with codecs.open(CONFIG_FILE, encoding='utf-8') as f:
     for key, value in dict_updates.items():
         if value:
             vars()[key].update(value)
+
+    # Fallback for DEFAULT_FILE_STORAGE and STATICFILES_STORAGE settings.
+    # If these keys are present in the YAML config, use them to override the default storage backends.
+    default_backend = config_from_yaml.pop('DEFAULT_FILE_STORAGE', None)
+    static_backend = config_from_yaml.pop('STATICFILES_STORAGE', None)
+
+    if default_backend:
+        STORAGES['default']['BACKEND'] = default_backend
+
+    if static_backend:
+        STORAGES['staticfiles']['BACKEND'] = static_backend
 
     vars().update(config_from_yaml)
 
