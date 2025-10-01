@@ -8,14 +8,5 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ""
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-
-  xqueue:
-    container_name: xqueue
-    image: edxops/xqueue-dev:latest
-    command: tail -f /dev/null
-    volumes:
-      - ..:/edx/app/xqueue/xqueue
-    depends_on:
-      - mysql80
-    environment:
-      RABBIT_HOST: "rabbit"
+    ports:
+      - "3306:3306"

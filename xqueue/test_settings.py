@@ -17,11 +17,11 @@ LOGGING = get_logger_config(log_dir,
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'USER': os.environ.get('DB_USER', ''),
+        'USER': os.environ.get('DB_USER', 'root'),
         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
         # pytest/django TestCase instances auto-prefix test_ onto the NAME
         'NAME': 'xqueue',
-        'HOST': os.environ.get('DB_HOST', 'edx.devstack.mysql80'),
+        'HOST': '127.0.0.1',
         # Wrap all view methods in an atomic transaction automatically.
         'ATOMIC_REQUESTS': True
     }
