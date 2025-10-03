@@ -10,3 +10,10 @@
 
 # Common constraints for edx repos
 -c common_constraints.txt
+
+# Upgrade to django 5.2
+Django<5.3
+
+# Breaking changes in newrelic 11.0.0
+# https://docs.newrelic.com/docs/release-notes/agent-release-notes/python-release-notes/python-agent-110000/
+newrelic>=10.17.0,<11
