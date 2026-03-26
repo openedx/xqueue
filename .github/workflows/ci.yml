@@ -16,7 +16,7 @@ jobs:
         python-version:
         - "3.11"
         - "3.12"
-        env-name: ['django42','django52', 'quality']
+        env-name: ['django52', 'quality']
         db-version: ['mysql80']
 
     steps:
