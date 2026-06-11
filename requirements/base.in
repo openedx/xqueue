@@ -7,7 +7,7 @@ boto3
 Django
 django-storages
 edx-django-release-util
-edx-django-utils
+edx-django-utils>=8.0.1
 gunicorn
 isort
 newrelic
