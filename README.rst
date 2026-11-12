@@ -1,9 +1,11 @@
-⛔️ WARNING
-==========
+⛔️ ARCHIVED
+===========
 
-This repository is under-maintained. We are not fixing bugs or developing new features for it. We will officially deprecate it in April of 2026. For updates, `follow along on the DEPR ticket <https://github.com/openedx/public-engineering/issues/286>`_.
+This repository has been deprecated and archived. It is no longer maintained, and the XQueue service is not part of Open edX releases from Willow onward. For the full details and migration instructions, see `the XQueue DEPR ticket <https://github.com/openedx/public-engineering/issues/286>`_.
 
-Although we have stopped integrating new contributions, we always appreciate security disclosures and patches sent to security@openedx.org
+XQueue was retired because, as a standalone service, it added a lot of operational complexity for the capability that it provided. Features that it originally offered, such as push grading, had fallen out of use because they were prone to operational issues. In practice, XQueue had become little more than a holding area for learner submissions, waiting for `xqueue-watcher <https://github.com/openedx/xqueue-watcher>`_ to poll for them.
+
+External grading itself is still supported. Instead of being sent to a separate service, submissions are now queued by `edx-submissions <https://github.com/openedx/edx-submissions>`_, which runs in-process in the LMS, and the LMS implements the same REST API that XQueue used to expose to graders. Authored problems work as they always have, and xqueue-watcher is still maintained and needs no code changes; operators only need to reconfigure it to point at the LMS instead of at an XQueue server.
 
 xqueue
 ======
